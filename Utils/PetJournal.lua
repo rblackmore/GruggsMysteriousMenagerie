@@ -7,7 +7,7 @@ addOn.PetJournal = {}
 -- see: https://warcraft.wiki.gg/wiki/API_C_PetJournal.GetPetInfoByIndex
 function addOn.PetJournal:CompanionIterator()
   local iterator = 0
-  local numPets, _ = C_PetJournal.GetNumPets();
+  local numPets, numOwned = C_PetJournal.GetNumPets();
   -- Clear Filters, if We dont' do this, we may not find any pets in the filter
   C_PetJournal.ClearSearchFilter()
 

@@ -19,7 +19,7 @@ local defaults = {
         ["RESTING"] = true,
         ["PetOfTheDay"] =
         {
-          Enabled = true,
+          Enabled = false,
           Date = {
             ["year"] = 2004,
             ["month"] = 11,
@@ -43,23 +43,35 @@ function companionModule:LoadDatabase()
   self.db = LibStub("AceDB-3.0"):New("GMM_CompanionDB", self:GetDefaultDBValues(), true)
 end
 
+local function isNilOrEmpty(db, location)
+  if db["profile"]["Companions"][location] ~= nil and #db["profile"]["Companions"][location] > 0 then
+    return true
+  end
+  return false
+end
+local function shallowCopy(t)
+  local t2 = {}
+  for k, v in pairs(t) do
+    t2[k] = v
+  end
+  return t2
+end
 function companionModule:GetCurrentZoneCompanionList()
   local location = GetZoneText()
-  if self.db["profile"]["Companions"][location] ~= nil and #self.db["profile"]["Companions"][location] > 0 then
-    return self.db["profile"]["Companions"][location]
+  if isNilOrEmpty(self.db, location) then
+    return shallowCopy(self.db["profile"]["Companions"][location])
   end
 
   location = addOn.GetCurrentZoneType()
 
-  if self.db["profile"]["Companions"][location] ~= nil and #self.db["profile"]["Companions"][location] > 0 then
-    return self.db["profile"]["Companions"][location]
+  if isNilOrEmpty(self.db, location) then
+    return shallowCopy(self.db["profile"]["Companions"][location])
   end
 
-  return self.db["profile"]["Companions"]["FavoritePets"]
+  return shallowCopy(self.db["profile"]["Companions"]["FavoritePets"])
 end
 
 function companionModule:AddCompanionToZone(zone, petID, petTable)
-  self:Printf("Adding %s to %s", petID, zone)
   if not self.db["profile"]["Companions"][zone] then
     self.db["profile"]["Companions"][zone] = {} -- Create New Table for Zone if Not exist.
   end
@@ -75,4 +87,8 @@ end
 
 function companionModule:Zone_Contains(zone, petID)
   return self.db["profile"]["Companions"][zone][petID] ~= nil
+end
+
+function companionModule:GetDatabaseSettings()
+  return self.db["profile"].Settings
 end

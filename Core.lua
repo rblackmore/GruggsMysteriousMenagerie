@@ -30,9 +30,7 @@ function addOn:SlashCommand(args)
 end
 
 function addOn:OnEnable()
-  self:Print("Enabling GMM Modules")
   for name, module in self:IterateModules() do
-    self:Print("Enabling ", name)
     module:Enable()
   end
 end

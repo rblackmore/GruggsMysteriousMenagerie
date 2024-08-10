@@ -18,11 +18,13 @@ function module:OnDisable()
   end
 end
 
+-- Initializes Database with List of Favorite Pets.
+-- Also stores data in memory about all owned Pets.
 function module:InitializePetData()
-  -- Loop over all Pet Ids, if they are set as favorite, add the Id to list.
   if module.db.OwnedPetData == nil then
     module.db.OwnedPetData = {}
   end
+
   for petID, _, owned, customName, _, isFav, _, name in addOn.PetJournal:CompanionIterator() do
     if isFav then
       self:AddCompanionToZone("FavoritePets", petID, addOn.PetJournal:GetSimplePetTable(petID))
@@ -33,6 +35,43 @@ function module:InitializePetData()
   end
 end
 
+function module:SummonCompanion(announce)
+  local settings = self:GetDatabaseSettings()
+  local summonedPet
+
+  if settings["Automation"]["PetOfTheDay"].Enabled then
+    summonedPet = self:SummonPetofTheDay()
+  else
+    summonedPet = self:SummonRandom()
+  end
+
+  if not announce then
+    return
+  end
+
+  self:AnnounceSummon(summonedPet)
+end
+
+function module:SummonRandom()
+  local randoPet = self:PickRandomPet()
+
+  C_PetJournal.SummonPetByGUID(randoPet.petID)
+
+  return randoPet
+end
+
+function module:PickRandomPet()
+  local eligablePets = self:GetEligableSummons()
+  local petIDs = {}
+  local i = 0
+  for k, v in pairs(eligablePets) do
+    i = i + 1
+    petIDs[i] = v
+  end
+  local pet = petIDs[math.random(#petIDs)]
+  return pet
+end
+
 --[[
   Gets Eligable Summons.
   Filters out currently summoned pet from current zone pets.
@@ -41,32 +80,12 @@ end
 function module:GetEligableSummons()
   local currentZoneCompanions = self:GetCurrentZoneCompanionList()
 
-  local inverted = {}
-  for k, v in ipairs(currentZoneCompanions) do
-    inverted[v] = k
-  end
-
   local summonedId = C_PetJournal.GetSummonedPetGUID()
-  inverted[summonedId] = nil
-
-  return inverted
-end
-
-function module:SummonCompanion(announce)
-  local settings = self.db["profile"].Settings
-  local summonedId
-
-  if settings["PetOfTheDay"].Enabled then
-    summonedId = self:SummonPetofTheDay()
-  else
-    summonedId = self:SummonRandomCompanion()
+  if summonedId then
+    currentZoneCompanions[summonedId] = nil
   end
 
-  if not announce then
-    return
-  end
-
-  self:AnnounceSummon(summonedId)
+  return currentZoneCompanions
 end
 
 function module:SummonPetofTheDay()
@@ -97,31 +116,14 @@ function module:SummonPetofTheDay()
   return petId
 end
 
-function module:PickRandomPetId()
-  local eligablePets = self:GetEligableSummons()
-
-  local randoPetId = eligablePets[math.random(#eligablePets)]
-
-  return randoPetId
-end
-
-function module:SummonRandomCompanion()
-  local randoPetId = self:PickRandomPetId()
-
-  C_PetJournal.SummonPetByGUID(randoPetId)
-
-  return randoPetId
-end
-
 -- TODO: Maybe update this to work if settings are not restricted. see: https://x.com/deadlybossmods/status/1176
-function module:AnnounceSummon(petId)
-  local _, customName, _, _, _, _, _, name = C_PetJournal.GetPetInfoByPetID(petId)
+function module:AnnounceSummon(pet)
+  local dbSettings = self:GetDatabaseSettings()
 
-  local useCustomName = self.db["profile"].Settings["UseCustomName"]
-  local name = useCustomName and customName or name
+  local name = dbSettings["UseCustomName"] and pet.customName or pet.name
 
-  local msgFormat = companionModule.db["profile"].Settings["MessageFormat"]
-  local channel = Options.db["profile"]["Channel"]
+  local msgFormat = dbSettings["MessageFormat"]
+  local channel = dbSettings["Channel"]
 
   SendChatMessage(format(msgFormat, name), channel)
 end
