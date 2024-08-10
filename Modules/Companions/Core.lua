@@ -1,6 +1,6 @@
 local addonName, addonTable = ...
 local addOn = addonTable.addOn
-local module = addOn:NewModule("CompanionModule")
+local module = addOn:NewModule("CompanionModule", "AceTimer-3.0")
 function module:OnInitialize()
   self:LoadDatabase()
 end
@@ -10,6 +10,7 @@ function module:OnEnable()
     module:Enable()
   end
   self:InitializePetData()
+  self:InitializeAutomation()
 end
 
 function module:OnDisable()
@@ -60,34 +61,6 @@ function module:SummonRandom()
   return randoPet
 end
 
-function module:PickRandomPet()
-  local eligablePets = self:GetEligableSummons()
-  local petIDs = {}
-  local i = 0
-  for k, v in pairs(eligablePets) do
-    i = i + 1
-    petIDs[i] = v
-  end
-  local pet = petIDs[math.random(#petIDs)]
-  return pet
-end
-
---[[
-  Gets Eligable Summons.
-  Filters out currently summoned pet from current zone pets.
-  More Filters to come, based on class, race, faction etc.
-  --]]
-function module:GetEligableSummons()
-  local currentZoneCompanions = self:GetCurrentZoneCompanionList()
-
-  local summonedId = C_PetJournal.GetSummonedPetGUID()
-  if summonedId then
-    currentZoneCompanions[summonedId] = nil
-  end
-
-  return currentZoneCompanions
-end
-
 function module:SummonPetofTheDay()
   local settings = self.db["profile"].Settings
   local petId
@@ -126,4 +99,32 @@ function module:AnnounceSummon(pet)
   local channel = dbSettings["Channel"]
 
   SendChatMessage(format(msgFormat, name), channel)
+end
+
+function module:PickRandomPet()
+  local eligablePets = self:GetEligableSummons()
+  local petIDs = {}
+  local i = 0
+  for k, v in pairs(eligablePets) do
+    i = i + 1
+    petIDs[i] = v
+  end
+  local pet = petIDs[math.random(#petIDs)]
+  return pet
+end
+
+--[[
+  Gets Eligable Summons.
+  Filters out currently summoned pet from current zone pets.
+  More Filters to come, based on class, race, faction etc.
+  --]]
+function module:GetEligableSummons()
+  local currentZoneCompanions = self:GetCurrentZoneCompanionList()
+
+  local summonedId = C_PetJournal.GetSummonedPetGUID()
+  if summonedId then
+    currentZoneCompanions[summonedId] = nil
+  end
+
+  return currentZoneCompanions
 end

@@ -17,6 +17,7 @@ function addOn:OnInitialize()
   addOn:RegisterChatCommand("gmm", "SlashCommand")
   addOn:RegisterChatCommand("gmsummon", function()
     local module = addOn:GetModule("CompanionModule");
+    ---@diagnostic disable-next-line: undefined-field
     module:SummonCompanion(true)
   end)
 end

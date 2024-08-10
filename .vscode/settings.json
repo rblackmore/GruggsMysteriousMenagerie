@@ -70,7 +70,7 @@
     "utf8": "disable"
   },
   "Lua.workspace.library": [
-    "$USERPROFILE\\.vscode\\extensions\\ketho.wow-api-0.15.8\\Annotations"
+    "~\\.vscode\\extensions\\ketho.wow-api-0.16.4\\Annotations"
   ],
   "Lua.diagnostics.disable": [
     "duplicate-set-field"
