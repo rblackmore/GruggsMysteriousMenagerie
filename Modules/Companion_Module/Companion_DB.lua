@@ -35,21 +35,12 @@ local defaults = {
   }
 }
 
-function companionModule:Zone_Contains(id, zone)
-  for i, v in ipairs(self.db["profile"]["Companions"][zone]) do
-    if v == id then
-      return true
-    end
-  end
-  return false
-end
-
-function companionModule:GetDefaultDbValues()
+function companionModule:GetDefaultDBValues()
   return defaults
 end
 
 function companionModule:LoadDatabase()
-  self.db = LibStub("AceDB-3.0"):New("GMM_CompanionDB", self:GetDefaultDbValues(), true)
+  self.db = LibStub("AceDB-3.0"):New("GMM_CompanionDB", self:GetDefaultDBValues(), true)
 end
 
 function companionModule:GetCurrentZoneCompanionList()
@@ -67,20 +58,21 @@ function companionModule:GetCurrentZoneCompanionList()
   return self.db["profile"]["Companions"]["FavoritePets"]
 end
 
-function companionModule:AddCompanionToZone(id, zone)
+function companionModule:AddCompanionToZone(zone, petID, petTable)
+  self:Printf("Adding %s to %s", petID, zone)
   if not self.db["profile"]["Companions"][zone] then
     self.db["profile"]["Companions"][zone] = {} -- Create New Table for Zone if Not exist.
   end
-  if not self:Zone_Contains(id, zone) then
-    self.db["profile"]["Companions"][zone][#self.db["profile"]["Companions"][zone] + 1] = id
-  end
+  self.db["profile"]["Companions"][zone][petID] = petTable
 end
 
-function companionModule:RemoveCompanionFromZone(id, zone)
+function companionModule:RemoveCompanionFromZone(zone, petID)
   if not self.db["profile"]["Companions"][zone] then
     return
   end
-  if self:Zone_Contains(id, zone) then
-    self.db["profile"]["Companions"][zone][i] = nil
-  end
+  self.db["profile"]["Companions"][zone][petID] = nil
+end
+
+function companionModule:Zone_Contains(zone, petID)
+  return self.db["profile"]["Companions"][zone][petID] ~= nil
 end

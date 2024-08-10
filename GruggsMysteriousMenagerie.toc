@@ -9,13 +9,14 @@
 Libs.xml
 
 Core.lua
-DB.lu
 
 # Utils
 Utils\Helpers.lua
+Utils\PetJournal.lua
+
 
 # Options
-GlobalOptions.lua
+# Options\GlobalOptions.lua
 
 # Modules
 Modules.xml

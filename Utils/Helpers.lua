@@ -1,5 +1,7 @@
 local _, addonTable = ...
 local addOn = addonTable.addOn
+addonTable.Constructors = {}
+local ctors = addonTable.Constructors
 
 local function convertInstanceTypeToZoneType(instanceType)
   local instanceTypes = {

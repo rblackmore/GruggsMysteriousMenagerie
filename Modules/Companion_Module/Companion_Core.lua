@@ -1,50 +1,36 @@
 local addonName, addonTable = ...
 local addOn = addonTable.addOn
-local companionModule = addOn:NewModule("CompanionModule")
-
-function companionModule:OnInitialize()
+local module = addOn:NewModule("CompanionModule")
+function module:OnInitialize()
   self:LoadDatabase()
 end
 
-function companionModule:OnEnable()
+function module:OnEnable()
   for name, module in self:IterateModules() do
     module:Enable()
   end
-  self:CatalogCompanions()
+  self:InitializePetData()
 end
 
-function companionModule:OnDisable()
+function module:OnDisable()
   for name, module in self:IterateModules() do
     module:Disable()
   end
 end
 
-function companionModule:CatalogCompanions()
-  -- Clear Filters, if We dont' do this, we may not find any pets in the filter
-  C_PetJournal.ClearSearchFilter()
-
-  if not C_PetJournal.IsUsingDefaultFilters() then
-    C_PetJournal.SetDefaultFilters()
-  end
-
-  local ownedCompanionData = {}
+function module:InitializePetData()
   -- Loop over all Pet Ids, if they are set as favorite, add the Id to list.
-  for petId, _, owned, customName, _, isFav, _, name in addonTable.CompanionData:CompanionIterator() do
+  if module.db.OwnedPetData == nil then
+    module.db.OwnedPetData = {}
+  end
+  for petID, _, owned, customName, _, isFav, _, name in addOn.PetJournal:CompanionIterator() do
     if isFav then
-      self:AddCompanionToZone(petId, "FavoritePets")
+      self:AddCompanionToZone("FavoritePets", petID, addOn.PetJournal:GetSimplePetTable(petID))
     end
     if owned then
-      ownedCompanionData[#ownedCompanionData + 1] = {
-        petID = petId,
-        owned = owned,
-        customName = customName,
-        favorite = isFav,
-        name = name
-      }
+      self.db.OwnedPetData[petID] = addOn.PetJournal:GetSimplePetTable(petID)
     end
   end
-
-  addonTable.CompanionData.Owned = ownedCompanionData
 end
 
 --[[
@@ -52,7 +38,7 @@ end
   Filters out currently summoned pet from current zone pets.
   More Filters to come, based on class, race, faction etc.
   --]]
-function companionModule:GetEligableSummons()
+function module:GetEligableSummons()
   local currentZoneCompanions = self:GetCurrentZoneCompanionList()
 
   local inverted = {}
@@ -66,7 +52,7 @@ function companionModule:GetEligableSummons()
   return inverted
 end
 
-function companionModule:SummonCompanion(announce)
+function module:SummonCompanion(announce)
   local settings = self.db["profile"].Settings
   local summonedId
 
@@ -83,7 +69,7 @@ function companionModule:SummonCompanion(announce)
   self:AnnounceSummon(summonedId)
 end
 
-function companionModule:SummonPetofTheDay()
+function module:SummonPetofTheDay()
   local settings = self.db["profile"].Settings
   local petId
 
@@ -111,7 +97,7 @@ function companionModule:SummonPetofTheDay()
   return petId
 end
 
-function companionModule:PickRandomPetId()
+function module:PickRandomPetId()
   local eligablePets = self:GetEligableSummons()
 
   local randoPetId = eligablePets[math.random(#eligablePets)]
@@ -119,7 +105,7 @@ function companionModule:PickRandomPetId()
   return randoPetId
 end
 
-function companionModule:SummonRandomCompanion()
+function module:SummonRandomCompanion()
   local randoPetId = self:PickRandomPetId()
 
   C_PetJournal.SummonPetByGUID(randoPetId)
@@ -128,7 +114,7 @@ function companionModule:SummonRandomCompanion()
 end
 
 -- TODO: Maybe update this to work if settings are not restricted. see: https://x.com/deadlybossmods/status/1176
-function companionModule:AnnounceSummon(petId)
+function module:AnnounceSummon(petId)
   local _, customName, _, _, _, _, _, name = C_PetJournal.GetPetInfoByPetID(petId)
 
   local useCustomName = self.db["profile"].Settings["UseCustomName"]
@@ -139,19 +125,3 @@ function companionModule:AnnounceSummon(petId)
 
   SendChatMessage(format(msgFormat, name), channel)
 end
-
--- function PetModule:GetValue(info)
---   if info.arg then
---     return self.db["profile"].Settings[info.arg][info[#info]]
---   else
---     return self.db["profile"].Settings[info[#info]]
---   end
--- end
-
--- function PetModule:SetValue(info, value)
---   if info.arg then
---     self.db["profile"].Settings[info.arg][info[#info]] = value
---   else
---     self.db["profile"].Settings[info[#info]] = value
---   end
--- end
