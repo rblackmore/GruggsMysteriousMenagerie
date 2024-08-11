@@ -6,28 +6,16 @@ _G["GMM"] = addOn
 addOn:SetDefaultModuleState(false)
 addOn:SetDefaultModuleLibraries("AceEvent-3.0", "AceConsole-3.0")
 
-local AceConfig = LibStub("AceConfig-3.0")
-local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-
 function addOn:OnInitialize()
-  -- Setup Options
-  -- Get OptionsTable, then Register With AceConfig -- Repeat for Each Options Set
+  self:Print("Initialize Core Addon")
+  self:InitializeDatabase()
 
-
-  addOn:RegisterChatCommand("gmm", "SlashCommand")
-  addOn:RegisterChatCommand("gmsummon", function()
+  self:RegisterChatCommand("gmm", "SlashCommand")
+  self:RegisterChatCommand("gmsummon", function()
     local module = addOn:GetModule("CompanionModule");
-    ---@diagnostic disable-next-line: undefined-field
     module:SummonCompanion(true)
   end)
-end
-
-function addOn:SlashCommand(args)
-  if InCombatLockdown() then
-    return
-  end
-
-  -- Open Config
+  -- self:ConfigureOptionsProfiles()
 end
 
 function addOn:OnEnable()
@@ -40,4 +28,12 @@ function addOn:OnDisable()
   for name, module in self:IterateModules() do
     module:Disable()
   end
+end
+
+function addOn:SlashCommand(args)
+  if InCombatLockdown() then
+    return
+  end
+
+  -- Open Config
 end

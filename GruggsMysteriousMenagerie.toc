@@ -3,12 +3,13 @@
 ## Notes: Calls forth some help from one of your trusty Companions and Mounts(WIP)
 ## Author: Grugg
 ## Version: 0.0.7
-## SavedVariables: GMM_DB, GMM_CompanionDB
+## SavedVariables: GMM_DB
 ## OptionalDeps: Ace3
 
 Libs.xml
 
 Core.lua
+DB.lua
 
 # Utils
 Utils\Helpers.lua
@@ -16,7 +17,7 @@ Utils\PetJournal.lua
 
 
 # Options
-# Options\GlobalOptions.lua
+# Options\AceProfileOptions.lua
 
 # Modules
 Modules.xml

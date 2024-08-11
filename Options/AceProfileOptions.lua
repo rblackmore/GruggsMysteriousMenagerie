@@ -1,52 +1,28 @@
 ---@diagnostic disable: duplicate-set-field
----@class AceAddon
-local addOn = LibStub("AceAddon-3.0"):GetAddon("PetSummoner")
----@class AceModule
-local Options = addOn:GetModule("Options")
+local addonName, addonTable = ...
+local addOn = addonTable.addOn
 
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
-function Options:GetDefaultDatabase()
-  local defaults = {
-    ["profile"] = {
-    }
-  }
-  return defaults
-end
-
-local globalOptions =
-{
-}
-
-function Options:GetOptionsTable()
-  local options = {
-    name = "Pet Summoner",
-    handler = Options,
-    type = "group",
-    args = globalOptions
-  }
-  return options
-end
-
-function Options:OnInitialize()
+function addOn:InitializeOptions()
   self.db = LibStub("AceDB-3.0"):New("PetSummonerDB", Options:GetDefaultDatabase(), true)
   self:ConfigureGlobalOptions()
   self:ConfigureOptionsProfiles()
 end
 
-function Options:ConfigureGlobalOptions()
+function addOn:ConfigureGlobalOptions()
   AceConfig:RegisterOptionsTable("PetSummoner", self:GetOptionsTable(), "psconfig")
   local configFrame, configId = AceConfigDialog:AddToBlizOptions("PetSummoner", "Pet Summoner")
 
-  self.GlobalSettingsDialog =
+  self["OptionsFrame"] =
   {
     ["Frame"] = configFrame,
     ["Id"] = configId
   }
 end
 
-function Options:ConfigureOptionsProfiles()
+function addOn:ConfigureOptionsProfiles()
   local profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
 
   AceConfig:RegisterOptionsTable("PetSummoner_Profiles", profileOptions, "psprofile")
@@ -60,18 +36,18 @@ function Options:ConfigureOptionsProfiles()
   }
 end
 
-function Options:GetValue(info)
-  if info.arg then
-    return self.db.profile[info.arg][info[#info]]
-  else
-    return self.db.profile[info[#info]]
-  end
-end
+-- function addOn:GetValue(info)
+--   if info.arg then
+--     return self.db.profile[info.arg][info[#info]]
+--   else
+--     return self.db.profile[info[#info]]
+--   end
+-- end
 
-function Options:GetValue(info, value)
-  if info.arg then
-    self.db.profile[info.arg][info[#info]] = value
-  else
-    self.db.profile[info[#info]] = value
-  end
-end
+-- function addOn:GetValue(info, value)
+--   if info.arg then
+--     self.db.profile[info.arg][info[#info]] = value
+--   else
+--     self.db.profile[info[#info]] = value
+--   end
+-- end

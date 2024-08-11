@@ -2,18 +2,22 @@ local addonName, addonTable = ...
 local addOn = addonTable.addOn
 local module = addOn:NewModule("CompanionModule", "AceTimer-3.0")
 function module:OnInitialize()
-  self:LoadDatabase()
+  self:Print("Initilize Companion Module")
 end
 
 function module:OnEnable()
-  for name, module in self:IterateModules() do
-    module:Enable()
+  self:Print("Enable Companion Module")
+  self.CompanionDB = addOn.db["profile"]["Companions"]
+  for name, mod in self:IterateModules() do
+    mod:Enable()
   end
-  self:InitializePetData()
+  self:InitializeOptions()
   self:InitializeAutomation()
+  self:InitializeCompanionDB()
 end
 
 function module:OnDisable()
+  self:Print("Disable Companion Module")
   for name, module in self:IterateModules() do
     module:Disable()
   end
@@ -21,23 +25,9 @@ end
 
 -- Initializes Database with List of Favorite Pets.
 -- Also stores data in memory about all owned Pets.
-function module:InitializePetData()
-  if module.db.OwnedPetData == nil then
-    module.db.OwnedPetData = {}
-  end
-
-  for petID, _, owned, customName, _, isFav, _, name in addOn.PetJournal:CompanionIterator() do
-    if isFav then
-      self:AddCompanionToZone("FavoritePets", petID, addOn.PetJournal:GetSimplePetTable(petID))
-    end
-    if owned then
-      self.db.OwnedPetData[petID] = addOn.PetJournal:GetSimplePetTable(petID)
-    end
-  end
-end
 
 function module:SummonCompanion(announce)
-  local settings = self:GetDatabaseSettings()
+  local settings = self.Settings
   local summonedPet
 
   if settings["Automation"]["PetOfTheDay"].Enabled then
@@ -62,7 +52,7 @@ function module:SummonRandom()
 end
 
 function module:SummonPetofTheDay()
-  local settings = self.db["profile"].Settings
+  local settings = self.Settings
   local petId
 
   local summonedDate = settings["PetOfTheDay"].Date
@@ -91,7 +81,7 @@ end
 
 -- TODO: Maybe update this to work if settings are not restricted. see: https://x.com/deadlybossmods/status/1176
 function module:AnnounceSummon(pet)
-  local dbSettings = self:GetDatabaseSettings()
+  local dbSettings = self.Settings
 
   local name = dbSettings["UseCustomName"] and pet.customName or pet.name
 

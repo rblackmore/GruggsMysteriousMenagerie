@@ -1,54 +1,16 @@
 local addonName, addonTable = ...
 local addOn = addonTable.addOn
-local companionModule = addOn:GetModule("CompanionModule")
-
-local defaults = {
-  ["profile"] = {
-    ["Settings"] = {
-      ["MessageFormat"] = "Help me %s you're my only hope!!!",
-      ["Channel"] = "SAY",
-      ["UseCustomName"] = true,
-      ["Automation"] = {
-        ["delay"] = 2,
-        ["GLOBAL"] = true,
-        ["SCENARIO"] = true,
-        ["RAID"] = true,
-        ["DUNGEON"] = true,
-        ["ARENA"] = true,
-        ["BATTLEGROUND"] = true,
-        ["RESTING"] = true,
-        ["PetOfTheDay"] =
-        {
-          Enabled = false,
-          Date = {
-            ["year"] = 2004,
-            ["month"] = 11,
-            ["day"] = 23,
-          },
-          PetId = nil,
-        },
-      }
-    },
-    ["Companions"] = {
-      ["FavoritePets"] = {},
-    }
-  }
-}
-
-function companionModule:GetDefaultDBValues()
-  return defaults
-end
-
-function companionModule:LoadDatabase()
-  self.db = LibStub("AceDB-3.0"):New("GMM_CompanionDB", self:GetDefaultDBValues(), true)
-end
+local module = addOn:GetModule("CompanionModule")
+local DB = addOn.db
+local CompanionsDB = DB["profile"]["Companions"]
 
 local function isNilOrEmpty(db, location)
-  if db["profile"]["Companions"][location] ~= nil and #db["profile"]["Companions"][location] > 0 then
+  if db[location] ~= nil and #db[location] > 0 then
     return true
   end
   return false
 end
+
 local function shallowCopy(t)
   local t2 = {}
   for k, v in pairs(t) do
@@ -56,39 +18,53 @@ local function shallowCopy(t)
   end
   return t2
 end
-function companionModule:GetCurrentZoneCompanionList()
+
+function module:InitializeCompanionDB()
+  module.Settings = self.CompanionDB["Settings"]
+  if self.CompanionDB.OwnedPetData == nil then
+    self.CompanionDB.OwnedPetData = {}
+  end
+
+  for petID, _, owned, customName, _, isFav, _, name in addOn.PetJournal:CompanionIterator() do
+    if isFav then
+      self:AddCompanionToZone("FavoritePets", petID, addOn.PetJournal:GetSimplePetTable(petID))
+    end
+    if owned then
+      self.CompanionDB.OwnedPetData[petID] = addOn.PetJournal:GetSimplePetTable(petID)
+    end
+  end
+end
+
+function module:GetCurrentZoneCompanionList()
   local location = GetZoneText()
-  if isNilOrEmpty(self.db, location) then
-    return shallowCopy(self.db["profile"]["Companions"][location])
+
+  if isNilOrEmpty(DB, location) then
+    return shallowCopy(CompanionsDB[location])
   end
 
   location = addOn.GetCurrentZoneType()
 
-  if isNilOrEmpty(self.db, location) then
-    return shallowCopy(self.db["profile"]["Companions"][location])
+  if isNilOrEmpty(DB, location) then
+    return shallowCopy(CompanionsDB[location])
   end
 
-  return shallowCopy(self.db["profile"]["Companions"]["FavoritePets"])
+  return shallowCopy(CompanionsDB["FavoritePets"])
 end
 
-function companionModule:AddCompanionToZone(zone, petID, petTable)
-  if not self.db["profile"]["Companions"][zone] then
-    self.db["profile"]["Companions"][zone] = {} -- Create New Table for Zone if Not exist.
+function module:AddCompanionToZone(zone, petID, petTable)
+  if not CompanionsDB[zone] then
+    CompanionsDB[zone] = {} -- Create New Table for Zone if Not exist.
   end
-  self.db["profile"]["Companions"][zone][petID] = petTable
+  CompanionsDB[zone][petID] = petTable
 end
 
-function companionModule:RemoveCompanionFromZone(zone, petID)
-  if not self.db["profile"]["Companions"][zone] then
+function module:RemoveCompanionFromZone(zone, petID)
+  if not CompanionsDB[zone] then
     return
   end
-  self.db["profile"]["Companions"][zone][petID] = nil
+  CompanionsDB[zone][petID] = nil
 end
 
-function companionModule:Zone_Contains(zone, petID)
-  return self.db["profile"]["Companions"][zone][petID] ~= nil
-end
-
-function companionModule:GetDatabaseSettings()
-  return self.db["profile"].Settings
+function module:Zone_Contains(zone, petID)
+  return CompanionsDB[zone][petID] ~= nil
 end
