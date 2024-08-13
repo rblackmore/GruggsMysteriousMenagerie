@@ -2,22 +2,18 @@ local addonName, addonTable = ...
 local addOn = addonTable.addOn
 local module = addOn:NewModule("CompanionModule", "AceTimer-3.0")
 function module:OnInitialize()
-  self:Print("Initilize Companion Module")
-end
-
-function module:OnEnable()
-  self:Print("Enable Companion Module")
-  self.CompanionDB = addOn.db["profile"]["Companions"]
-  for name, mod in self:IterateModules() do
-    mod:Enable()
-  end
   self:InitializeOptions()
   self:InitializeAutomation()
   self:InitializeCompanionDB()
 end
 
+function module:OnEnable()
+  for name, mod in self:IterateModules() do
+    mod:Enable()
+  end
+end
+
 function module:OnDisable()
-  self:Print("Disable Companion Module")
   for name, module in self:IterateModules() do
     module:Disable()
   end
@@ -25,7 +21,6 @@ end
 
 -- Initializes Database with List of Favorite Pets.
 -- Also stores data in memory about all owned Pets.
-
 function module:SummonCompanion(announce)
   local settings = self.Settings
   local summonedPet

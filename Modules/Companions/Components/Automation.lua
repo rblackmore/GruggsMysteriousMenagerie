@@ -46,7 +46,7 @@ function module:AutomationHandler()
   if C_PetJournal.GetSummonedPetGUID() then -- don't summon if pet already summoned
     return
   end
-  local settings = module:GetDatabaseSettings()
+  local settings = module.Settings
   self:ScheduleTimer(function()
     local zoneType = addOn:GetCurrentZoneType()
     if settings["Automation"][zoneType] then

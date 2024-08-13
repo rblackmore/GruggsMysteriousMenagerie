@@ -1,8 +1,6 @@
 local addonName, addonTable = ...
 local addOn = addonTable.addOn
 local module = addOn:GetModule("CompanionModule")
-local DB = addOn.db
-local CompanionsDB = DB["profile"]["Companions"]
 
 local function isNilOrEmpty(db, location)
   if db[location] ~= nil and #db[location] > 0 then
@@ -19,52 +17,63 @@ local function shallowCopy(t)
   return t2
 end
 
-function module:InitializeCompanionDB()
-  module.Settings = self.CompanionDB["Settings"]
-  if self.CompanionDB.OwnedPetData == nil then
-    self.CompanionDB.OwnedPetData = {}
-  end
-
+function module:RefreshFavorites()
   for petID, _, owned, customName, _, isFav, _, name in addOn.PetJournal:CompanionIterator() do
     if isFav then
       self:AddCompanionToZone("FavoritePets", petID, addOn.PetJournal:GetSimplePetTable(petID))
     end
+  end
+end
+
+function module:RefreshOwnedPetData()
+  if self.OwnedPetData == nil then
+    self.OwnedPetData = {}
+  end
+  for petID, _, owned, customName, _, isFav, _, name in addOn.PetJournal:CompanionIterator() do
     if owned then
-      self.CompanionDB.OwnedPetData[petID] = addOn.PetJournal:GetSimplePetTable(petID)
+      self.OwnedPetData[petID] = addOn.PetJournal:GetSimplePetTable(petID)
     end
   end
+end
+
+function module:InitializeCompanionDB()
+  self.CompanionDB = addOn.db["profile"]["Companions"]
+  self.Settings = self.CompanionDB["Settings"]
+
+  self:RefreshFavorites()
+  self:RefreshOwnedPetData()
 end
 
 function module:GetCurrentZoneCompanionList()
   local location = GetZoneText()
 
-  if isNilOrEmpty(DB, location) then
-    return shallowCopy(CompanionsDB[location])
+  if isNilOrEmpty(self.CompanionDB, location) then
+    return shallowCopy(self.CompanionDB[location])
   end
 
   location = addOn.GetCurrentZoneType()
 
-  if isNilOrEmpty(DB, location) then
-    return shallowCopy(CompanionsDB[location])
+  if isNilOrEmpty(self.CompanionDB, location) then
+    return shallowCopy(self.CompanionDB[location])
   end
 
-  return shallowCopy(CompanionsDB["FavoritePets"])
+  return shallowCopy(self.CompanionDB["FavoritePets"])
 end
 
 function module:AddCompanionToZone(zone, petID, petTable)
-  if not CompanionsDB[zone] then
-    CompanionsDB[zone] = {} -- Create New Table for Zone if Not exist.
+  if not self.CompanionDB[zone] then
+    self.CompanionDB[zone] = {} -- Create New Table for Zone if Not exist.
   end
-  CompanionsDB[zone][petID] = petTable
+  self.CompanionDB[zone][petID] = petTable
 end
 
 function module:RemoveCompanionFromZone(zone, petID)
-  if not CompanionsDB[zone] then
+  if not self.CompanionDB[zone] then
     return
   end
-  CompanionsDB[zone][petID] = nil
+  self.CompanionDB[zone][petID] = nil
 end
 
 function module:Zone_Contains(zone, petID)
-  return CompanionsDB[zone][petID] ~= nil
+  return self.CompanionDB[zone][petID] ~= nil
 end

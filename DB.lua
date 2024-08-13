@@ -42,4 +42,5 @@ function addOn:InitializeDatabase()
   self:Print("Initializing Core DB")
   self.db = LibStub("AceDB-3.0"):New("GMM_DB", defaults, true)
   addOn.Settings = addOn.db["Settings"]
+  self:Print("Core DB Initialized")
 end
