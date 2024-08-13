@@ -18,6 +18,7 @@ local function shallowCopy(t)
 end
 
 function module:RefreshFavorites()
+  self.CompanionDB["FavoritePets"] = {}
   for petID, _, owned, customName, _, isFav, _, name in addOn.PetJournal:CompanionIterator() do
     if isFav then
       self:AddCompanionToZone("FavoritePets", petID, addOn.PetJournal:GetSimplePetTable(petID))
@@ -26,9 +27,7 @@ function module:RefreshFavorites()
 end
 
 function module:RefreshOwnedPetData()
-  if self.OwnedPetData == nil then
-    self.OwnedPetData = {}
-  end
+  self.OwnedPetData = {}
   for petID, _, owned, customName, _, isFav, _, name in addOn.PetJournal:CompanionIterator() do
     if owned then
       self.OwnedPetData[petID] = addOn.PetJournal:GetSimplePetTable(petID)

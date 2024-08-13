@@ -7,7 +7,6 @@ addOn:SetDefaultModuleState(false)
 addOn:SetDefaultModuleLibraries("AceEvent-3.0", "AceConsole-3.0")
 
 function addOn:OnInitialize()
-  self:Print("Initializing Core Addon")
   self:InitializeDatabase()
 
   self:RegisterChatCommand("gmm", "SlashCommand")
@@ -15,7 +14,6 @@ function addOn:OnInitialize()
     local module = addOn:GetModule("CompanionModule");
     module:SummonCompanion(true)
   end)
-  self:Print("Core Addon Initialized")
   -- self:ConfigureOptionsProfiles()
 end
 
@@ -35,6 +33,5 @@ function addOn:SlashCommand(args)
   if InCombatLockdown() then
     return
   end
-
-  -- Open Config
+  Settings.OpenToCategory(self["CompanionOptionsFrame"]["Id"])
 end

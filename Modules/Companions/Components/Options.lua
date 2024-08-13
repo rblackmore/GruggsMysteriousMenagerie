@@ -43,10 +43,13 @@ local announcementOptions = {
 local companionOptions = {
   ["RefreshFavoritesList"] = {
     type = "execute",
-    name = "Refersh",
-    desc = "Refreshes list of Favorite Pets by Scanning the Pet Journal and adds them to database",
+    name = "Refresh",
+    desc = "Refreshes Favorite Pets and Owned Pets in database. Alternatively, you can reload ui with /reload instead.",
     handler = module,
-    func = "LoadFavoritePets"
+    func = function()
+      module:RefreshFavorites()
+      module:RefreshOwnedPetData()
+    end
   },
   ["EnablePetOfTheDay"] = {
     type = "toggle",

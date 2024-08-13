@@ -19,8 +19,6 @@ function module:OnDisable()
   end
 end
 
--- Initializes Database with List of Favorite Pets.
--- Also stores data in memory about all owned Pets.
 function module:SummonCompanion(announce)
   local settings = self.Settings
   local summonedPet
