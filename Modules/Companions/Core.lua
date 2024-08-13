@@ -21,19 +21,17 @@ end
 
 function module:SummonCompanion(announce)
   local settings = self.Settings
-  local summonedPet
+  local summonedPet, hasSummoned
 
   if settings["Automation"]["PetOfTheDay"].Enabled then
-    summonedPet = self:SummonPetofTheDay()
+    summonedPet, hasSummoned = self:SummonPetOfTheDay()
   else
-    summonedPet = self:SummonRandom()
+    summonedPet, hasSummoned = self:SummonRandom()
   end
 
-  if not announce then
-    return
+  if announce and hasSummoned then
+    self:AnnounceSummon(summonedPet)
   end
-
-  self:AnnounceSummon(summonedPet)
 end
 
 function module:SummonRandom()
@@ -41,35 +39,31 @@ function module:SummonRandom()
 
   C_PetJournal.SummonPetByGUID(randoPet.petID)
 
-  return randoPet
+  return randoPet, true
 end
 
-function module:SummonPetofTheDay()
-  local settings = self.Settings
-  local petId
-
-  local summonedDate = settings["PetOfTheDay"].Date
+function module:SummonPetOfTheDay()
+  local settings = self.Settings["Automation"]["PetOfTheDay"]
+  local summonedDate = settings.Date
   local currentDate = date("*t")
-  -- If Saved Date Is Today, used saved PetId
-  if summonedDate.year == currentDate.year and summonedDate.month == currentDate.month and summonedDate.day == currentDate.day then
-    if not settings["PetOfTheDay"].PetId then
-      settings["PetOfTheDay"].PetId = self:PickRandomPetId()
-    end
-    petId = settings["PetOfTheDay"].PetId
-  else
-    settings["PetOfTheDay"].PetId = self:PickRandomPetId()
-    petId = settings["PetOfTheDay"].PetId
-    settings["PetOfTheDay"].Date = {
+  if not settings.Pet then
+    settings.Pet = self:PickRandomPet()
+  end
+  if summonedDate.year ~= currentDate.year or summonedDate.month ~= currentDate.month or summonedDate.day ~= currentDate.day then
+    settings.Pet = self:PickRandomPet()
+    settings.Date = {
       ["year"] = currentDate.year,
       ["month"] = currentDate.month,
       ["day"] = currentDate.day,
     }
   end
-  if C_PetJournal.GetSummonedPetGUID() ~= petId then
-    C_PetJournal.SummonPetByGUID(petId)
+
+  if C_PetJournal.GetSummonedPetGUID() ~= settings.Pet.petID then
+    C_PetJournal.SummonPetByGUID(settings.Pet.petID)
+    return settings.Pet, true
   end
 
-  return petId
+  return settings.Pet, false
 end
 
 -- TODO: Maybe update this to work if settings are not restricted. see: https://x.com/deadlybossmods/status/1176

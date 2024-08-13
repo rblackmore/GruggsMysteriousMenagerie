@@ -29,7 +29,7 @@ local defaults = {
               ["month"] = 11,
               ["day"] = 23,
             },
-            PetId = nil,
+            Pet = nil,
           },
         }
       },
