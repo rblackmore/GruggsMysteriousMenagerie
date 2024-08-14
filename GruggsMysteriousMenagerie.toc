@@ -15,9 +15,9 @@ DB.lua
 Utils\Helpers.lua
 Utils\PetJournal.lua
 
-
 # Options
-# Options\AceProfileOptions.lua
+Options\GMMOptions.lua
+Options\ProfileOptions.lua
 
 # Modules
 Modules.xml

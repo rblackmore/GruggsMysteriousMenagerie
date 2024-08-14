@@ -8,13 +8,15 @@ addOn:SetDefaultModuleLibraries("AceEvent-3.0", "AceConsole-3.0")
 
 function addOn:OnInitialize()
   self:InitializeDatabase()
+  
+  self:InitializeOptions()
+  self:InitializeProfiles()
 
   self:RegisterChatCommand("gmm", "SlashCommand")
   self:RegisterChatCommand("gmsummon", function()
     local module = addOn:GetModule("CompanionModule");
     module:SummonCompanion(true)
   end)
-  -- self:ConfigureOptionsProfiles()
 end
 
 function addOn:OnEnable()

@@ -157,7 +157,7 @@ local slashCommands = {
 function module:InitializeOptions()
   AceConfig:RegisterOptionsTable("GMM_Companions", options, slashCommands)
 
-  local frame, id = AceConfigDialog:AddToBlizOptions("GMM_Companions", "GMM Companions")
+  local frame, id = AceConfigDialog:AddToBlizOptions("GMM_Companions", "Companions", addOn["GMMOptionsFrame"]["Id"])
 
   addOn["CompanionOptionsFrame"] = {
     ["Frame"] = frame,
