@@ -8,6 +8,7 @@ addOn.PetJournal = {}
 function addOn.PetJournal:CompanionIterator()
   local iterator = 0
   local numPets, numOwned = C_PetJournal.GetNumPets();
+  addOn:Printf("Num Pets %s and owned %s:", numPets, numOwned)
   -- Clear Filters, if We dont' do this, we may not find any pets in the filter
   C_PetJournal.ClearSearchFilter()
 

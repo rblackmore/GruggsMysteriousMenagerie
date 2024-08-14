@@ -39,8 +39,10 @@ function module:InitializeCompanionDB()
   self.CompanionDB = addOn.db["profile"]["Companions"]
   self.Settings = self.CompanionDB["Settings"]
 
-  self:RefreshFavorites()
-  self:RefreshOwnedPetData()
+  self:ScheduleTimer(function()
+    self:RefreshFavorites()
+    self:RefreshOwnedPetData()
+  end, 1)
 end
 
 function module:GetCurrentZoneCompanionList()

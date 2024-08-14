@@ -2,15 +2,16 @@ local addonName, addonTable = ...
 local addOn = addonTable.addOn
 local module = addOn:NewModule("CompanionModule", "AceTimer-3.0")
 function module:OnInitialize()
+  _G["GMM_CompanionModule"] = module
   self:InitializeOptions()
   self:InitializeAutomation()
-  self:InitializeCompanionDB()
 end
 
 function module:OnEnable()
   for name, mod in self:IterateModules() do
     mod:Enable()
   end
+  self:InitializeCompanionDB()
 end
 
 function module:OnDisable()
