@@ -51,12 +51,7 @@ function module:SummonPetOfTheDay()
     settings.Pet = self:PickRandomPet()
   end
   if summonedDate.year ~= currentDate.year or summonedDate.month ~= currentDate.month or summonedDate.day ~= currentDate.day then
-    settings.Pet = self:PickRandomPet()
-    settings.Date = {
-      ["year"] = currentDate.year,
-      ["month"] = currentDate.month,
-      ["day"] = currentDate.day,
-    }
+    self:SetPetOfTheDay(self:PickRandomPet())
   end
 
   if C_PetJournal.GetSummonedPetGUID() ~= settings.Pet.petID then

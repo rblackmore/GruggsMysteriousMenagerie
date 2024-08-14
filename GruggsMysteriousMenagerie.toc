@@ -1,8 +1,8 @@
-## Interface: 110000
+## Interface: 110002
 ## Title: Gruggs Mysterious Menageri (GMM)
 ## Notes: Calls forth some help from one of your trusty Companions and Mounts(WIP)
 ## Author: Grugg
-## Version: 0.0.7
+## Version: 0.1.0
 ## SavedVariables: GMM_DB
 ## OptionalDeps: Ace3
 

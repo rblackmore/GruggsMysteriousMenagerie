@@ -12,7 +12,7 @@ local eventsToRegister = {
   -- "PET_JOURNAL_LIST_UPDATE",
   "ZONE_CHANGED_NEW_AREA", --> Player changes major Zone, et, Orgrimmar -> Durotar
   -- "ZONE_CHANGED",                --> Player changes minor zone, eg, Valley of Honor -> The Drag
-  -- "UNIT_SPELLCAST_SUCCEEDED",
+  "UNIT_SPELLCAST_SUCCEEDED",
 }
 
 local registeredEvents = {}
@@ -33,13 +33,39 @@ end
 function module:ZONE_CHANGED()
 end
 
-function module:UNIT_SPELLCAST_SUCCEEDED(unit, castGUID, spellID)
+function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, castGUID, spellID)
   --[[
     TODO: Possible Ideas:
     Perhaps on load, I make a list of all pets, including their names, C_Spell.GetSpellInfo(spellID) will give me the name of the pet.
     I can then check the list ofr this name if it existes, then it was a pet that was summoned.
       I should also check the GUID, that it's type is '3' which usually indicates a spell cast by player
   ]]
+  local settings = self.Settings["Automation"]["PetOfTheDay"]
+  if not settings.Enabled or unit ~= "player" or string.sub(castGUID, 6, 6) ~= "3" then
+    return
+  end
+
+  local info = C_Spell.GetSpellInfo(spellID)
+  local petName = info.name
+
+  local ownedPets = module["OwnedPetData"]
+
+  for k, v in pairs(ownedPets) do
+    if v.name == petName then
+      self:SetPetOfTheDay(v)
+    end
+  end
+end
+
+function module:SetPetOfTheDay(pet)
+  local settings = self.Settings["Automation"]["PetOfTheDay"]
+  local currentDate = date("*t")
+  settings.Pet = pet
+  settings.Date = {
+    ["year"] = currentDate.year,
+    ["month"] = currentDate.month,
+    ["day"] = currentDate.day,
+  }
 end
 
 function module:AutomationHandler()
