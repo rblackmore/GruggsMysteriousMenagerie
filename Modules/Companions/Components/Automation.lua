@@ -9,10 +9,14 @@ local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
 local eventsToRegister = {
-  -- "PET_JOURNAL_LIST_UPDATE",
-  "ZONE_CHANGED_NEW_AREA", --> Player changes major Zone, et, Orgrimmar -> Durotar
-  -- "ZONE_CHANGED",                --> Player changes minor zone, eg, Valley of Honor -> The Drag
-  "UNIT_SPELLCAST_SUCCEEDED",
+  "ZONE_CHANGED_NEW_AREA",    --> Player changes major Zone, et, Orgrimmar -> Durotar.
+  "ZONE_CHANGED",             --> Player changes minor zone, eg, Valley of Honor -> The Drag.
+  "UNIT_SPELLCAST_SUCCEEDED", --> For Capturting manual summoning of a Pet, used to replace pet of the day.
+  "PLAYER_MOUNT_DISPLAY_CHANGED",
+  "PLAYER_UNGHOST",           --> Fired After being a ghost
+  "PLAYER_ALIVE",             --> Fired After being resurrected.
+  "PLAYER_CONTROL_GAINED",    --> After Taxi
+  "UNIT_EXITED_VEHICLE",      --> After exiting vehicle.
 }
 
 local registeredEvents = {}
@@ -26,11 +30,36 @@ function module:InitializeAutomation()
   end
 end
 
+function module:PLAYER_REGEN_ENABLED()
+  self:AutomationHandler();
+end
+
+function module:PLAYER_MOUNT_DISPLAY_CHANGED()
+  self:AutomationHandler()
+end
+
 function module:ZONE_CHANGED_NEW_AREA()
   self:AutomationHandler()
 end
 
 function module:ZONE_CHANGED()
+  self:AutomationHandler()
+end
+
+function module:PLAYER_UNGHOST()
+  self:AutomationHandler()
+end
+
+function module:PLAYER_ALIVE()
+  self:AutomationHandler()
+end
+
+function module:PLAYER_CONTROL_GAINED()
+  self:AutomationHandler()
+end
+
+function module:UNIT_EXITED_VEHICLE()
+  self:AutomationHandler()
 end
 
 function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, castGUID, spellID)
@@ -69,6 +98,19 @@ function module:SetPetOfTheDay(pet)
 end
 
 function module:AutomationHandler()
+  if InCombatLockdown() then
+    self:RegisterEvent("PLAYER_REGEN_ENABLED")
+    registeredEvents["PLAYER_REGEN_ENABLED"] = true
+    return
+  else
+    self:UnregisterEvent("PLAYER_REGEN_ENABLED");
+    registeredEvents["PLAYER_REGEN_ENABLED"] = false
+  end
+
+  if not HasFullControl() then
+    return
+  end
+
   if C_PetJournal.GetSummonedPetGUID() then -- don't summon if pet already summoned
     return
   end

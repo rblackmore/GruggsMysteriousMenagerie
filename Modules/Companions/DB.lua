@@ -2,7 +2,7 @@ local addonName, addonTable = ...
 local addOn = addonTable.addOn
 local module = addOn:GetModule("CompanionModule")
 
-local function isNilOrEmpty(db, location)
+local function isNotNilOrEmpty(db, location)
   if db[location] ~= nil and #db[location] > 0 then
     return true
   end
@@ -48,13 +48,13 @@ end
 function module:GetCurrentZoneCompanionList()
   local location = GetZoneText()
 
-  if isNilOrEmpty(self.CompanionDB, location) then
+  if isNotNilOrEmpty(self.CompanionDB, location) then
     return shallowCopy(self.CompanionDB[location])
   end
 
   location = addOn.GetCurrentZoneType()
 
-  if isNilOrEmpty(self.CompanionDB, location) then
+  if isNotNilOrEmpty(self.CompanionDB, location) then
     return shallowCopy(self.CompanionDB[location])
   end
 
