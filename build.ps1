@@ -50,8 +50,7 @@ ForEach-Object {
   (Get-Content $_) -replace '{{AUTHOR}}', $author | Set-Content $_
 }
 
-$retailInstallDir = $wowdir + "_retail_\Interface\AddOns\"
-$installdir = $retailInstallDir + $appName
+$installdir = $wowdir + "\_retail_\Interface\AddOns\" + $appName
 
 try {
   # Clean or Create Install Directory
