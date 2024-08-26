@@ -1,0 +1,23 @@
+## Interface: {{INTERFACE}}
+## Version: {{VERSION}}
+## Title: {{TITLE}}
+## Notes: {{NOTES}}
+## Author: {{AUTHOR}}
+## SavedVariables: GMM_DB
+## OptionalDeps: Ace3
+
+Libs.xml
+
+Core.lua
+DB.lua
+
+# Utils
+Utils\Helpers.lua
+Utils\PetJournal.lua
+
+# Options
+Options\GMMOptions.lua
+Options\ProfileOptions.lua
+
+# Modules
+Modules.xml

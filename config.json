@@ -1,0 +1,11 @@
+{
+  "INTERFACE": "110002",
+  "VERSION": "0.1.1",
+  "APP_NAME": "GruggsMysteriousMenagerie",
+  "APP_TITLE": "Gruggs Mysterious Menagerie (GMM)",
+  "AUTHOR": "Grugg",
+  "NOTES": "Customizable Companion and Mount lists per zone (WIP)",
+  "SRC_DIR": "./src",
+  "BUILD_DIR": "./build",
+  "WOW_INSTALL_DIR": "D:\\Games\\World of Warcraft\\"
+}
