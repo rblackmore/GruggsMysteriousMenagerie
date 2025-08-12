@@ -50,25 +50,4 @@ ForEach-Object {
   (Get-Content $_) -replace '{{AUTHOR}}', $author | Set-Content $_
 }
 
-$installdir = $wowdir + "\_retail_\Interface\AddOns\" + $appName
-
-try {
-  # Clean or Create Install Directory
-  if (Test-Path $installdir) {
-    $clean = $installdir + "/*"
-    Remove-Item -Recurse -Force $clean
-  }
-  else {
-    New-Item -ItemType "directory" -Path $installdir
-  }
-  
-  $buildSrc = $dst + "/*"
-  Copy-Item -Path $buildSrc -Destination $installdir -Recurse -Force
-  
-}
-catch {
-  Write-Host $PSItem.Exception.Message -ForegroundColor RED
-}
-finally {
-  $Error.Clear()
-}
+Write-Host "Build Complete"

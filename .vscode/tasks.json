@@ -4,12 +4,26 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "deploy local",
+      "label": "build",
       "type": "shell",
       "command": "./build.ps1",
       "group": {
         "kind": "build",
         "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "close": false,
+      },
+    },
+    {
+      "label": "install",
+      "type": "shell",
+      "command": "./install.ps1",
+      "group": {
+        "kind": "none",
+        "isDefault": false
       },
       "presentation": {
         "reveal": "always",
