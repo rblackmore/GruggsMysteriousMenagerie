@@ -52,7 +52,7 @@ function module:GetCurrentZoneCompanionList()
     return shallowCopy(self.CompanionDB[location])
   end
 
-  location = addOn.GetCurrentZoneType()
+  location = addonTable["GMM_MapInfo"].GetCurrentZoneType()
 
   if isNotNilOrEmpty(self.CompanionDB, location) then
     return shallowCopy(self.CompanionDB[location])

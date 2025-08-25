@@ -118,6 +118,17 @@ local automationOptions = {
     get = function(info) return module.Settings["Automation"]["RESTING"] end,
     set = function(info, value) module.Settings["Automation"]["RESTING"] = value end
   },
+  ["Delay"] = {
+    order = 10,
+    type = "range",
+    name = "Delay",
+    desc = "Summon pet automatically after a short delay (seconds)",
+    min = 2,
+    max = 20,
+    step = 1,
+    get = function(info) return module["Settings"]["Automation"]["delay"] end,
+    set = function(info, value) module["Settings"]["Automation"]["delay"] = value end,
+  }
 }
 
 local options = {
