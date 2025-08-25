@@ -1,5 +1,5 @@
 ---@diagnostic disable: duplicate-set-field
-local addonName, addonTable = ...
+local _, addonTable = ...
 local addOn = addonTable.addOn
 local module = addOn:GetModule("CompanionModule")
 

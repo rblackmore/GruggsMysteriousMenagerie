@@ -1,4 +1,4 @@
-local addonName, addonTable = ...
+local _, addonTable = ...
 local addOn = addonTable.addOn
 
 local defaults = {
@@ -40,5 +40,5 @@ local defaults = {
 
 function addOn:InitializeDatabase()
   self.db = LibStub("AceDB-3.0"):New("GMM_DB", defaults, true)
-  addOn.Settings = addOn.db["Settings"]
+  addOn.Settings = self.db["Settings"]
 end

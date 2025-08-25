@@ -1,4 +1,4 @@
-local addonName, addonTable = ...
+local _, addonTable = ...
 local addOn = addonTable.addOn
 local module = addOn:GetModule("CompanionModule")
 
@@ -19,18 +19,18 @@ end
 
 function module:RefreshFavorites()
   self.CompanionDB["FavoritePets"] = {}
-  for petID, _, owned, customName, _, isFav, _, name in addOn.PetJournal:CompanionIterator() do
+  for petID, _, owned, customName, _, isFav, _, name in addonTable["GMM_PetJournal"]:CompanionIterator() do
     if isFav then
-      self:AddCompanionToZone("FavoritePets", petID, addOn.PetJournal:GetSimplePetTable(petID))
+      self:AddCompanionToZone("FavoritePets", petID, addonTable["GMM_PetJournal"]:GetSimplePetTable(petID))
     end
   end
 end
 
 function module:RefreshOwnedPetData()
   self.OwnedPetData = {}
-  for petID, _, owned, customName, _, isFav, _, name in addOn.PetJournal:CompanionIterator() do
+  for petID, _, owned, customName, _, isFav, _, name in addonTable["GMM_PetJournal"]:CompanionIterator() do
     if owned then
-      self.OwnedPetData[petID] = addOn.PetJournal:GetSimplePetTable(petID)
+      self.OwnedPetData[petID] = addonTable["GMM_PetJournal"]:GetSimplePetTable(petID)
     end
   end
 end

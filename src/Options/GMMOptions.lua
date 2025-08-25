@@ -1,5 +1,5 @@
 ---@diagnostic disable: duplicate-set-field
-local addonName, addonTable = ...
+local _, addonTable = ...
 local addOn = addonTable.addOn
 
 local AceConfig = LibStub("AceConfig-3.0")
@@ -17,6 +17,7 @@ local gmmOptions = {
     }
   }
 }
+
 function addOn:InitializeOptions()
   AceConfig:RegisterOptionsTable("GMM_Options", gmmOptions)
   local frame, id = AceConfigDialog:AddToBlizOptions("GMM_Options", "GMM")

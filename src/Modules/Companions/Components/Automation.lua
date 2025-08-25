@@ -1,5 +1,5 @@
 ---@diagnostic disable: duplicate-set-field
-local addonName, addonTable = ...
+local _, addonTable = ...
 local addOn = addonTable.addOn
 local module = addOn:GetModule("CompanionModule")
 -- ---@class AceModule
@@ -116,7 +116,7 @@ function module:AutomationHandler()
   end
   local settings = module.Settings
   self:ScheduleTimer(function()
-    local zoneType = addOn:GetCurrentZoneType()
+    local zoneType = addonTable["GMM_MapInfo"]:GetCurrentZoneType()
     if settings["Automation"][zoneType] then
       module:SummonCompanion(false)
     end

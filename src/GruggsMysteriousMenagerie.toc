@@ -12,7 +12,7 @@ Core.lua
 DB.lua
 
 # Utils
-Utils\Helpers.lua
+Utils\MapInfo.lua
 Utils\PetJournal.lua
 
 # Options

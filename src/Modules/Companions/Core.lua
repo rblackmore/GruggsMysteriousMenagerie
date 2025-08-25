@@ -1,8 +1,8 @@
-local addonName, addonTable = ...
+local _, addonTable = ...
 local addOn = addonTable.addOn
 local module = addOn:NewModule("CompanionModule", "AceTimer-3.0")
+
 function module:OnInitialize()
-  _G["GMM_CompanionModule"] = module
   self:InitializeOptions()
   self:InitializeAutomation()
 end

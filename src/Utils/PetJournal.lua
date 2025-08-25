@@ -1,11 +1,11 @@
 local _, addonTable = ...
-local addOn = addonTable.addOn
 
-addOn.PetJournal = {}
+local GMM_PetJournal = {}
+addonTable["GMM_PetJournal"] = GMM_PetJournal
 
 -- Iterates over ALL Pets in PetJounal, returning all values from GetPetInfoByIndex.
 -- see: https://warcraft.wiki.gg/wiki/API_C_PetJournal.GetPetInfoByIndex
-function addOn.PetJournal:CompanionIterator()
+function GMM_PetJournal:CompanionIterator()
   local iterator = 0
   local numPets, numOwned = C_PetJournal.GetNumPets();
   -- Clear Filters, if We dont' do this, we may not find any pets in the filter
@@ -22,7 +22,7 @@ function addOn.PetJournal:CompanionIterator()
   end
 end
 
-function addOn.PetJournal:GetSimplePetTable(petID)
+function GMM_PetJournal:GetSimplePetTable(petID)
   local wowPetTable = C_PetJournal.GetPetInfoTableByPetID(petID)
 
   return {

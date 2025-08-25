@@ -1,24 +1,24 @@
 local _, addonTable = ...
-local addOn = addonTable.addOn
-addonTable.Constructors = {}
-local ctors = addonTable.Constructors
+
+local GMM_MapInfo = {}
+addonTable["GMM_MapInfo"] = GMM_MapInfo
+
+local instanceTypes = {
+
+  ["pvp"] = "BATTLEGROUND",
+  ["arena"] = "ARENA",
+  ["party"] = "DUNGEON",
+  ["raid"] = "RAID",
+  ["scenario"] = "SCENARIO",
+  ["none"] = "GLOBAL",
+}
 
 local function convertInstanceTypeToZoneType(instanceType)
-  local instanceTypes = {
-
-    ["pvp"] = "BATTLEGROUND",
-    ["arena"] = "ARENA",
-    ["party"] = "DUNGEON",
-    ["raid"] = "RAID",
-    ["scenario"] = "SCENARIO",
-    ["none"] = "GLOBAL",
-  }
-
   local zoneType = instanceTypes[instanceType]
   return zoneType or ""
 end
 
-function addOn:GetCurrentZoneType()
+function GMM_MapInfo:GetCurrentZoneType()
   if IsResting() then
     return "RESTING"
   end
@@ -26,7 +26,7 @@ function addOn:GetCurrentZoneType()
   return convertInstanceTypeToZoneType(instanceType)
 end
 
-function addOn:ConvertDbNumberToMapType(number)
+function GMM_MapInfo:ConvertDbNumberToMapType(number)
   local mapTypes = {
     [0] = "COSMIC",
     [1] = "WORLD",
