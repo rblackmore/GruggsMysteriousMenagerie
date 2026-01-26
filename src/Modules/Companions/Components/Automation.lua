@@ -1,7 +1,8 @@
----@diagnostic disable: duplicate-set-field
-local _, addonTable = ...
-local addOn = addonTable.addOn
-local module = addOn:GetModule("CompanionModule")
+local addonName, addonTable = ...
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
+local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
+---@class AceAddon: AceTimer-3.0
+local mod = addOn:GetModule("CompanionModule")
 -- ---@class AceModule
 -- local Options = addOn:GetModule("Options")
 
@@ -21,7 +22,7 @@ local eventsToRegister = {
 
 local registeredEvents = {}
 
-function module:InitializeAutomation()
+function mod:InitializeAutomation()
   for _, event in ipairs(eventsToRegister) do
     if not registeredEvents[event] then
       self:RegisterEvent(event)
@@ -30,39 +31,39 @@ function module:InitializeAutomation()
   end
 end
 
-function module:PLAYER_REGEN_ENABLED()
+function mod:PLAYER_REGEN_ENABLED()
   self:AutomationHandler();
 end
 
-function module:PLAYER_MOUNT_DISPLAY_CHANGED()
+function mod:PLAYER_MOUNT_DISPLAY_CHANGED()
   self:AutomationHandler()
 end
 
-function module:ZONE_CHANGED_NEW_AREA()
+function mod:ZONE_CHANGED_NEW_AREA()
   self:AutomationHandler()
 end
 
-function module:ZONE_CHANGED()
+function mod:ZONE_CHANGED()
   self:AutomationHandler()
 end
 
-function module:PLAYER_UNGHOST()
+function mod:PLAYER_UNGHOST()
   self:AutomationHandler()
 end
 
-function module:PLAYER_ALIVE()
+function mod:PLAYER_ALIVE()
   self:AutomationHandler()
 end
 
-function module:PLAYER_CONTROL_GAINED()
+function mod:PLAYER_CONTROL_GAINED()
   self:AutomationHandler()
 end
 
-function module:UNIT_EXITED_VEHICLE()
+function mod:UNIT_EXITED_VEHICLE()
   self:AutomationHandler()
 end
 
-function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, castGUID, spellID)
+function mod:UNIT_SPELLCAST_SUCCEEDED(event, unit, castGUID, spellID)
   --[[
     TODO: Possible Ideas:
     Perhaps on load, I make a list of all pets, including their names, C_Spell.GetSpellInfo(spellID) will give me the name of the pet.
@@ -77,7 +78,7 @@ function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, castGUID, spellID)
   local info = C_Spell.GetSpellInfo(spellID)
   local petName = info.name
 
-  local ownedPets = module["OwnedPetData"]
+  local ownedPets = mod["OwnedPetData"]
 
   for k, v in pairs(ownedPets) do
     if v.name == petName then
@@ -86,7 +87,7 @@ function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, castGUID, spellID)
   end
 end
 
-function module:SetPetOfTheDay(pet)
+function mod:SetPetOfTheDay(pet)
   local settings = self.Settings["Automation"]["PetOfTheDay"]
   local currentDate = date("*t")
   settings.Pet = pet
@@ -97,7 +98,7 @@ function module:SetPetOfTheDay(pet)
   }
 end
 
-function module:AutomationHandler()
+function mod:AutomationHandler()
   if InCombatLockdown() then
     self:RegisterEvent("PLAYER_REGEN_ENABLED")
     registeredEvents["PLAYER_REGEN_ENABLED"] = true
@@ -114,11 +115,11 @@ function module:AutomationHandler()
   if C_PetJournal.GetSummonedPetGUID() then -- don't summon if pet already summoned
     return
   end
-  local settings = module.Settings
+  local settings = mod.Settings
   self:ScheduleTimer(function()
     local zoneType = addonTable["GMM_MapInfo"]:GetCurrentZoneType()
     if settings["Automation"][zoneType] then
-      module:SummonCompanion(false)
+      mod:SummonCompanion(false)
     end
   end, settings["Automation"]["delay"])
 end

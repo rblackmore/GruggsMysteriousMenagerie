@@ -1,6 +1,8 @@
-local _, addonTable = ...
-local addOn = addonTable.addOn
-local module = addOn:GetModule("CompanionModule")
+local addonName, addonTable = ...
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
+local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
+---@class AceAddon: AceTimer-3.0
+local mod = addOn:GetModule("CompanionModule")
 
 local function isNotNilOrEmpty(db, location)
   if db[location] ~= nil and #db[location] > 0 then
@@ -17,7 +19,7 @@ local function shallowCopy(t)
   return t2
 end
 
-function module:RefreshFavorites()
+function mod:RefreshFavorites()
   self.CompanionDB["FavoritePets"] = {}
   for petID, _, owned, customName, _, isFav, _, name in addonTable["GMM_PetJournal"]:CompanionIterator() do
     if isFav then
@@ -26,7 +28,7 @@ function module:RefreshFavorites()
   end
 end
 
-function module:RefreshOwnedPetData()
+function mod:RefreshOwnedPetData()
   self.OwnedPetData = {}
   for petID, _, owned, customName, _, isFav, _, name in addonTable["GMM_PetJournal"]:CompanionIterator() do
     if owned then
@@ -35,7 +37,7 @@ function module:RefreshOwnedPetData()
   end
 end
 
-function module:InitializeCompanionDB()
+function mod:InitializeCompanionDB()
   self.CompanionDB = addOn.db["profile"]["Companions"]
   self.Settings = self.CompanionDB["Settings"]
 
@@ -45,7 +47,7 @@ function module:InitializeCompanionDB()
   end, 1)
 end
 
-function module:GetCurrentZoneCompanionList()
+function mod:GetCurrentZoneCompanionList()
   local location = GetZoneText()
 
   if isNotNilOrEmpty(self.CompanionDB, location) then
@@ -61,20 +63,20 @@ function module:GetCurrentZoneCompanionList()
   return shallowCopy(self.CompanionDB["FavoritePets"])
 end
 
-function module:AddCompanionToZone(zone, petID, petTable)
+function mod:AddCompanionToZone(zone, petID, petTable)
   if not self.CompanionDB[zone] then
     self.CompanionDB[zone] = {} -- Create New Table for Zone if Not exist.
   end
   self.CompanionDB[zone][petID] = petTable
 end
 
-function module:RemoveCompanionFromZone(zone, petID)
+function mod:RemoveCompanionFromZone(zone, petID)
   if not self.CompanionDB[zone] then
     return
   end
   self.CompanionDB[zone][petID] = nil
 end
 
-function module:Zone_Contains(zone, petID)
+function mod:Zone_Contains(zone, petID)
   return self.CompanionDB[zone][petID] ~= nil
 end

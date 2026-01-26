@@ -1,26 +1,28 @@
-local _, addonTable = ...
-local addOn = addonTable.addOn
-local module = addOn:NewModule("CompanionModule", "AceTimer-3.0")
+local addonName, addonTable = ...
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
+local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
+---@class AceAddon: AceTimer-3.0
+local mod = addOn:NewModule("CompanionModule", "AceTimer-3.0")
 
-function module:OnInitialize()
+function mod:OnInitialize()
   self:InitializeOptions()
   self:InitializeAutomation()
 end
 
-function module:OnEnable()
+function mod:OnEnable()
   for name, mod in self:IterateModules() do
     mod:Enable()
   end
   self:InitializeCompanionDB()
 end
 
-function module:OnDisable()
-  for name, module in self:IterateModules() do
-    module:Disable()
+function mod:OnDisable()
+  for name, mod in self:IterateModules() do
+    mod:Disable()
   end
 end
 
-function module:SummonCompanion(announce)
+function mod:SummonCompanion(announce)
   local settings = self.Settings
   local summonedPet, hasSummoned
 
@@ -35,7 +37,7 @@ function module:SummonCompanion(announce)
   end
 end
 
-function module:SummonRandom()
+function mod:SummonRandom()
   local randoPet = self:PickRandomPet()
 
   C_PetJournal.SummonPetByGUID(randoPet.petID)
@@ -43,7 +45,7 @@ function module:SummonRandom()
   return randoPet, true
 end
 
-function module:SummonPetOfTheDay()
+function mod:SummonPetOfTheDay()
   local settings = self.Settings["Automation"]["PetOfTheDay"]
   local summonedDate = settings.Date
   local currentDate = date("*t")
@@ -63,7 +65,7 @@ function module:SummonPetOfTheDay()
 end
 
 -- TODO: Maybe update this to work if settings are not restricted. see: https://x.com/deadlybossmods/status/1176
-function module:AnnounceSummon(pet)
+function mod:AnnounceSummon(pet)
   local dbSettings = self.Settings
 
   local name = dbSettings["UseCustomName"] and pet.customName or pet.name
@@ -71,10 +73,10 @@ function module:AnnounceSummon(pet)
   local msgFormat = dbSettings["MessageFormat"]
   local channel = dbSettings["Channel"]
 
-  SendChatMessage(format(msgFormat, name), channel)
+  C_ChatInfo.SendChatMessage(format(msgFormat, name), channel)
 end
 
-function module:PickRandomPet()
+function mod:PickRandomPet()
   local eligablePets = self:GetEligableSummons()
   local petIDs = {}
   local i = 0
@@ -91,7 +93,7 @@ end
   Filters out currently summoned pet from current zone pets.
   More Filters to come, based on class, race, faction etc.
   --]]
-function module:GetEligableSummons()
+function mod:GetEligableSummons()
   local currentZoneCompanions = self:GetCurrentZoneCompanionList()
 
   local summonedId = C_PetJournal.GetSummonedPetGUID()

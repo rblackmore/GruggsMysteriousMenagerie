@@ -1,6 +1,6 @@
----@diagnostic disable: duplicate-set-field
-local _, addonTable = ...
-local addOn = addonTable.addOn
+local addonName, addonTable = ...
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
+local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
