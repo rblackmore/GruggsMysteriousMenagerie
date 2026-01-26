@@ -14,11 +14,12 @@ $installdir = $wowdir + "\_retail_\Interface\AddOns\" + $appName
 
 Write-Host "Installing $appName to $installdir"
 
- if (!(Test-Path $dst)) 
- {
-    Write-Host "Build the Project First"
-    Exit 1
- }
+& "$PSScriptRoot\build.ps1"
+if (!(Test-Path $dst)) 
+{
+  Write-Host "Build the Project First"
+  Exit 1
+}
 
 try {
   # Clean or Create Install Directory

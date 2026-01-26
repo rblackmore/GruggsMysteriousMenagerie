@@ -1,12 +1,13 @@
 local addonName, addonTable = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
-
-local companionModule = addOn:GetModule("CompanionModule");
-
-_G["GMM"] = addonTable
 addOn:SetDefaultModuleState(false)
 addOn:SetDefaultModuleLibraries("AceEvent-3.0", "AceConsole-3.0")
+
+---@class AceAddon: AceTimer-3.0
+local companionModule = addOn:NewModule("CompanionModule", "AceTimer-3.0");
+
+_G["GMM"] = addonTable
 
 function addOn:OnInitialize()
   self:InitializeDatabase()
