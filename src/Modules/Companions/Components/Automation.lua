@@ -98,7 +98,12 @@ function mod:SetPetOfTheDay(pet)
   }
 end
 
+local currentTimerId = nil;
+
 function mod:AutomationHandler()
+  if (self:IsTimerActive()) then
+    return
+  end
   if InCombatLockdown() then
     self:RegisterEvent("PLAYER_REGEN_ENABLED")
     registeredEvents["PLAYER_REGEN_ENABLED"] = true
@@ -108,18 +113,24 @@ function mod:AutomationHandler()
     registeredEvents["PLAYER_REGEN_ENABLED"] = false
   end
 
-  if not HasFullControl() then
+  if not HasFullControl() or C_PetJournal.GetSummonedPetGUID() then
     return
   end
 
-  if C_PetJournal.GetSummonedPetGUID() then -- don't summon if pet already summoned
-    return
-  end
   local settings = mod.Settings
-  self:ScheduleTimer(function()
+
+  currentTimerId = self:ScheduleTimer(function()
     local zoneType = addonTable["GMM_MapInfo"]:GetCurrentZoneType()
     if settings["Automation"][zoneType] then
       mod:SummonCompanion(false)
     end
   end, settings["Automation"]["delay"])
+end
+
+function mod:IsTimerActive()
+  if currentTimerId ~= nil then
+    local timeLeft = self:TimeLeft(currentTimerId)
+    return timeLeft > 0
+  end
+  return false
 end
