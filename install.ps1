@@ -8,13 +8,26 @@ $author = $config.AUTHOR
 $notes = $config.NOTES
 $src = $config.SRC_DIR
 $dst = $config.BUILD_DIR
-$wowdir = $config.WOW_INSTALL_DIR
+$wowdir = $env:WOW_INSTALL_DIR
 
 $installdir = $wowdir + "\_retail_\Interface\AddOns\" + $appName
 
 Write-Host "Installing $appName to $installdir"
 
-& "$PSScriptRoot\build.ps1"
+Function Clear-Directory{
+
+  param([string]$directory)
+
+  if (Test-Path $directory)
+  {
+    $cleardir = $directory + "/*"
+    Remove-Item -Recurse -Force $cleardir
+  }
+  else{
+    New-Item -ItemType "directory" -Path $directory
+  }
+};
+
 if (!(Test-Path $dst)) 
 {
   Write-Host "Build the Project First"
@@ -22,14 +35,7 @@ if (!(Test-Path $dst))
 }
 
 try {
-  # Clean or Create Install Directory
-  if (Test-Path $installdir) {
-    $clean = $installdir + "/*"
-    Remove-Item -Recurse -Force $clean
-  }
-  else {
-    New-Item -ItemType "directory" -Path $installdir
-  }
+  Clear-Directory -directory $installdir
   
   $buildSrc = $dst + "/*"
   Copy-Item -Path $buildSrc -Destination $installdir -Recurse -Force

@@ -1,4 +1,5 @@
 build
+publish
 
 # Compiled Lua sources
 luac.out

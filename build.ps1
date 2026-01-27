@@ -8,7 +8,7 @@ $author = $config.AUTHOR
 $notes = $config.NOTES
 $src = $config.SRC_DIR
 $dst = $config.BUILD_DIR
-$wowdir = $config.WOW_INSTALL_DIR
+$wowdir = $env:WOW_INSTALL_DIR
 $readme = "./README.md"
 
 Write-Host "Building $appName"

@@ -4,9 +4,21 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "build",
+      "label": "deploy",
       "type": "shell",
-      "command": "./build.ps1",
+      "command": "./build.ps1 && ./install.ps1",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "close": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "publish",
+      "type": "shell",
+      "command": "./build.ps1 && ./publish.ps1",
       "group": {
         "kind": "build",
         "isDefault": false
@@ -14,8 +26,23 @@
       "presentation": {
         "reveal": "always",
         "panel": "new",
-        "close": false,
+        "close": false
+      }
+    },
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "./build.ps1",
+      "group": {
+        "kind": "build",
+        "isDefault": true
       },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "close": false
+      },
+      "problemMatcher": []
     },
     {
       "label": "install",
@@ -28,22 +55,8 @@
       "presentation": {
         "reveal": "always",
         "panel": "new",
-        "close": false,
-      },
-    },{
-      "label": "run",
-      "type": "shell",
-      "dependsOn":["build", "install"],
-      "dependsOrder": "sequence",
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "new",
-        "close": false,
-      },
+        "close": false
+      }
     }
   ]
 }
