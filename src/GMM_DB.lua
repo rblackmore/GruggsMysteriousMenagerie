@@ -39,7 +39,33 @@ local defaults = {
   }
 }
 
+-------------------------------------------------------------------------------
+--- Public API
+
 function addOn:InitializeDatabase()
   self.db = LibStub("AceDB-3.0"):New("GMM_DB", defaults, true)
-  addOn.Settings = self.db["Settings"]
+
+  self.db.RegisterCallback(self, "OnProfileChanged", "LoadProfile")
+  self.db.RegisterCallback(self, "OnProfileCopied", "LoadProfile")
+  self.db.RegisterCallback(self, "OnProfileReset", "LoadProfile")
+end
+
+function addOn:GetGlobalSettings()
+  return self.db["Settings"]
+end
+
+function addOn:GetCompanionsDB()
+  return self.db["Companions"]
+end
+
+function addOn:GetMountsDB()
+  return self.db["Mounts"]
+end
+
+function addOn:GetProfileDB()
+  return self.db["profile"]
+end
+
+function addOn:LoadProfile()
+  -- Callback for Profile Change Events
 end

@@ -192,3 +192,7 @@ function mod:SetValue(info, value)
     mod.Settings[info[#info]] = value
   end
 end
+
+function mod:GetOptionsTable()
+  return options
+end

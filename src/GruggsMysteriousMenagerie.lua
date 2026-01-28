@@ -6,13 +6,18 @@ addOn:SetDefaultModuleLibraries("AceEvent-3.0", "AceConsole-3.0")
 
 ---@class AceAddon: AceTimer-3.0
 local companionModule = addOn:NewModule("CompanionModule", "AceTimer-3.0");
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0
+local Options = addOn:NewModule("Options")
 
 _G["GMM"] = addonTable
+
+-------------------------------------------------------------------------------
+--- Public API
 
 function addOn:OnInitialize()
   self:InitializeDatabase()
 
-  self:InitializeOptions()
+  Options:InitializeOptions()
   self:InitializeProfiles()
 
   self:RegisterChatCommand("gmm", "SlashCommand")

@@ -8,8 +8,8 @@
 
 Libs.xml
 
-Core.lua
-DB.lua
+GruggsMysteriousMenagerie.lua
+GMM_DB.lua
 
 # Utils
 Utils\MapInfo.lua
@@ -17,7 +17,6 @@ Utils\PetJournal.lua
 
 # Options
 Options\GMMOptions.lua
-Options\ProfileOptions.lua
 
 # Modules
 Modules.xml
