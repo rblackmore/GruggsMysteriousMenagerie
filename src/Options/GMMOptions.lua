@@ -43,21 +43,28 @@ function Options:SetValue(info, value)
   end
 end
 
+local slashCommands = {
+  "gmmconfig"
+}
+
 function Options:InitializeOptions()
   local gmmOptions = getOptionsTable()
   local companionOptions = CompanionModule:GetOptionsTable()
   local profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(addOn.db)
 
-  AceConfig:RegisterOptionsTable("GMM_Options", gmmOptions)
+  AceConfig:RegisterOptionsTable("GMM_Options", gmmOptions, slashCommands)
   AceConfig:RegisterOptionsTable("GMM_Profiles", profileOptions)
   AceConfig:RegisterOptionsTable("GMM_Companions", companionOptions)
 
-  Options["OptionsFrame"] =
+  Options["OptionsFrame"] = {}
+  Options["OptionsFrame"]["Frame"], Options["OptionsFrame"]["Id"] =
       AceConfigDialog:AddToBlizOptions("GMM_Options", "GMM")
 
-  Options["CompanionOptionsFrame"] =
-      AceConfigDialog:AddToBlizOptions("GMM_Companions", "Companions", "GMM")
-
-  Options["ProfileOptionsFrame"] =
+  Options["ProfileOptionsFrame"] = {}
+  Options["ProfileOptionsFrame"]["Frame"], Options["ProfileOptionsFrame"]["Id"] =
       AceConfigDialog:AddToBlizOptions("GMM_Profiles", "Profiles", "GMM")
+
+  Options["CompanionOptionsFrame"] = {}
+  Options["CompanionOptionsFrame"]["Frame"], Options["CompanionOptionsFrame"]["Id"] =
+      AceConfigDialog:AddToBlizOptions("GMM_Companions", "Companions", "GMM")
 end

@@ -4,9 +4,6 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
 local mod = addOn:GetModule("CompanionModule")
 
-local AceConfig = LibStub("AceConfig-3.0")
-local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-
 local announcementOptions = {
   ["MessageFormat"] = {
     type = "input",
@@ -162,20 +159,8 @@ local options = {
   }
 }
 
-local slashCommands = {
-  "gmmconfig",
-}
-
-function mod:InitializeOptions()
-  AceConfig:RegisterOptionsTable("GMM_Companions", options, slashCommands)
-
-  local frame, id = AceConfigDialog:AddToBlizOptions("GMM_Companions", "Companions", addOn["GMMOptionsFrame"]["Id"])
-
-  addOn["CompanionOptionsFrame"] = {
-    ["Frame"] = frame,
-    ["Id"] = id
-  }
-end
+-------------------------------------------------------------------------------
+--- Public API
 
 function mod:GetValue(info)
   if info.arg then

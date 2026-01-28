@@ -18,8 +18,6 @@ function addOn:OnInitialize()
   self:InitializeDatabase()
 
   Options:InitializeOptions()
-  self:InitializeProfiles()
-
   self:RegisterChatCommand("gmm", "SlashCommand")
   self:RegisterChatCommand("gmsummon", function()
     companionModule:SummonCompanion(true)
@@ -42,5 +40,5 @@ function addOn:SlashCommand(args)
   if InCombatLockdown() then
     return
   end
-  Settings.OpenToCategory(self["CompanionOptionsFrame"]["Id"])
+  Settings.OpenToCategory(Options["CompanionOptionsFrame"]["Id"])
 end

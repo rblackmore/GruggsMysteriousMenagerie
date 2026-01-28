@@ -5,7 +5,6 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 local mod = addOn:GetModule("CompanionModule");
 
 function mod:OnInitialize()
-  self:InitializeOptions()
   self:InitializeAutomation()
 end
 
