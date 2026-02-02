@@ -35,6 +35,18 @@ local defaults = {
         }
       },
       ["FavoritePets"] = {},
+      ["Locations"] = {
+        ["ZoneName"] = {
+          Total = 0,
+          CompanionIds = {}
+        }
+      },
+      ["Specializations"] = {
+        ["Class|Spec"] = {
+          Total = 0,
+          CompanionIds = {}
+        }
+      }
     }
   }
 }

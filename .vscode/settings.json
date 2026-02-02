@@ -27,7 +27,10 @@
     "enabled",
     "PetJournal",
     "ChatEdit_InsertLink",
-    "ChatFrameUtil"
+    "ChatFrameUtil",
+    "LinkUtil",
+    "SetItemRef",
+    "ExtractHyperlinkString"
   ],
   "Lua.runtime.version": "Lua 5.1",
   "Lua.runtime.builtin": {
