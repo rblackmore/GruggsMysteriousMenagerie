@@ -10,6 +10,9 @@ local companionModule = addOn:NewModule("CompanionModule", "AceTimer-3.0");
 local Options = addOn:NewModule("Options")
 
 _G["GMM"] = addonTable
+_G["GMM_AddOn"] = addOn
+_G["GMM_Companions"] = companionModule
+_G["GMM_Options"] = Options
 
 -------------------------------------------------------------------------------
 --- Public API
@@ -40,5 +43,5 @@ function addOn:SlashCommand(args)
   if InCombatLockdown() then
     return
   end
-  Settings.OpenToCategory(Options["CompanionOptionsFrame"]["Id"])
+  Settings.OpenToCategory(Options["ConfigFrames"]["GMM_Companions"]["Id"])
 end

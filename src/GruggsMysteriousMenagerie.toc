@@ -10,13 +10,11 @@ Libs.xml
 
 GruggsMysteriousMenagerie.lua
 GMM_DB.lua
+GMM_Options.lua
 
 # Utils
 Utils\MapInfo.lua
 Utils\PetJournal.lua
-
-# Options
-Options\GMMOptions.lua
 
 # Modules
 Modules.xml

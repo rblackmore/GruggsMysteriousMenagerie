@@ -56,15 +56,21 @@ function Options:InitializeOptions()
   AceConfig:RegisterOptionsTable("GMM_Profiles", profileOptions)
   AceConfig:RegisterOptionsTable("GMM_Companions", companionOptions)
 
-  Options["OptionsFrame"] = {}
-  Options["OptionsFrame"]["Frame"], Options["OptionsFrame"]["Id"] =
-      AceConfigDialog:AddToBlizOptions("GMM_Options", "GMM")
+  Options["ConfigFrames"] = {}
+  local config = Options["ConfigFrames"];
+  config["GMM_Options"] = {}
+  config["GMM_Profiles"] = {}
+  config["GMM_Companions"] = {}
 
-  Options["ProfileOptionsFrame"] = {}
-  Options["ProfileOptionsFrame"]["Frame"], Options["ProfileOptionsFrame"]["Id"] =
-      AceConfigDialog:AddToBlizOptions("GMM_Profiles", "Profiles", "GMM")
+  local frame, id = AceConfigDialog:AddToBlizOptions("GMM_Options", "GMM")
+  config["GMM_Options"]["Frame"] = frame
+  config["GMM_Options"]["Id"] = id
 
-  Options["CompanionOptionsFrame"] = {}
-  Options["CompanionOptionsFrame"]["Frame"], Options["CompanionOptionsFrame"]["Id"] =
-      AceConfigDialog:AddToBlizOptions("GMM_Companions", "Companions", "GMM")
+  frame, id = AceConfigDialog:AddToBlizOptions("GMM_Profiles", "Profiles", "GMM")
+  config["GMM_Profiles"]["Frame"] = frame
+  config["GMM_Profiles"]["Id"] = id
+
+  frame, id = AceConfigDialog:AddToBlizOptions("GMM_Companions", "Companions", "GMM")
+  config["GMM_Companions"]["Frame"] = frame
+  config["GMM_Companions"]["Id"] = id
 end

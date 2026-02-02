@@ -1,4 +1,6 @@
-local _, addonTable = ...
+local addonName, addonTable = ...
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
+local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 
 local GMM_PetJournal = {}
 addonTable["GMM_PetJournal"] = GMM_PetJournal
