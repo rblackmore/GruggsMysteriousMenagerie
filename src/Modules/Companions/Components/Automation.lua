@@ -1,13 +1,10 @@
-local addonName, addonTable = ...
+local addonName, _ = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
-local mod = addOn:GetModule("CompanionModule")
--- ---@class AceModule
--- local Options = addOn:GetModule("Options")
-
-local AceConfig = LibStub("AceConfig-3.0")
-local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+local CompanionModule = addOn:GetModule("CompanionModule")
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0
+local MapInfo = addOn:GetModule("GMM_MapInfo")
 
 local eventsToRegister = {
   "ZONE_CHANGED_NEW_AREA",    --> Player changes major Zone, et, Orgrimmar -> Durotar.
@@ -22,7 +19,7 @@ local eventsToRegister = {
 
 local registeredEvents = {}
 
-function mod:InitializeAutomation()
+function CompanionModule:InitializeAutomation()
   for _, event in ipairs(eventsToRegister) do
     if not registeredEvents[event] then
       self:RegisterEvent(event)
@@ -31,39 +28,39 @@ function mod:InitializeAutomation()
   end
 end
 
-function mod:PLAYER_REGEN_ENABLED()
+function CompanionModule:PLAYER_REGEN_ENABLED()
   self:AutomationHandler();
 end
 
-function mod:PLAYER_MOUNT_DISPLAY_CHANGED()
+function CompanionModule:PLAYER_MOUNT_DISPLAY_CHANGED()
   self:AutomationHandler()
 end
 
-function mod:ZONE_CHANGED_NEW_AREA()
+function CompanionModule:ZONE_CHANGED_NEW_AREA()
   self:AutomationHandler()
 end
 
-function mod:ZONE_CHANGED()
+function CompanionModule:ZONE_CHANGED()
   self:AutomationHandler()
 end
 
-function mod:PLAYER_UNGHOST()
+function CompanionModule:PLAYER_UNGHOST()
   self:AutomationHandler()
 end
 
-function mod:PLAYER_ALIVE()
+function CompanionModule:PLAYER_ALIVE()
   self:AutomationHandler()
 end
 
-function mod:PLAYER_CONTROL_GAINED()
+function CompanionModule:PLAYER_CONTROL_GAINED()
   self:AutomationHandler()
 end
 
-function mod:UNIT_EXITED_VEHICLE()
+function CompanionModule:UNIT_EXITED_VEHICLE()
   self:AutomationHandler()
 end
 
-function mod:UNIT_SPELLCAST_SUCCEEDED(event, unit, castGUID, spellID)
+function CompanionModule:UNIT_SPELLCAST_SUCCEEDED(event, unit, castGUID, spellID)
   --[[
     TODO: Possible Ideas:
     Perhaps on load, I make a list of all pets, including their names, C_Spell.GetSpellInfo(spellID) will give me the name of the pet.
@@ -78,7 +75,7 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(event, unit, castGUID, spellID)
   local info = C_Spell.GetSpellInfo(spellID)
   local petName = info.name
 
-  local ownedPets = mod["OwnedPetData"]
+  local ownedPets = CompanionModule["OwnedPetData"]
 
   for k, v in pairs(ownedPets) do
     if v.name == petName then
@@ -87,7 +84,7 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(event, unit, castGUID, spellID)
   end
 end
 
-function mod:SetPetOfTheDay(pet)
+function CompanionModule:SetPetOfTheDay(pet)
   local settings = self.Settings["Automation"]["PetOfTheDay"]
   local currentDate = date("*t")
   settings.Pet = pet
@@ -100,34 +97,25 @@ end
 
 local currentTimerId = nil;
 
-function mod:AutomationHandler()
+function CompanionModule:AutomationHandler()
   if (self:IsTimerActive()) then
     return
   end
-  if InCombatLockdown() then
-    self:RegisterEvent("PLAYER_REGEN_ENABLED")
-    registeredEvents["PLAYER_REGEN_ENABLED"] = true
-    return
-  else
-    self:UnregisterEvent("PLAYER_REGEN_ENABLED");
-    registeredEvents["PLAYER_REGEN_ENABLED"] = false
-  end
-
   if not HasFullControl() or C_PetJournal.GetSummonedPetGUID() then
     return
   end
 
-  local settings = mod.Settings
+  local settings = CompanionModule.Settings
 
   currentTimerId = self:ScheduleTimer(function()
-    local zoneType = addonTable["GMM_MapInfo"]:GetCurrentZoneType()
+    local zoneType = MapInfo:GetCurrentZoneType()
     if settings["Automation"][zoneType] then
-      mod:SummonCompanion(false)
+      CompanionModule:CallSummonCompanion(false)
     end
   end, settings["Automation"]["delay"])
 end
 
-function mod:IsTimerActive()
+function CompanionModule:IsTimerActive()
   if currentTimerId ~= nil then
     local timeLeft = self:TimeLeft(currentTimerId)
     return timeLeft > 0

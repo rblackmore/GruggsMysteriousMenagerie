@@ -1,7 +1,9 @@
-local _, addonTable = ...
+local addonName, addonTable = ...
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
+local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 
-local GMM_MapInfo = {}
-addonTable["GMM_MapInfo"] = GMM_MapInfo
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0
+local MapInfo = addOn:GetModule("GMM_MapInfo")
 
 local instanceTypes = {
 
@@ -18,7 +20,7 @@ local function convertInstanceTypeToZoneType(instanceType)
   return zoneType or ""
 end
 
-function GMM_MapInfo:GetCurrentZoneType()
+function MapInfo:GetCurrentZoneType()
   if IsResting() then
     return "RESTING"
   end
@@ -26,7 +28,7 @@ function GMM_MapInfo:GetCurrentZoneType()
   return convertInstanceTypeToZoneType(instanceType)
 end
 
-function GMM_MapInfo:ConvertDbNumberToMapType(number)
+function MapInfo:ConvertDbNumberToMapType(number)
   local mapTypes = {
     [0] = "COSMIC",
     [1] = "WORLD",

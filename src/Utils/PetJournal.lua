@@ -1,7 +1,8 @@
-local _, addonTable = ...
-
-local GMM_PetJournal = {}
-addonTable["GMM_PetJournal"] = GMM_PetJournal
+local addonName, addonTable = ...
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
+local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0,
+local GMM_PetJournal = addOn:GetModule("GMM_PetJournal")
 
 -- Iterates over ALL Pets in PetJounal, returning all values from GetPetInfoByIndex.
 -- see: https://warcraft.wiki.gg/wiki/API_C_PetJournal.GetPetInfoByIndex

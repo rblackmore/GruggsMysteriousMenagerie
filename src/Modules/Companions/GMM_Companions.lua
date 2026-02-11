@@ -5,7 +5,6 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 local mod = addOn:GetModule("CompanionModule");
 
 function mod:OnInitialize()
-  self:InitializeOptions()
   self:InitializeAutomation()
 end
 
@@ -19,6 +18,19 @@ end
 function mod:OnDisable()
   for name, mod in self:IterateModules() do
     mod:Disable()
+  end
+end
+
+function mod:CallSummonCompanion(announce)
+  if InCombatLockdown() then
+    self:RegisterEvent("PLAYER_REGEN_ENABLED", function()
+      mod:SummonCompanion(announce)
+      self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+      -- Remove from evnets registered
+    end)
+    -- add to events registered
+  else
+    mod:SummonCompanion(announce)
   end
 end
 

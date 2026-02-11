@@ -3,21 +3,19 @@
 ## Title: {{TITLE}}
 ## Notes: {{NOTES}}
 ## Author: {{AUTHOR}}
+## Category: Collections
 ## SavedVariables: GMM_DB
 ## OptionalDeps: Ace3
 
 Libs.xml
 
-Core.lua
-DB.lua
+GruggsMysteriousMenagerie.lua
+GMM_DB.lua
+GMM_Options.lua
 
 # Utils
 Utils\MapInfo.lua
 Utils\PetJournal.lua
-
-# Options
-Options\GMMOptions.lua
-Options\ProfileOptions.lua
 
 # Modules
 Modules.xml
