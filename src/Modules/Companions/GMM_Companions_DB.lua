@@ -5,6 +5,8 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 local mod = addOn:GetModule("CompanionModule")
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0,
 local PetJournal = addOn:GetModule("GMM_PetJournal")
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0
+local MapInfo = addOn:GetModule("GMM_MapInfo")
 
 local function isNotNilOrEmpty(db, location)
   if db[location] ~= nil and #db[location] > 0 then
@@ -56,7 +58,7 @@ function mod:GetCurrentZoneCompanionList()
     return shallowCopy(self.CompanionDB[location])
   end
 
-  location = addonTable["GMM_MapInfo"].GetCurrentZoneType()
+  location = MapInfo.GetCurrentZoneType()
 
   if isNotNilOrEmpty(self.CompanionDB, location) then
     return shallowCopy(self.CompanionDB[location])

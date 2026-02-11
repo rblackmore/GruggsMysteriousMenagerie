@@ -21,6 +21,19 @@ function mod:OnDisable()
   end
 end
 
+function mod:CallSummonCompanion(announce)
+  if InCombatLockdown() then
+    self:RegisterEvent("PLAYER_REGEN_ENABLED", function()
+      mod:SummonCompanion(announce)
+      self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+      -- Remove from evnets registered
+    end)
+    -- add to events registered
+  else
+    mod:SummonCompanion(announce)
+  end
+end
+
 function mod:SummonCompanion(announce)
   local settings = self.Settings
   local summonedPet, hasSummoned

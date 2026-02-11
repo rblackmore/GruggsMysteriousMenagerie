@@ -3,6 +3,7 @@
 ## Title: {{TITLE}}
 ## Notes: {{NOTES}}
 ## Author: {{AUTHOR}}
+## Category: Collections
 ## SavedVariables: GMM_DB
 ## OptionalDeps: Ace3
 

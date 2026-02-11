@@ -75,7 +75,7 @@ function CompanionModule:UNIT_SPELLCAST_SUCCEEDED(event, unit, castGUID, spellID
   local info = C_Spell.GetSpellInfo(spellID)
   local petName = info.name
 
-  local ownedPets = mod["OwnedPetData"]
+  local ownedPets = CompanionModule["OwnedPetData"]
 
   for k, v in pairs(ownedPets) do
     if v.name == petName then
@@ -101,15 +101,6 @@ function CompanionModule:AutomationHandler()
   if (self:IsTimerActive()) then
     return
   end
-  if InCombatLockdown() then
-    self:RegisterEvent("PLAYER_REGEN_ENABLED")
-    registeredEvents["PLAYER_REGEN_ENABLED"] = true
-    return
-  else
-    self:UnregisterEvent("PLAYER_REGEN_ENABLED");
-    registeredEvents["PLAYER_REGEN_ENABLED"] = false
-  end
-
   if not HasFullControl() or C_PetJournal.GetSummonedPetGUID() then
     return
   end
@@ -119,7 +110,7 @@ function CompanionModule:AutomationHandler()
   currentTimerId = self:ScheduleTimer(function()
     local zoneType = MapInfo:GetCurrentZoneType()
     if settings["Automation"][zoneType] then
-      CompanionModule:SummonCompanion(false)
+      CompanionModule:CallSummonCompanion(false)
     end
   end, settings["Automation"]["delay"])
 end
