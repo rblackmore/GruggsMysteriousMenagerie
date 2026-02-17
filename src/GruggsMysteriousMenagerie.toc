@@ -19,3 +19,4 @@ Utils\PetJournal.lua
 
 # Modules
 Modules.xml
+Views\PetList.xml

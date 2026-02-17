@@ -33,7 +33,16 @@
     "ExtractHyperlinkString",
     "assertsafe",
     "SOUNDKIT",
-    "LinkTypes"
+    "LinkTypes",
+    "ScrollUtil",
+    "CreateScrollBoxListLinearView",
+    "CreateDataProvider",
+    "ScrollBoxConstants",
+    "PanelTemplates_SetNumTabs",
+    "PanelTemplates_TabResize",
+    "PanelTemplates_SetTab",
+    "UISpecialFrames",
+    "PanelTemplates_GetSelectedTab"
   ],
   "Lua.runtime.version": "Lua 5.1",
   "Lua.runtime.builtin": {
