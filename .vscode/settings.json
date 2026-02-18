@@ -42,9 +42,11 @@
     "PanelTemplates_TabResize",
     "PanelTemplates_SetTab",
     "UISpecialFrames",
-    "PanelTemplates_GetSelectedTab"
+    "PanelTemplates_GetSelectedTab",
+    "TransmogFrame"
   ],
   "Lua.runtime.version": "Lua 5.1",
+  "Lua.workspace.checkThirdParty": "false",
   "Lua.runtime.builtin": {
     "basic": "disable",
     "debug": "disable",

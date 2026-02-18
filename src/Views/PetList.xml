@@ -65,9 +65,9 @@
   </Button>
 
 
-  <Frame name="PetList" mixin="GMMPetListMixin" setAllPoints="true">
+  <Frame name="PetList" mixin="GMMPetListMixin" setAllPoints="true" hidden="true">
     <Frames>
-      <Frame parentKey="TopLeftInset" useParentLevel="true" inherits="InsetFrameTemplate">
+      <Frame parentKey="TopLeftInset" inherits="InsetFrameTemplate">
         <Size x="260" y="260" />
         <Anchors>
           <Anchor point="TOPLEFT" x="16" y="-16" />
@@ -76,7 +76,6 @@
 
       <PlayerModel
         parentKey="companionModel"
-        useParentLevel="true"
         enableMouse="true"
         hidden="false">
         <Anchors>
@@ -85,7 +84,7 @@
         </Anchors>
       </PlayerModel>
 
-      <Frame parentKey="LeftInset" useParentLevel="true" inherits="InsetFrameTemplate">
+      <Frame parentKey="LeftInset" inherits="InsetFrameTemplate">
         <Size x="260" y="0" />
         <Anchors>
           <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeKey="$parent.TopLeftInset"
@@ -95,14 +94,14 @@
       </Frame>
 
 
-      <Frame parentKey="ScrollBox" inherits="WowScrollBoxList" frameStrata="HIGH">
+      <Frame parentKey="ScrollBox" inherits="WowScrollBoxList">
         <Anchors>
           <Anchor point="TOPLEFT" relativeKey="$parent.LeftInset" x="3" y="-3" />
           <Anchor point="BOTTOMRIGHT" relativeKey="$parent.LeftInset" x="-2" y="3" />
         </Anchors>
       </Frame>
 
-      <EventFrame parentKey="ScrollBar" inherits="MinimalScrollBar" frameStrata="HIGH">
+      <EventFrame parentKey="ScrollBar" inherits="MinimalScrollBar">
         <Anchors>
           <Anchor point="TOPLEFT" relativeKey="$parent.ScrollBox" relativePoint="TOPRIGHT"
             x="8" y="0" />

@@ -1,5 +1,12 @@
 GMMPetListMixin = {}
-local EVENTS_TO_REGISTER = { "TRANSMOGRIFY_OPEN" }
+
+local EVENTS_TO_REGISTER = {
+  "TRANSMOGRIFY_OPEN",
+  "ADDON_LOADED"
+}
+--------------------------------------------------------------------------------
+--- Script Handlers
+--------------------------------------------------------------------------------
 function GMMPetListMixin:OnLoad()
   for i, event in ipairs(EVENTS_TO_REGISTER) do
     self:RegisterEvent(event)
@@ -7,6 +14,51 @@ function GMMPetListMixin:OnLoad()
 
   self:ConfigureScrollView()
   self:ConfigureModel()
+end
+
+function GMMPetListMixin:OnShow()
+  self:UpdatePetList()
+end
+
+function GMMPetListMixin:OnHide()
+end
+
+function GMMPetListMixin:OnEvent(event, ...)
+  if (self[event]) then
+    self[event](self, ...)
+  end
+end
+
+--------------------------------------------------------------------------------
+--- Event Handlers
+--------------------------------------------------------------------------------
+function GMMPetListMixin:ADDON_LOADED(addOnName, containsBinding)
+  if addOnName == "Blizzard_Transmog" then
+    self:AttachToWardrobeCollection()
+    TransmogFrame.WardrobeCollection.companionsTabID = TransmogFrame.WardrobeCollection:AddNamedTab("Companions", self)
+    TransmogFrame.WardrobeCollection:UpdateTabs()
+  end
+end
+
+--------------------------------------------------------------------------------
+--- Initialization Logic
+--------------------------------------------------------------------------------
+
+function GMMPetListMixin:AttachToWardrobeCollection()
+  local container = TransmogFrame
+      and TransmogFrame.WardrobeCollection
+      and TransmogFrame.WardrobeCollection.TabContent
+  if not container then
+    return false
+  end
+
+  self:SetParent(container)
+  self:SetFrameStrata(container:GetFrameStrata())
+  self:SetFrameLevel(container:GetFrameLevel() + 1)
+  self:ClearAllPoints()
+  self:SetAllPoints(container)
+  self.wardrobeCollection = TransmogFrame.WardrobeCollection
+  return true
 end
 
 function GMMPetListMixin:ConfigureScrollView()
@@ -87,21 +139,9 @@ function GMMPetListMixin:ConfigureModel()
   end)
 end
 
-function GMMPetListMixin:OnShow()
-  self:UpdatePetList()
-end
-
-function GMMPetListMixin:OnHide()
-end
-
-function GMMPetListMixin:OnEvent(event, ...)
-  if event == "TRANSMOGRIFY_OPEN" then
-    C_Timer.After(0.1, function()
-      TransmogFrame.WardrobeCollection:AddNamedTab("Companions", self)
-    end)
-  end
-end
-
+--------------------------------------------------------------------------------
+--- Pet List Management
+--------------------------------------------------------------------------------
 function GMMPetListMixin:UpdatePetList()
   local dataProvider = CreateDataProvider()
   local numPets, ownedPetCount = C_PetJournal.GetNumPets()
@@ -180,6 +220,10 @@ function GMMPetListMixin:SetPetModel(displayId)
     companionModel:Hide()
   end
 end
+
+--------------------------------------------------------------------------------
+--- PetListButtonMixin
+--------------------------------------------------------------------------------
 
 PetListButtonMixin = {}
 
