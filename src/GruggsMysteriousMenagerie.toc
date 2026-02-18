@@ -19,4 +19,4 @@ Utils\PetJournal.lua
 
 # Modules
 Modules.xml
-Views\PetList.xml
+Views\GMM_TransmogWardrobeCompanions.xml

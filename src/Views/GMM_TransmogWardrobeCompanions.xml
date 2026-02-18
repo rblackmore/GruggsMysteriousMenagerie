@@ -1,9 +1,9 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/AddOns/Blizzard_SharedXML/UI.xsd">
 
-  <Script file="PetList.lua" />
+  <Script file="GMM_TransmogWardrobeCompanions.lua" />
 
-  <Button name="GMMPetListButton" virtual="true" mixin="PetListButtonMixin">
+  <Button name="GMM_PetListButtonTemplate" mixin="GMM_PetListButtonMixin" virtual="true">
     <Anchors>
       <Anchor point="LEFT" x="0" y="0" />
     </Anchors>
@@ -64,8 +64,8 @@
     </Scripts>
   </Button>
 
-
-  <Frame name="PetList" mixin="GMMPetListMixin" setAllPoints="true" hidden="true">
+  <Frame name="GMM_TransmogWardrobeCompanionsTemplate" mixin="GMM_TransmogWardrobeCompanionsMixin"
+    setAllPoints="true" hidden="true" virtual="true">
     <Frames>
       <Frame parentKey="TopLeftInset" inherits="InsetFrameTemplate">
         <Size x="260" y="260" />
@@ -74,13 +74,10 @@
         </Anchors>
       </Frame>
 
-      <PlayerModel
-        parentKey="companionModel"
-        enableMouse="true"
-        hidden="false">
+      <PlayerModel parentKey="companionModel" enableMouse="true" hidden="false">
         <Anchors>
-          <Anchor point="TOPLEFT" relativeKey="$parent.TopLeftInset" x="4" y="-4" />
-          <Anchor point="BOTTOMRIGHT" relativeKey="$parent.TopLeftInset" x="-4" y="4" />
+          <Anchor point="TOPLEFT" relativeKey="$parent.TopLeftInset" />
+          <Anchor point="BOTTOMRIGHT" relativeKey="$parent.TopLeftInset" />
         </Anchors>
       </PlayerModel>
 
@@ -92,7 +89,6 @@
           <Anchor point="BOTTOMLEFT" x="0" y="24" />
         </Anchors>
       </Frame>
-
 
       <Frame parentKey="ScrollBox" inherits="WowScrollBoxList">
         <Anchors>
@@ -109,12 +105,10 @@
             x="8" y="0" />
         </Anchors>
       </EventFrame>
-
-
     </Frames>
 
     <KeyValues>
-      <KeyValue key="Title" value="Awesoem Pet List" />
+      <KeyValue key="Title" value="Awesome Pet List" />
     </KeyValues>
 
     <Scripts>

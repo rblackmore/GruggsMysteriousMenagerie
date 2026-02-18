@@ -1,50 +1,46 @@
-GMMPetListMixin = {}
-
-local EVENTS_TO_REGISTER = {
-  "TRANSMOGRIFY_OPEN",
-  "ADDON_LOADED"
-}
 --------------------------------------------------------------------------------
+--- TransmogWardrobeCompanionsMixin
+--------------------------------------------------------------------------------
+GMM_TransmogWardrobeCompanionsMixin = {
+  EVENTS_TO_REGISTER = {}
+}
+
+
 --- Script Handlers
 --------------------------------------------------------------------------------
-function GMMPetListMixin:OnLoad()
-  for i, event in ipairs(EVENTS_TO_REGISTER) do
-    self:RegisterEvent(event)
-  end
-
+function GMM_TransmogWardrobeCompanionsMixin:OnLoad()
+  self:RegisterEvents()
   self:ConfigureScrollView()
   self:ConfigureModel()
 end
 
-function GMMPetListMixin:OnShow()
+function GMM_TransmogWardrobeCompanionsMixin:OnShow()
   self:UpdatePetList()
 end
 
-function GMMPetListMixin:OnHide()
+function GMM_TransmogWardrobeCompanionsMixin:OnHide()
 end
 
-function GMMPetListMixin:OnEvent(event, ...)
+function GMM_TransmogWardrobeCompanionsMixin:OnEvent(event, ...)
   if (self[event]) then
     self[event](self, ...)
   end
 end
 
---------------------------------------------------------------------------------
 --- Event Handlers
 --------------------------------------------------------------------------------
-function GMMPetListMixin:ADDON_LOADED(addOnName, containsBinding)
-  if addOnName == "Blizzard_Transmog" then
-    self:AttachToWardrobeCollection()
-    TransmogFrame.WardrobeCollection.companionsTabID = TransmogFrame.WardrobeCollection:AddNamedTab("Companions", self)
-    TransmogFrame.WardrobeCollection:UpdateTabs()
-  end
-end
 
---------------------------------------------------------------------------------
+
 --- Initialization Logic
 --------------------------------------------------------------------------------
 
-function GMMPetListMixin:AttachToWardrobeCollection()
+function GMM_TransmogWardrobeCompanionsMixin:RegisterEvents()
+  for i, event in ipairs(self.EVENTS_TO_REGISTER) do
+    self:RegisterEvent(event)
+  end
+end
+
+function GMM_TransmogWardrobeCompanionsMixin:AttachToWardrobeCollection()
   local container = TransmogFrame
       and TransmogFrame.WardrobeCollection
       and TransmogFrame.WardrobeCollection.TabContent
@@ -61,9 +57,9 @@ function GMMPetListMixin:AttachToWardrobeCollection()
   return true
 end
 
-function GMMPetListMixin:ConfigureScrollView()
+function GMM_TransmogWardrobeCompanionsMixin:ConfigureScrollView()
   local view = CreateScrollBoxListLinearView()
-  view:SetElementInitializer("GMMPetListButton", function(item, data)
+  view:SetElementInitializer("GMM_PetListButtonTemplate", function(item, data)
     self:InitPetListItem(item, data)
   end)
   view:SetPadding(0, 0, 32, 0, 0)
@@ -71,7 +67,7 @@ function GMMPetListMixin:ConfigureScrollView()
   self.selectedPet = { index = 0, petId = nil }
 end
 
-function GMMPetListMixin:ConfigureModel()
+function GMM_TransmogWardrobeCompanionsMixin:ConfigureModel() -- TODO: Update this so it's part of a mixin for the model itself
   local companionModel = self.companionModel
 
   companionModel.isRotating = false
@@ -94,7 +90,6 @@ function GMMPetListMixin:ConfigureModel()
     local x, y, z = me:GetPosition()
     me:SetPosition(me.currentZoom, y, z)
     me:RefreshCamera()
-    print(me:GetPosition())
   end)
 
   companionModel:SetScript("OnMouseDown", function(me, button)
@@ -109,6 +104,7 @@ function GMMPetListMixin:ConfigureModel()
       me.currentRotation = math.pi * 0.25
       companionModel:SetRotation(me.currentRotation)
       companionModel:SetPosition(0, 0, 0)
+      companionModel:RefreshCamera()
     end
   end)
 
@@ -139,10 +135,9 @@ function GMMPetListMixin:ConfigureModel()
   end)
 end
 
---------------------------------------------------------------------------------
 --- Pet List Management
 --------------------------------------------------------------------------------
-function GMMPetListMixin:UpdatePetList()
+function GMM_TransmogWardrobeCompanionsMixin:UpdatePetList()
   local dataProvider = CreateDataProvider()
   local numPets, ownedPetCount = C_PetJournal.GetNumPets()
   local ownedIds = C_PetJournal.GetOwnedPetIDs()
@@ -154,7 +149,7 @@ function GMMPetListMixin:UpdatePetList()
   self.ScrollBox:SetDataProvider(dataProvider, ScrollBoxConstants.RetainScrollPosition)
 end
 
-function GMMPetListMixin:InitPetListItem(item, data)
+function GMM_TransmogWardrobeCompanionsMixin:InitPetListItem(item, data)
   if not data or not data.petId then
     return
   end
@@ -198,7 +193,7 @@ function GMMPetListMixin:InitPetListItem(item, data)
   item:Show()
 end
 
-function GMMPetListMixin:SelectPetByPetID(petId)
+function GMM_TransmogWardrobeCompanionsMixin:SelectPetByPetID(petId)
   local speciesID, customName, level, xp, maxXp, displayID, favorite, name, icon, petType, creatureID, sourceText, description, isWild, canBattle, isTradeable, isUnique, obtainable =
       C_PetJournal.GetPetInfoByPetID(petId)
 
@@ -209,7 +204,7 @@ function GMMPetListMixin:SelectPetByPetID(petId)
   self:UpdatePetList()
 end
 
-function GMMPetListMixin:SetPetModel(displayId)
+function GMM_TransmogWardrobeCompanionsMixin:SetPetModel(displayId)
   local companionModel = self.companionModel
 
   if displayId then
@@ -225,8 +220,30 @@ end
 --- PetListButtonMixin
 --------------------------------------------------------------------------------
 
-PetListButtonMixin = {}
+GMM_PetListButtonMixin = {}
 
-function PetListButtonMixin:OnLoad()
+function GMM_PetListButtonMixin:OnLoad()
   self:RegisterForClicks("LeftButtonUp")
 end
+
+--------------------------------------------------------------------------------
+--- Load Frame On Demand
+--------------------------------------------------------------------------------
+local function OnEvent(self, event, ...)
+  if event == "ADDON_LOADED" then
+    local addOnName = select(1, ...)
+    if addOnName == "Blizzard_Transmog" then
+      GMM_CompanionsFrame = CreateFrame("Frame", nil, nil, "GMM_TransmogWardrobeCompanionsTemplate")
+      GMM_CompanionsFrame:AttachToWardrobeCollection()
+      TransmogFrame.WardrobeCollection.gmmCompanionsTabID =
+          TransmogFrame.WardrobeCollection:AddNamedTab("Companions", GMM_CompanionsFrame)
+      TransmogFrame.WardrobeCollection:UpdateTabs()
+      self:UnregisterEvent("ADDON_LOADED")
+    end
+  end
+end
+
+local EventHandler = CreateFrame("Frame")
+
+EventHandler:RegisterEvent("ADDON_LOADED")
+EventHandler:SetScript("OnEvent", OnEvent)
