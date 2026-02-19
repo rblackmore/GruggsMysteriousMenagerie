@@ -1,27 +1,33 @@
 --------------------------------------------------------------------------------
 --- TransmogWardrobeCompanionsMixin
 --------------------------------------------------------------------------------
-GMM_TransmogWardrobeCompanionsMixin = {
-  EVENTS_TO_REGISTER = {}
+GMM_TransmogCompanionsMixin = {
+  EVENTS_TO_REGISTER = {},
+  COLLECTION_TEMPLATES = {
+    ["COLLECTION_ITEM"] = {
+      template = "GMM_CompanionModelTemplate",
+    }
+  }
+
 }
 
 
 --- Script Handlers
 --------------------------------------------------------------------------------
-function GMM_TransmogWardrobeCompanionsMixin:OnLoad()
+function GMM_TransmogCompanionsMixin:OnLoad()
   self:RegisterEvents()
   self:ConfigureScrollView()
   self:ConfigureModel()
 end
 
-function GMM_TransmogWardrobeCompanionsMixin:OnShow()
+function GMM_TransmogCompanionsMixin:OnShow()
   self:UpdatePetList()
 end
 
-function GMM_TransmogWardrobeCompanionsMixin:OnHide()
+function GMM_TransmogCompanionsMixin:OnHide()
 end
 
-function GMM_TransmogWardrobeCompanionsMixin:OnEvent(event, ...)
+function GMM_TransmogCompanionsMixin:OnEvent(event, ...)
   if (self[event]) then
     self[event](self, ...)
   end
@@ -34,13 +40,13 @@ end
 --- Initialization Logic
 --------------------------------------------------------------------------------
 
-function GMM_TransmogWardrobeCompanionsMixin:RegisterEvents()
+function GMM_TransmogCompanionsMixin:RegisterEvents()
   for i, event in ipairs(self.EVENTS_TO_REGISTER) do
     self:RegisterEvent(event)
   end
 end
 
-function GMM_TransmogWardrobeCompanionsMixin:AttachToWardrobeCollection()
+function GMM_TransmogCompanionsMixin:AttachToWardrobeCollection()
   local container = TransmogFrame
       and TransmogFrame.WardrobeCollection
       and TransmogFrame.WardrobeCollection.TabContent
@@ -57,7 +63,7 @@ function GMM_TransmogWardrobeCompanionsMixin:AttachToWardrobeCollection()
   return true
 end
 
-function GMM_TransmogWardrobeCompanionsMixin:ConfigureScrollView()
+function GMM_TransmogCompanionsMixin:ConfigureScrollView()
   local view = CreateScrollBoxListLinearView()
   view:SetElementInitializer("GMM_PetListButtonTemplate", function(item, data)
     self:InitPetListItem(item, data)
@@ -67,7 +73,7 @@ function GMM_TransmogWardrobeCompanionsMixin:ConfigureScrollView()
   self.selectedPet = { index = 0, petId = nil }
 end
 
-function GMM_TransmogWardrobeCompanionsMixin:ConfigureModel() -- TODO: Update this so it's part of a mixin for the model itself
+function GMM_TransmogCompanionsMixin:ConfigureModel() -- TODO: Update this so it's part of a mixin for the model itself
   local companionModel = self.companionModel
 
   companionModel.isRotating = false
@@ -137,7 +143,7 @@ end
 
 --- Pet List Management
 --------------------------------------------------------------------------------
-function GMM_TransmogWardrobeCompanionsMixin:UpdatePetList()
+function GMM_TransmogCompanionsMixin:UpdatePetList()
   local dataProvider = CreateDataProvider()
   local numPets, ownedPetCount = C_PetJournal.GetNumPets()
   local ownedIds = C_PetJournal.GetOwnedPetIDs()
@@ -149,7 +155,7 @@ function GMM_TransmogWardrobeCompanionsMixin:UpdatePetList()
   self.ScrollBox:SetDataProvider(dataProvider, ScrollBoxConstants.RetainScrollPosition)
 end
 
-function GMM_TransmogWardrobeCompanionsMixin:InitPetListItem(item, data)
+function GMM_TransmogCompanionsMixin:InitPetListItem(item, data)
   if not data or not data.petId then
     return
   end
@@ -193,7 +199,7 @@ function GMM_TransmogWardrobeCompanionsMixin:InitPetListItem(item, data)
   item:Show()
 end
 
-function GMM_TransmogWardrobeCompanionsMixin:SelectPetByPetID(petId)
+function GMM_TransmogCompanionsMixin:SelectPetByPetID(petId)
   local speciesID, customName, level, xp, maxXp, displayID, favorite, name, icon, petType, creatureID, sourceText, description, isWild, canBattle, isTradeable, isUnique, obtainable =
       C_PetJournal.GetPetInfoByPetID(petId)
 
@@ -204,7 +210,7 @@ function GMM_TransmogWardrobeCompanionsMixin:SelectPetByPetID(petId)
   self:UpdatePetList()
 end
 
-function GMM_TransmogWardrobeCompanionsMixin:SetPetModel(displayId)
+function GMM_TransmogCompanionsMixin:SetPetModel(displayId)
   local companionModel = self.companionModel
 
   if displayId then
@@ -227,13 +233,29 @@ function GMM_PetListButtonMixin:OnLoad()
 end
 
 --------------------------------------------------------------------------------
+--- CompanionModelMixin
+--------------------------------------------------------------------------------
+
+GMM_CompanionModelMixin = {}
+
+function GMM_CompanionModelMixin:OnLoad()
+
+end
+
+function GMM_CompanionModelMixin:Init()
+end
+
+function GMM_CompanionModelMixin:Reset()
+end
+
+--------------------------------------------------------------------------------
 --- Load Frame On Demand
 --------------------------------------------------------------------------------
 local function OnEvent(self, event, ...)
   if event == "ADDON_LOADED" then
     local addOnName = select(1, ...)
     if addOnName == "Blizzard_Transmog" then
-      GMM_CompanionsFrame = CreateFrame("Frame", nil, nil, "GMM_TransmogWardrobeCompanionsTemplate")
+      GMM_CompanionsFrame = CreateFrame("Frame", nil, nil, "GMM_TransmogCompanionsTemplate")
       GMM_CompanionsFrame:AttachToWardrobeCollection()
       TransmogFrame.WardrobeCollection.gmmCompanionsTabID =
           TransmogFrame.WardrobeCollection:AddNamedTab("Companions", GMM_CompanionsFrame)
@@ -241,9 +263,21 @@ local function OnEvent(self, event, ...)
       self:UnregisterEvent("ADDON_LOADED")
     end
   end
+
+  if event == "PLAYER_LOGIN" then
+    local f = CreateFrame("PlayerModel", nil, UIParent, "GMM_CompanionModelTemplate")
+    f:SetDisplayInfo(39380)
+    -- f:SetUnit("player")
+    f:SetRotation(math.pi * -0.15)
+    f:SetPortraitZoom(0.5)
+    f:SetPoint("CENTER")
+    f:RefreshCamera()
+    f:Show()
+  end
 end
 
 local EventHandler = CreateFrame("Frame")
 
 EventHandler:RegisterEvent("ADDON_LOADED")
+EventHandler:RegisterEvent("PLAYER_LOGIN")
 EventHandler:SetScript("OnEvent", OnEvent)
