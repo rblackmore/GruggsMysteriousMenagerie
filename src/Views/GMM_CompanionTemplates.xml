@@ -1,11 +1,22 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/AddOns/Blizzard_SharedXML/UI.xsd">
-<Script file="GMM_CompanionTemplates.lua"/>
+  <Script file="GMM_CompanionTemplates.lua" />
   <!-- Companion Model Element Template -->
   <PlayerModel
-    name="GMM_CompanionModelTemplate" mixin="GMM_CompanionModelMixin" virtual="true">
+    name="GMM_CompanionModelTemplate" mixin="GMM_CompanionModelMixin" virtual="true"
+    enableMouse="true">
     <Size x="100" y="132" />
     <Layers>
+      <Layer level="OVERLAY">
+        <FontString parentKey="Name" inherits="GameFontHighlight" justifyH="CENTER" alpha="0.5"
+          wordwrap="true" outline="NORMAL">
+          <Size x="90" y="0" />
+          <Color r="0.2" g="0.5" b="0.4" />
+          <Anchors>
+            <Anchor point="TOP" y="-2" />
+          </Anchors>
+        </FontString>
+      </Layer>
       <Layer level="BACKGROUND">
         <Texture parentKey="Background" setAllPoints="true">
           <Color r="0" g="0" b="0" />
@@ -20,7 +31,7 @@
       </Layer>
       <Layer level="HIGHLIGHT">
         <Texture parentKey="BorderHighlight" atlas="transmog-setCard-default"
-          alphaMode="ADD" useAtlasSize="true">
+          alphaMode="ADD" useAtlasSize="true" hidden="true">
           <Anchors>
             <Anchor point="CENTER" />
           </Anchors>
@@ -53,6 +64,7 @@
       </Button>
     </Frames>
     <Scripts>
+      <OnEnter method="OnEnter" />
       <!-- <OnLoad method="OnLoad" />
       <OnModelLoaded method="OnModelLoaded" />
       <OnMouseDown method="OnMouseDown" />

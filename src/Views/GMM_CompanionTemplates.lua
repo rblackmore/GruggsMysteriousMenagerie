@@ -15,10 +15,25 @@ function GMM_CompanionModelMixin:Init(elementData)
   end
 
   self:SetDisplayInfo(self.elementData.petInfo.displayID)
-  self:SetRotation(math.pi * -0.15)
-  self:SetPortraitZoom(0.5)
-  self:RefreshCamera();
+  self:RefreshModel()
+  self.Name:SetText(self.elementData.petInfo.name)
+end
+
+function GMM_CompanionModelMixin:OnEnter()
+  self.BorderHighlight:Show()
+end
+
+function GMM_CompanionModelMixin:OnLeave()
+  if not self:IsMouseOver() then
+    self.BorderHighlight:Hide()
+  end
 end
 
 function GMM_CompanionModelMixin:Reset()
+end
+
+function GMM_CompanionModelMixin:RefreshModel()
+  self:SetRotation(math.pi * -0.15)
+  self:SetPortraitZoom(0.5)
+  self:RefreshCamera();
 end

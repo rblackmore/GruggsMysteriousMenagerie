@@ -113,17 +113,6 @@ local function OnEvent(self, event, ...)
       self:UnregisterEvent("ADDON_LOADED")
     end
   end
-
-  if event == "PLAYER_LOGIN" then
-    local f = CreateFrame("PlayerModel", nil, UIParent, "GMM_CompanionModelTemplate")
-    f:SetDisplayInfo(39380)
-    -- f:SetUnit("player")
-    f:SetRotation(math.pi * -0.15)
-    f:SetPortraitZoom(0.5)
-    f:SetPoint("CENTER")
-    f:RefreshCamera()
-    f:Show()
-  end
 end
 
 local EventHandler = CreateFrame("Frame")
