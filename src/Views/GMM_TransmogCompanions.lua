@@ -5,23 +5,22 @@ GMM_TransmogCompanionsMixin = {
   EVENTS_TO_REGISTER = {},
   COLLECTION_TEMPLATES = {
     ["COLLECTION_ITEM"] = {
-      template = "GMM_CompanionModelTemplate",
+      template = "GMM_CompanionModelTemplate", initFunc = GMM_CompanionModelMixin.Init
     }
   }
-
 }
 
 
 --- Script Handlers
 --------------------------------------------------------------------------------
 function GMM_TransmogCompanionsMixin:OnLoad()
+  self.PagedContent:SetElementTemplateData(self.COLLECTION_TEMPLATES)
+  self.ActiveTabTitle:SetText("Companions")
   self:RegisterEvents()
-  self:ConfigureScrollView()
-  self:ConfigureModel()
 end
 
 function GMM_TransmogCompanionsMixin:OnShow()
-  self:UpdatePetList()
+  self:Refresh()
 end
 
 function GMM_TransmogCompanionsMixin:OnHide()
@@ -31,6 +30,10 @@ function GMM_TransmogCompanionsMixin:OnEvent(event, ...)
   if (self[event]) then
     self[event](self, ...)
   end
+end
+
+function GMM_TransmogCompanionsMixin:Refresh()
+  self:RefreshCollectionEntries()
 end
 
 --- Event Handlers
@@ -63,189 +66,36 @@ function GMM_TransmogCompanionsMixin:AttachToWardrobeCollection()
   return true
 end
 
-function GMM_TransmogCompanionsMixin:ConfigureScrollView()
-  local view = CreateScrollBoxListLinearView()
-  view:SetElementInitializer("GMM_PetListButtonTemplate", function(item, data)
-    self:InitPetListItem(item, data)
-  end)
-  view:SetPadding(0, 0, 32, 0, 0)
-  ScrollUtil.InitScrollBoxListWithScrollBar(self.ScrollBox, self.ScrollBar, view)
-  self.selectedPet = { index = 0, petId = nil }
-end
-
-function GMM_TransmogCompanionsMixin:ConfigureModel() -- TODO: Update this so it's part of a mixin for the model itself
-  local companionModel = self.companionModel
-
-  companionModel.isRotating = false
-  companionModel.isDragging = false
-  companionModel.currentRotation = math.pi * 0.25
-  companionModel.currentZoom = 0
-
-  companionModel:SetRotation(companionModel.currentRotation)
-
-  companionModel:SetScript("OnMouseWheel", function(me, delta)
-    local sensitivity = 0.5
-    me.currentZoom = me.currentZoom + sensitivity * delta
-
-    if me.currentZoom > 1.0 then
-      me.currentZoom = 1.0
-    elseif me.currentZoom < -5.0 then
-      me.currentZoom = -5.0
-    end
-
-    local x, y, z = me:GetPosition()
-    me:SetPosition(me.currentZoom, y, z)
-    me:RefreshCamera()
-  end)
-
-  companionModel:SetScript("OnMouseDown", function(me, button)
-    if button == "LeftButton" then
-      companionModel.isRotating = true
-    elseif button == "RightButton" then
-      companionModel.isDragging = true
-    end
-
-    if button == "MiddleButton" then
-      me.currentZoom = 0
-      me.currentRotation = math.pi * 0.25
-      companionModel:SetRotation(me.currentRotation)
-      companionModel:SetPosition(0, 0, 0)
-      companionModel:RefreshCamera()
-    end
-  end)
-
-  companionModel:SetScript("OnMouseUp", function(me, button)
-    if button == "LeftButton" then
-      companionModel.isRotating = false
-    end
-
-    if button == "RightButton" then
-      companionModel.isDragging = false
-    end
-  end)
-
-  companionModel:SetScript("OnUpdate", function()
-    if companionModel.isRotating then
-      local x, y = GetCursorDelta()
-      local sensitivity = 0.005
-      companionModel.currentRotation = companionModel.currentRotation + x * sensitivity
-      companionModel:SetRotation(companionModel.currentRotation)
-    end
-
-    if companionModel.isDragging then
-      local posX, posY, posZ = companionModel:GetPosition()
-      local cursorX, cursorY = GetCursorDelta()
-      local sensitivity = 0.025
-      companionModel:SetPosition(posX, posY + cursorX * sensitivity, posZ + cursorY * sensitivity)
-    end
-  end)
-end
-
---- Pet List Management
+--- Paged Content Collection Management
 --------------------------------------------------------------------------------
-function GMM_TransmogCompanionsMixin:UpdatePetList()
-  local dataProvider = CreateDataProvider()
-  local numPets, ownedPetCount = C_PetJournal.GetNumPets()
-  local ownedIds = C_PetJournal.GetOwnedPetIDs()
+function GMM_TransmogCompanionsMixin:RefreshCollectionEntries()
+  -- Get pet Data then SetCollectionEntries
+  self.ownedPetIDs = C_PetJournal.GetOwnedPetIDs()
+  self.petCollectionEntries = {}
+  for i, petID in ipairs(self.ownedPetIDs) do
+    self.petCollectionEntries[i] = C_PetJournal.GetPetInfoTableByPetID(petID)
+  end
+  self:SetCollectionEntries(self.petCollectionEntries, true)
+end
 
-  for i = 1, ownedPetCount do
-    dataProvider:Insert({ index = i, petId = ownedIds[i] })
+function GMM_TransmogCompanionsMixin:SetCollectionEntries(entries, retainCurrentPage)
+  -- Add Sorting Function Here?
+
+  local collectionElements = {}
+  for i, itemEntry in ipairs(entries) do
+    local element = {
+      templateKey = "COLLECTION_ITEM",
+      petInfo = itemEntry,
+      collectionFrame = self
+    }
+    table.insert(collectionElements, element)
   end
 
-  self.ScrollBox:SetDataProvider(dataProvider, ScrollBoxConstants.RetainScrollPosition)
-end
+  -- Sort here with above function that will totally exist at some point in the future 😜
 
-function GMM_TransmogCompanionsMixin:InitPetListItem(item, data)
-  if not data or not data.petId then
-    return
-  end
-
-  local speciesID, customName, level, xp, maxXp, displayID, favorite, name, icon, petType, creatureID, sourceText, description, isWild, canBattle, isTradeable, isUnique, obtainable =
-      C_PetJournal.GetPetInfoByPetID(data.petId)
-
-  item.petId = data.petId
-  item.index = data.index
-  item.icon:SetTexture(icon)
-
-  if customName then
-    item.name:SetText(customName)
-    item.subName:SetText("(" .. name .. ")")
-    item.subName:Show()
-  else
-    item.name:SetText(name)
-    item.subName:Hide()
-  end
-
-  if self.selectedPet.petId == data.petId then
-    item.selected = true;
-    item.selectedTexture:Show()
-  else
-    item.selected = false
-    item.selectedTexture:Hide()
-  end
-
-  item:SetScript("OnEnter", function()
-    self:SetPetModel(displayID)
-  end)
-
-  item:SetScript("OnLeave", function()
-    self:SetPetModel(self.selectedPet.displayID)
-  end)
-
-  item:SetScript("OnClick", function()
-    self:SelectPetByPetID(item.petId)
-  end)
-
-  item:Show()
-end
-
-function GMM_TransmogCompanionsMixin:SelectPetByPetID(petId)
-  local speciesID, customName, level, xp, maxXp, displayID, favorite, name, icon, petType, creatureID, sourceText, description, isWild, canBattle, isTradeable, isUnique, obtainable =
-      C_PetJournal.GetPetInfoByPetID(petId)
-
-  self.selectedPet.petId = petId
-  self.selectedPet.displayID = displayID
-  self.selectedPet.speciesID = speciesID
-
-  self:UpdatePetList()
-end
-
-function GMM_TransmogCompanionsMixin:SetPetModel(displayId)
-  local companionModel = self.companionModel
-
-  if displayId then
-    companionModel:SetDisplayInfo(displayId)
-
-    companionModel:Show()
-  else
-    companionModel:Hide()
-  end
-end
-
---------------------------------------------------------------------------------
---- PetListButtonMixin
---------------------------------------------------------------------------------
-
-GMM_PetListButtonMixin = {}
-
-function GMM_PetListButtonMixin:OnLoad()
-  self:RegisterForClicks("LeftButtonUp")
-end
-
---------------------------------------------------------------------------------
---- CompanionModelMixin
---------------------------------------------------------------------------------
-
-GMM_CompanionModelMixin = {}
-
-function GMM_CompanionModelMixin:OnLoad()
-
-end
-
-function GMM_CompanionModelMixin:Init()
-end
-
-function GMM_CompanionModelMixin:Reset()
+  local collectionData = { { elements = collectionElements } }
+  local dataProvider = CreateDataProvider(collectionData)
+  self.PagedContent:SetDataProvider(dataProvider, retainCurrentPage)
 end
 
 --------------------------------------------------------------------------------
@@ -281,3 +131,93 @@ local EventHandler = CreateFrame("Frame")
 EventHandler:RegisterEvent("ADDON_LOADED")
 EventHandler:RegisterEvent("PLAYER_LOGIN")
 EventHandler:SetScript("OnEvent", OnEvent)
+
+-- function GMM_TransmogCompanionsMixin:UpdatePetList()
+--   local dataProvider = CreateDataProvider()
+--   local numPets, ownedPetCount = C_PetJournal.GetNumPets()
+--   local ownedIds = C_PetJournal.GetOwnedPetIDs()
+
+--   for i = 1, ownedPetCount do
+--     dataProvider:Insert({ index = i, petId = ownedIds[i] })
+--   end
+
+--   self.ScrollBox:SetDataProvider(dataProvider, ScrollBoxConstants.RetainScrollPosition)
+-- end
+
+-- function GMM_TransmogCompanionsMixin:InitPetListItem(item, data)
+--   if not data or not data.petId then
+--     return
+--   end
+
+--   local speciesID, customName, level, xp, maxXp, displayID, favorite, name, icon, petType, creatureID, sourceText, description, isWild, canBattle, isTradeable, isUnique, obtainable =
+--       C_PetJournal.GetPetInfoByPetID(data.petId)
+
+--   item.petId = data.petId
+--   item.index = data.index
+--   item.icon:SetTexture(icon)
+
+--   if customName then
+--     item.name:SetText(customName)
+--     item.subName:SetText("(" .. name .. ")")
+--     item.subName:Show()
+--   else
+--     item.name:SetText(name)
+--     item.subName:Hide()
+--   end
+
+--   if self.selectedPet.petId == data.petId then
+--     item.selected = true;
+--     item.selectedTexture:Show()
+--   else
+--     item.selected = false
+--     item.selectedTexture:Hide()
+--   end
+
+--   item:SetScript("OnEnter", function()
+--     self:SetPetModel(displayID)
+--   end)
+
+--   item:SetScript("OnLeave", function()
+--     self:SetPetModel(self.selectedPet.displayID)
+--   end)
+
+--   item:SetScript("OnClick", function()
+--     self:SelectPetByPetID(item.petId)
+--   end)
+
+--   item:Show()
+-- end
+
+
+--------------------------------------------------------------------------------
+--- PetListButtonMixin
+--------------------------------------------------------------------------------
+
+-- GMM_PetListButtonMixin = {}
+
+-- function GMM_PetListButtonMixin:OnLoad()
+--   self:RegisterForClicks("LeftButtonUp")
+-- end
+
+-- function GMM_TransmogCompanionsMixin:SelectPetByPetID(petId)
+--   local speciesID, customName, level, xp, maxXp, displayID, favorite, name, icon, petType, creatureID, sourceText, description, isWild, canBattle, isTradeable, isUnique, obtainable =
+--       C_PetJournal.GetPetInfoByPetID(petId)
+
+--   self.selectedPet.petId = petId
+--   self.selectedPet.displayID = displayID
+--   self.selectedPet.speciesID = speciesID
+
+--   self:UpdatePetList()
+-- end
+
+-- function GMM_TransmogCompanionsMixin:SetPetModel(displayId)
+--   local companionModel = self.companionModel
+
+--   if displayId then
+--     companionModel:SetDisplayInfo(displayId)
+
+--     companionModel:Show()
+--   else
+--     companionModel:Hide()
+--   end
+-- end

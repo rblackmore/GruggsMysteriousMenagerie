@@ -19,4 +19,5 @@ Utils\PetJournal.lua
 
 # Modules
 Modules.xml
+Views\GMM_CompanionTemplates.xml
 Views\GMM_TransmogCompanions.xml
