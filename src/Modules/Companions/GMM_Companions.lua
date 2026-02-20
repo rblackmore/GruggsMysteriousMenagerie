@@ -21,17 +21,44 @@ function mod:OnDisable()
   end
 end
 
-function mod:CallSummonCompanion(announce)
+-- Using a priority list, chooses a random petId from a variety of Data Tables.
+function mod:ChooseRandomCompanion()
+  local outfitid = C_TransmogOutfitInfo.GetActiveOutfitID()
+  local outfitDb = addOn:GetOutfitTableOrNil(outfitid)
+
+  if outfitDb and outfitDb.Total > 0 then
+    local rando = math.random(#outfitDb)
+    return outfitDb[rando]
+  end
+
+  -- TODO: Pick Random from other sources.
+
+  -- Ultimate Default - Just pick any owned pet.
+  local ownedPetIds = C_PetJournal.GetOwnedPetIDs()
+  return ownedPetIds[math.random(#ownedPetIds)]
+end
+
+-- Calls SummonNewCompanion Immediately if not in Combat, else registers for 'PLAYER_REGEN_ENABLED' and calls When out of combat.
+function mod:CallSummonCompanion(petId)
   if InCombatLockdown() then
     self:RegisterEvent("PLAYER_REGEN_ENABLED", function()
-      mod:SummonCompanion(announce)
+      mod:SummonNewCompanion(petId)
       self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-      -- Remove from evnets registered
     end)
-    -- add to events registered
   else
-    mod:SummonCompanion(announce)
+    mod:SummonNewCompanion(petId)
   end
+end
+
+function mod:SummonNewCompanion(petId)
+  local currentPet = C_PetJournal.GetSummonedPetGUID()
+  if petId == currentPet then
+    return false
+  end
+
+  C_PetJournal.SummonPetByGUID(petId)
+  local newpet = C_PetJournal.GetSummonedPetGUID()
+  return newpet == petId
 end
 
 function mod:SummonCompanion(announce)

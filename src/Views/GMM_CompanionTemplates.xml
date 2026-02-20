@@ -13,16 +13,6 @@
         </Texture>
       </Layer>
       <Layer level="OVERLAY">
-        <FontString parentKey="Name" inherits="GameFontHighlight" justifyH="CENTER" alpha="0.75"
-          wordwrap="true" outline="NORMAL">
-          <Size x="90" y="0" />
-          <Color r="0.2" g="0.5" b="0.4" />
-          <Anchors>
-            <Anchor point="TOP" y="-2" />
-          </Anchors>
-        </FontString>
-      </Layer>
-      <Layer level="OVERLAY">
         <Texture parentKey="Border" atlas="transmog-itemCard-default" useAtlasSize="true">
           <Anchors>
             <Anchor point="CENTER" />
@@ -37,6 +27,12 @@
             <Anchor point="CENTER" />
           </Anchors>
         </Texture>
+        <Texture parentKey="FavoriteIcon" atlas="transmog-icon-favorite" hidden="true"
+          useAtlasSize="true">
+          <Anchors>
+            <Anchor point="TOPRIGHT" x="-4" y="-4" />
+          </Anchors>
+        </Texture>
       </Layer>
       <Layer level="HIGHLIGHT">
         <Texture parentKey="BorderHighlight" atlas="transmog-itemCard-hover"
@@ -49,6 +45,7 @@
     </Layers>
     <Scripts>
       <OnEnter method="OnEnter" />
+      <OnLeave method="OnLeave" />
       <OnMouseUp method="OnMouseUp" />
       <OnMouseDown method="OnMouseDown" />
       <!-- <OnLoad method="OnLoad" />

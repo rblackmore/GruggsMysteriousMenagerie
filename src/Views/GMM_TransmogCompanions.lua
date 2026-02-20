@@ -88,6 +88,15 @@ end
 function GMM_TransmogCompanionsMixin:SetCollectionEntries(entries, retainCurrentPage)
   -- Add Sorting Function Here?
 
+  local function compare(left, right)
+    local sourceLeft = left.petInfo
+    local sourceRight = right.petInfo
+
+    if (sourceLeft.isFavorite ~= sourceRight.isFavorite) then
+      return sourceLeft.isFavorite
+    end
+  end
+
   local outfitId = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
   local outfitDb = self:GetOutfitTableOrNil(outfitId)
   local collectionElements = {}
@@ -102,6 +111,7 @@ function GMM_TransmogCompanionsMixin:SetCollectionEntries(entries, retainCurrent
   end
 
   -- Sort here with above function that will totally exist at some point in the future 😜
+  table.sort(collectionElements, compare)
 
   local collectionData = { { elements = collectionElements } }
   local dataProvider = CreateDataProvider(collectionData)

@@ -15,23 +15,26 @@ function GMM_CompanionModelMixin:Init(elementData)
   end
 
   self:SetDisplayInfo(self.elementData.petInfo.displayID)
-  self.Name:SetText(self.elementData.petInfo.name)
+  self.FavoriteIcon:SetShown(self.elementData.petInfo.isFavorite)
 
   self:Refresh()
 end
 
 function GMM_CompanionModelMixin:OnEnter()
   self.BorderHighlight:Show()
+  self:RefreshGameTooltip()
 end
 
 function GMM_CompanionModelMixin:OnLeave()
-  if not self:IsMouseOver() then
-    self.BorderHighlight:Hide()
-  end
+  self.BorderHighlight:Hide()
+  GameTooltip:Hide()
 end
 
 function GMM_CompanionModelMixin:OnMouseUp(button, isInside)
-  if not button == "LeftButton" or not isInside then
+  if not button == "LeftButton" then
+    return
+  end
+  if not isInside then
     return
   end
 
@@ -43,7 +46,6 @@ function GMM_CompanionModelMixin:OnMouseUp(button, isInside)
 end
 
 function GMM_CompanionModelMixin:OnMouseDown(button)
-  print("OnMouseDown", self.elementData.petInfo.name)
 end
 
 function GMM_CompanionModelMixin:Reset()
@@ -58,6 +60,17 @@ function GMM_CompanionModelMixin:RefreshModel()
   self:SetRotation(math.pi * -0.15)
   self:SetPortraitZoom(0.5)
   self:RefreshCamera();
+end
+
+function GMM_CompanionModelMixin:RefreshGameTooltip()
+  if not self.elementData then
+    return
+  end
+  GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+  local itemQuality = C_Item.GetItemQualityByID(self.elementData.petInfo.petId)
+
+  GameTooltip:SetText(self.elementData.petInfo.name)
+  GameTooltip:Show()
 end
 
 function GMM_CompanionModelMixin:UpdateElementBorder()

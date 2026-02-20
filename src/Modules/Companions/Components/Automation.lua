@@ -95,29 +95,45 @@ function CompanionModule:SetPetOfTheDay(pet)
   }
 end
 
-local currentTimerId = nil;
-
 function CompanionModule:AutomationHandler()
+  -- Triggers a timer to summon the pet after x seconds.
   if (self:IsTimerActive()) then
     return
   end
-  if not HasFullControl() or C_PetJournal.GetSummonedPetGUID() then
+  if not HasFullControl() then
     return
   end
 
-  local settings = CompanionModule.Settings
-
-  currentTimerId = self:ScheduleTimer(function()
-    local zoneType = MapInfo:GetCurrentZoneType()
-    if settings["Automation"][zoneType] then
-      CompanionModule:CallSummonCompanion(false)
+  local delay = CompanionModule.Settings.Automation.delay
+  self.currentTimerId = self:ScheduleTimer(function()
+    local petId = self:ChooseRandomCompanion()
+    if petId then
+      self:CallSummonCompanion(petId)
     end
-  end, settings["Automation"]["delay"])
+  end, delay)
 end
 
+-- function CompanionModule:AutomationHandler()
+--   if (self:IsTimerActive()) then
+--     return
+--   end
+--   if not HasFullControl() or C_PetJournal.GetSummonedPetGUID() then
+--     return
+--   end
+
+--   local settings = CompanionModule.Settings
+
+--   self.currentTimerId = self:ScheduleTimer(function()
+--     local zoneType = MapInfo:GetCurrentZoneType()
+--     if settings["Automation"][zoneType] then
+--       CompanionModule:CallSummonCompanion(false)
+--     end
+--   end, settings["Automation"]["delay"])
+-- end
+
 function CompanionModule:IsTimerActive()
-  if currentTimerId ~= nil then
-    local timeLeft = self:TimeLeft(currentTimerId)
+  if self.currentTimerId ~= nil then
+    local timeLeft = self:TimeLeft(self.currentTimerId)
     return timeLeft > 0
   end
   return false

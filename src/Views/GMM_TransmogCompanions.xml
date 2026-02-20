@@ -26,7 +26,8 @@
       </Layer>
     </Layers>
     <Frames>
-      <DropdownButton parentKey="FilterButton" inherits="WowStyle1FilterDropdownTemplate">
+      <DropdownButton hidden="true" parentKey="FilterButton"
+        inherits="WowStyle1FilterDropdownTemplate">
         <KeyValues>
           <KeyValue key="resizeToText" type="boolean" value="false" />
         </KeyValues>
@@ -34,7 +35,7 @@
           <Anchor point="TOPRIGHT" x="-29" y="-58" />
         </Anchors>
       </DropdownButton>
-      <EditBox parentKey="SearchBox" inherits="TransmogSearchBoxTemplate">
+      <EditBox hidden="true" parentKey="SearchBox" inherits="TransmogSearchBoxTemplate">
         <Anchors>
           <Anchor point="TOPRIGHT" relativeKey="$parent.FilterButton" relativePoint="TOPLEFT"
             x="-10" y="1" />
@@ -73,7 +74,6 @@
       <OnEvent method="OnEvent" />
     </Scripts>
   </Frame>
-
 
 
   <!-- Pet List Item Button -->
