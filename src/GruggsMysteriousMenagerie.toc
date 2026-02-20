@@ -5,6 +5,7 @@
 ## Author: {{AUTHOR}}
 ## Category: Collections
 ## SavedVariables: GMM_DB
+## SavedVariablesPerCharacter: GMM_OUTFITS_DB
 ## OptionalDeps: Ace3
 
 Libs.xml
@@ -12,6 +13,7 @@ Libs.xml
 GruggsMysteriousMenagerie.lua
 GMM_DB.lua
 GMM_Options.lua
+Views\DB\GMM_TransmogCompanionDB.lua
 
 # Utils
 Utils\MapInfo.lua

@@ -27,6 +27,7 @@ local registeredEvents = {}
 
 function addOn:OnInitialize()
   self:InitializeDatabase()
+  self:InitializeTransmogDatabase()
 
   Options:InitializeOptions()
   self:RegisterChatCommand("gmm", "SlashCommand")

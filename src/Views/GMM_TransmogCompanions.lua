@@ -1,3 +1,8 @@
+local addonName, addonTable = ...
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
+local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
+
+
 --------------------------------------------------------------------------------
 --- TransmogWardrobeCompanionsMixin
 --------------------------------------------------------------------------------
@@ -14,6 +19,7 @@ GMM_TransmogCompanionsMixin = {
 --- Script Handlers
 --------------------------------------------------------------------------------
 function GMM_TransmogCompanionsMixin:OnLoad()
+  self.db = addOn.outfitDb.char
   self.PagedContent:SetElementTemplateData(self.COLLECTION_TEMPLATES)
   self.ActiveTabTitle:SetText("Companions")
   self:RegisterEvents()
@@ -74,6 +80,7 @@ function GMM_TransmogCompanionsMixin:RefreshCollectionEntries()
   self.petCollectionEntries = {}
   for i, petID in ipairs(self.ownedPetIDs) do
     self.petCollectionEntries[i] = C_PetJournal.GetPetInfoTableByPetID(petID)
+    self.petCollectionEntries[i].petId = petID
   end
   self:SetCollectionEntries(self.petCollectionEntries, true)
 end
@@ -96,6 +103,44 @@ function GMM_TransmogCompanionsMixin:SetCollectionEntries(entries, retainCurrent
   local collectionData = { { elements = collectionElements } }
   local dataProvider = CreateDataProvider(collectionData)
   self.PagedContent:SetDataProvider(dataProvider, retainCurrentPage)
+end
+
+--------------------------------------------------------------------------------
+--- Database Management
+--------------------------------------------------------------------------------
+
+-- TODO: Perhaps this shoudl be 'AddOrRemove, return ture for add, false if removed.'
+function GMM_TransmogCompanionsMixin:AddPetToOutfit(outfitid, petId)
+  
+  local db = self:GetOrCreateOutfitTableFor(outfitid)
+  local function ContainsPetId(tbl, petId)
+    for i, v in ipairs(tbl) do
+      if v == petId then
+        return true
+      end
+    end
+    return false
+  end
+
+  if not ContainsPetId(db, petId) then
+    table.insert(db, petId)
+    db.Total = #db
+    return true
+  end
+  return false
+end
+
+function GMM_TransmogCompanionsMixin:GetOrCreateOutfitTableFor(outfitid)
+  if self.db["Outfits"][outfitid] then
+    return self.db["Outfits"][outfitid]
+  end
+
+  local outfitdb = {
+    Total = 0
+  }
+
+  self.db["Outfits"][outfitid] = outfitdb
+  return self.db["Outfits"][outfitid]
 end
 
 --------------------------------------------------------------------------------

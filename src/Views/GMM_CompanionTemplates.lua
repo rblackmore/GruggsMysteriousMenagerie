@@ -29,6 +29,21 @@ function GMM_CompanionModelMixin:OnLeave()
   end
 end
 
+function GMM_CompanionModelMixin:OnMouseUp(button, isInside)
+  if not button == "LeftButton" or not isInside then
+    return
+  end
+
+  local viewedOutfitId = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
+  local petId = self.elementData.petInfo.petId
+
+  self.elementData.collectionFrame:AddPetToOutfit(viewedOutfitId, petId)
+end
+
+function GMM_CompanionModelMixin:OnMouseDown(button)
+  print("OnMouseDown", self.elementData.petInfo.name)
+end
+
 function GMM_CompanionModelMixin:Reset()
 end
 
