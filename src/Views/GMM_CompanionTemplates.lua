@@ -15,8 +15,9 @@ function GMM_CompanionModelMixin:Init(elementData)
   end
 
   self:SetDisplayInfo(self.elementData.petInfo.displayID)
-  self:RefreshModel()
   self.Name:SetText(self.elementData.petInfo.name)
+
+  self:Refresh()
 end
 
 function GMM_CompanionModelMixin:OnEnter()
@@ -37,7 +38,8 @@ function GMM_CompanionModelMixin:OnMouseUp(button, isInside)
   local viewedOutfitId = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
   local petId = self.elementData.petInfo.petId
 
-  self.elementData.collectionFrame:AddPetToOutfit(viewedOutfitId, petId)
+  self.elementData.isSelected = self.elementData.collectionFrame:AddOrRemovePetToOutfit(viewedOutfitId, petId)
+  self:Refresh()
 end
 
 function GMM_CompanionModelMixin:OnMouseDown(button)
@@ -47,8 +49,17 @@ end
 function GMM_CompanionModelMixin:Reset()
 end
 
+function GMM_CompanionModelMixin:Refresh()
+  self:RefreshModel()
+  self:UpdateElementBorder()
+end
+
 function GMM_CompanionModelMixin:RefreshModel()
   self:SetRotation(math.pi * -0.15)
   self:SetPortraitZoom(0.5)
   self:RefreshCamera();
+end
+
+function GMM_CompanionModelMixin:UpdateElementBorder()
+  self.SelectedBorder:SetShown(self.elementData.isSelected)
 end

@@ -88,12 +88,15 @@ end
 function GMM_TransmogCompanionsMixin:SetCollectionEntries(entries, retainCurrentPage)
   -- Add Sorting Function Here?
 
+  local outfitId = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
+  local outfitDb = self:GetOutfitTableOrNil(outfitId)
   local collectionElements = {}
   for i, itemEntry in ipairs(entries) do
     local element = {
       templateKey = "COLLECTION_ITEM",
       petInfo = itemEntry,
-      collectionFrame = self
+      collectionFrame = self,
+      isSelected = self:OutfitContainsPetId(outfitDb, itemEntry.petId)
     }
     table.insert(collectionElements, element)
   end
@@ -110,24 +113,18 @@ end
 --------------------------------------------------------------------------------
 
 -- TODO: Perhaps this shoudl be 'AddOrRemove, return ture for add, false if removed.'
-function GMM_TransmogCompanionsMixin:AddPetToOutfit(outfitid, petId)
-  
+function GMM_TransmogCompanionsMixin:AddOrRemovePetToOutfit(outfitid, petId)
   local db = self:GetOrCreateOutfitTableFor(outfitid)
-  local function ContainsPetId(tbl, petId)
-    for i, v in ipairs(tbl) do
-      if v == petId then
-        return true
-      end
-    end
-    return false
-  end
-
-  if not ContainsPetId(db, petId) then
+  local hasId, index = self:OutfitContainsPetId(db, petId)
+  if not hasId then
     table.insert(db, petId)
     db.Total = #db
     return true
+  else
+    table.remove(db, index)
+    db.Total = #db
+    return false
   end
-  return false
 end
 
 function GMM_TransmogCompanionsMixin:GetOrCreateOutfitTableFor(outfitid)
@@ -141,6 +138,29 @@ function GMM_TransmogCompanionsMixin:GetOrCreateOutfitTableFor(outfitid)
 
   self.db["Outfits"][outfitid] = outfitdb
   return self.db["Outfits"][outfitid]
+end
+
+function GMM_TransmogCompanionsMixin:GetOutfitTableOrNil(outfitid)
+  if self.db["Outfits"][outfitid] then
+    return self.db["Outfits"][outfitid]
+  else
+    return nil
+  end
+end
+
+--------------------------------------------------------------------------------
+--- Utility
+--------------------------------------------------------------------------------
+
+function GMM_TransmogCompanionsMixin:OutfitContainsPetId(tbl, petId)
+  if tbl == nil then return false end
+
+  for i, v in ipairs(tbl) do
+    if v == petId then
+      return true, i
+    end
+  end
+  return false, nil
 end
 
 --------------------------------------------------------------------------------

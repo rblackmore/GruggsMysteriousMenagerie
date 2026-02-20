@@ -7,6 +7,11 @@
     enableMouse="true">
     <Size x="100" y="132" />
     <Layers>
+      <Layer level="BACKGROUND">
+        <Texture parentKey="Background" setAllPoints="true">
+          <Color r="0.025" g="0.025" b="0.025" />
+        </Texture>
+      </Layer>
       <Layer level="OVERLAY">
         <FontString parentKey="Name" inherits="GameFontHighlight" justifyH="CENTER" alpha="0.75"
           wordwrap="true" outline="NORMAL">
@@ -17,20 +22,24 @@
           </Anchors>
         </FontString>
       </Layer>
-      <Layer level="BACKGROUND">
-        <Texture parentKey="Background" setAllPoints="true">
-          <Color r="0" g="0" b="0" />
+      <Layer level="OVERLAY">
+        <Texture parentKey="Border" atlas="transmog-itemCard-default" useAtlasSize="true">
+          <Anchors>
+            <Anchor point="CENTER" />
+          </Anchors>
         </Texture>
       </Layer>
       <Layer level="OVERLAY">
-        <Texture parentKey="Border" atlas="transmog-setCard-default" useAtlasSize="true">
+        <Texture parentKey="SelectedBorder" atlas="transmog-itemCard-transmogrified-pending"
+          hidden="true"
+          useAtlasSize="true">
           <Anchors>
             <Anchor point="CENTER" />
           </Anchors>
         </Texture>
       </Layer>
       <Layer level="HIGHLIGHT">
-        <Texture parentKey="BorderHighlight" atlas="transmog-setCard-default"
+        <Texture parentKey="BorderHighlight" atlas="transmog-itemCard-hover"
           alphaMode="ADD" useAtlasSize="true" hidden="true">
           <Anchors>
             <Anchor point="CENTER" />
