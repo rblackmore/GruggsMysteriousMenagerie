@@ -57,7 +57,7 @@ function GMM_CompanionModelMixin:Refresh()
 end
 
 function GMM_CompanionModelMixin:RefreshModel()
-  self:SetRotation(math.pi * -0.15)
+  -- self:SetRotation(math.pi * -0.15)
   self:SetPortraitZoom(0.5)
   self:RefreshCamera();
 end

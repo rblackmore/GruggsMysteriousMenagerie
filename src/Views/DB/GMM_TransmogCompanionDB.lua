@@ -14,15 +14,11 @@ function addOn:InitializeTransmogDatabase()
   addOn.outfitDb = LibStub("AceDB-3.0"):New("GMM_OUTFITS_DB", defaults, true)
 end
 
-function addOn:GetPetsForCurrentOutfit()
+function addOn:GetActiveOutfitTable()
   local outfitid = C_TransmogOutfitInfo.GetActiveOutfitID()
   return self:GetOutfitTableOrNil(outfitid)
 end
 
 function addOn:GetOutfitTableOrNil(outfitid)
-  if self.outfitDb.char["Outfits"][outfitid] then
-    return self.outfitDb.char["Outfits"][outfitid]
-  else
-    return nil
-  end
+  return self.outfitDb.char["Outfits"][outfitid]
 end

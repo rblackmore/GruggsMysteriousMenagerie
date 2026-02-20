@@ -32,7 +32,9 @@ function addOn:OnInitialize()
   Options:InitializeOptions()
   self:RegisterChatCommand("gmm", "SlashCommand")
   self:RegisterChatCommand("gmsummon", function()
-    companionModule:SummonCompanion(true)
+    local petID = companionModule:ChooseRandomCompanion(false)
+    companionModule:SummonCompanion(petID)
+    companionModule:AnnounceSummon(petID)
   end)
 end
 
