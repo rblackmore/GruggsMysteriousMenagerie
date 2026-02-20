@@ -58,6 +58,10 @@ function mod:UNIT_EXITED_VEHICLE()
 end
 
 function mod:AutomationHandler()
+  if not mod.Settings.Automation[addOn.MapInfo:GetCurrentZoneType()] then
+    return
+  end
+
   -- Triggers a timer to summon the pet after x seconds.
   if (self:IsTimerActive()) then
     return

@@ -6,13 +6,14 @@ local mod = addOn:GetModule("CompanionModule");
 
 function mod:OnInitialize()
   self:InitializeAutomation()
+  self.CompanionDB = addOn.db["profile"]["Companions"]
+  self.Settings = self.CompanionDB["Settings"]
 end
 
 function mod:OnEnable()
   for name, mod in self:IterateModules() do
     mod:Enable()
   end
-  self:InitializeCompanionDB()
 end
 
 function mod:OnDisable()
@@ -24,30 +25,23 @@ end
 -- Using a priority list, chooses a random petId from a variety of Data Tables.
 function mod:ChooseRandomCompanion(force)
   local podSettings = self.Settings["Automation"]["PetOfTheDay"]
-  if not force then
-    if podSettings.Enabled then
-      print("Getting POD")
-      return self:GetPetofTheDay()
-    end
-  end
 
-  print("Getting Rando")
+  if podSettings.Enabled and not force then
+    return self:GetPetofTheDay()
+  end
 
   local outfitDb = addOn:GetActiveOutfitTable()
 
   if outfitDb and outfitDb.Total > 0 then
     local rando = math.random(#outfitDb)
-    local theChosen = outfitDb[rando]
-    self:Print("The Cosen", theChosen)
-    return theChosen
+    return outfitDb[rando]
   end
 
   -- TODO: Pick Random from other sources.
 
   -- Ultimate Default - Just pick any owned pet.
   local ownedPetIds = C_PetJournal.GetOwnedPetIDs()
-  local theChosen = ownedPetIds[math.random(#ownedPetIds)]
-  return theChosen
+  return ownedPetIds[math.random(#ownedPetIds)]
 end
 
 -- Calls SummonCompanion Immediately if not in Combat, else registers for 'PLAYER_REGEN_ENABLED' and calls When out of combat.
@@ -63,15 +57,13 @@ function mod:CallSummonCompanion(petId)
 end
 
 function mod:SummonCompanion(petId)
-  self:Print("Summoning: ", petId)
   local currentPet = C_PetJournal.GetSummonedPetGUID()
   if petId == currentPet then
     return false
   end
 
   C_PetJournal.SummonPetByGUID(petId)
-  local newpet = C_PetJournal.GetSummonedPetGUID()
-  return newpet == petId
+  return true
 end
 
 function mod:AnnounceSummon(petId)
@@ -87,7 +79,6 @@ function mod:AnnounceSummon(petId)
 end
 
 function mod:SetPetOfTheDay(petId)
-  self:Print("Setting POD: ", petId)
   local podSettings = self.Settings["Automation"]["PetOfTheDay"]
   local currentDate = date("*t")
   podSettings.PetId = petId
@@ -105,6 +96,5 @@ function mod:GetPetofTheDay()
   if summonedDate.year ~= today.year or summonedDate.month ~= today.month or summonedDate.day ~= today.day then
     self:SetPetOfTheDay(self:ChooseRandomCompanion(true))
   end
-  self:Print("POD Set: ", podSettings.PetId)
   return podSettings.PetId
 end

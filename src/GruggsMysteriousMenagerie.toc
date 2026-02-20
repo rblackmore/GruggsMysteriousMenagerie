@@ -4,8 +4,7 @@
 ## Notes: {{NOTES}}
 ## Author: {{AUTHOR}}
 ## Category: Collections
-## SavedVariables: GMM_DB
-## SavedVariablesPerCharacter: GMM_OUTFITS_DB
+## SavedVariables: GMM_DB, GMM_OUTFITS_DB
 ## OptionalDeps: Ace3
 
 Libs.xml
@@ -17,7 +16,6 @@ Views\DB\GMM_TransmogCompanionDB.lua
 
 # Utils
 Utils\MapInfo.lua
-Utils\PetJournal.lua
 
 # Modules
 Modules.xml

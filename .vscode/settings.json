@@ -43,7 +43,8 @@
     "PanelTemplates_SetTab",
     "UISpecialFrames",
     "PanelTemplates_GetSelectedTab",
-    "TransmogFrame"
+    "TransmogFrame",
+    "WardrobeCollectionFrame"
   ],
   "Lua.runtime.version": "Lua 5.1",
   "Lua.workspace.checkThirdParty": "false",
@@ -64,5 +65,6 @@
   "Lua.diagnostics.disable": [
     "duplicate-set-field",
     "assign-type-mismatch"
-  ]
+  ],
+  "Lua.type.weakUnionCheck": true
 }
