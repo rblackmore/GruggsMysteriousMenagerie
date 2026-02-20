@@ -183,7 +183,6 @@ local function OnEvent(self, event, ...)
       GMM_CompanionsFrame:AttachToWardrobeCollection()
       TransmogFrame.WardrobeCollection.gmmCompanionsTabID =
           TransmogFrame.WardrobeCollection:AddNamedTab("Companions", GMM_CompanionsFrame)
-      TransmogFrame.WardrobeCollection:UpdateTabs()
       self:UnregisterEvent("ADDON_LOADED")
     end
   end
