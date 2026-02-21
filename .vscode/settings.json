@@ -44,7 +44,8 @@
     "UISpecialFrames",
     "PanelTemplates_GetSelectedTab",
     "TransmogFrame",
-    "WardrobeCollectionFrame"
+    "WardrobeCollectionFrame",
+    "SearchBoxTemplate_OnTextChanged"
   ],
   "Lua.runtime.version": "Lua 5.1",
   "Lua.workspace.checkThirdParty": "false",

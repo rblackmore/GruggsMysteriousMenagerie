@@ -23,10 +23,11 @@
               x="0" y="-2" />
           </Anchors>
         </Texture>
+
       </Layer>
     </Layers>
     <Frames>
-      <DropdownButton hidden="true" parentKey="FilterButton"
+      <DropdownButton hidden="false" parentKey="FilterButton"
         inherits="WowStyle1FilterDropdownTemplate">
         <KeyValues>
           <KeyValue key="resizeToText" type="boolean" value="false" />
@@ -35,12 +36,15 @@
           <Anchor point="TOPRIGHT" x="-29" y="-58" />
         </Anchors>
       </DropdownButton>
-      <EditBox hidden="true" parentKey="SearchBox" inherits="TransmogSearchBoxTemplate">
+
+      <EditBox parentKey="SearchBox" inherits="SearchBoxNineSliceTemplate" letters="40">
+        <Size x="142" y="19" />
         <Anchors>
           <Anchor point="TOPRIGHT" relativeKey="$parent.FilterButton" relativePoint="TOPLEFT"
             x="-10" y="1" />
         </Anchors>
       </EditBox>
+
       <Frame parentKey="PagedContent" inherits="PagedNaturalSizeGridContentFrameTemplate">
         <KeyValues>
           <KeyValue key="viewsPerPage" value="1" type="number" />
@@ -66,6 +70,30 @@
           </Frame>
         </Frames>
       </Frame>
+      <Frame parentKey="TotalDisplay" inherits="InsetFrameTemplate3">
+        <Size x="134" y="20" />
+        <Anchors>
+          <Anchor point="BOTTOMRIGHT" relativeKey="$parent.PagedContent" relativePoint="TOPRIGHT"
+            x="-4" y="4" />
+        </Anchors>
+        <Layers>
+          <Layer level="OVERLAY">
+            <FontString parentKey="TotalLabel" inherits="GameFontNormal"
+              justifyH="LEFT" text="Total: ">
+              <Anchors>
+                <Anchor point="LEFT" x="10" y="0" />
+              </Anchors>
+            </FontString>
+            <FontString parentKey="TotalValue" inherits="GameFontHighlight"
+              justifyH="RIGHT">
+              <Anchors>
+                <Anchor point="RIGHT" x="-10" y="0" />
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+      </Frame>
+
     </Frames>
     <Scripts>
       <OnLoad method="OnLoad" />

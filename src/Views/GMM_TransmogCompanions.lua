@@ -23,9 +23,28 @@ function GMM_TransmogCompanionsMixin:OnLoad()
   self.PagedContent:SetElementTemplateData(self.COLLECTION_TEMPLATES)
   self.ActiveTabTitle:SetText("Companions")
   self:RegisterEvents()
+  self:InitSearchBox()
+end
+
+function GMM_TransmogCompanionsMixin:InitSearchBox()
+  self.SearchBox:SetScript("OnHide", function(editBox) editBox:SetText("") end)
+  self.SearchBox:SetScript("OnTextChanged",
+    function(editbox, userInput)
+      SearchBoxTemplate_OnTextChanged(editbox)
+      self:OnSearchTextChanged(editbox:GetText(), userInput)
+    end)
+end
+
+function GMM_TransmogCompanionsMixin:OnSearchTextChanged(queryText, userInput)
+  if queryText ~= "" then
+    self:UpdateSearch(queryText)
+  else
+    self:ResetSearch()
+  end
 end
 
 function GMM_TransmogCompanionsMixin:OnShow()
+  self:RefreshCollectionEntries()
   self:Refresh()
 end
 
@@ -39,7 +58,18 @@ function GMM_TransmogCompanionsMixin:OnEvent(event, ...)
 end
 
 function GMM_TransmogCompanionsMixin:Refresh()
+  self:RefreshTotalDisplay()
+end
+
+function GMM_TransmogCompanionsMixin:UpdateSearch(query)
+  C_PetJournal.SetSearchFilter(query)
+  self:RefreshJournalEntries()
+  self:Refresh()
+end
+
+function GMM_TransmogCompanionsMixin:ResetSearch()
   self:RefreshCollectionEntries()
+  self:Refresh()
 end
 
 --- Event Handlers
@@ -83,6 +113,26 @@ function GMM_TransmogCompanionsMixin:RefreshCollectionEntries()
     self.petCollectionEntries[i].petId = petID
   end
   self:SetCollectionEntries(self.petCollectionEntries, true)
+end
+
+function GMM_TransmogCompanionsMixin:RefreshJournalEntries()
+  -- Get pet Data then SetCollectionEntries
+  local numPets, numOwned = C_PetJournal.GetNumPets()
+  self.petCollectionEntries = {}
+
+  for i = 1, numPets do
+    local petID = C_PetJournal.GetPetInfoByIndex(i)
+    if petID then
+      self.petCollectionEntries[i] = C_PetJournal.GetPetInfoTableByPetID(petID)
+      self.petCollectionEntries[i].petId = petID
+    end
+  end
+
+  self:SetCollectionEntries(self.petCollectionEntries, true)
+end
+
+function GMM_TransmogCompanionsMixin:RefreshTotalDisplay()
+  self.TotalDisplay.TotalValue:SetText(#self.petCollectionEntries)
 end
 
 function GMM_TransmogCompanionsMixin:SetCollectionEntries(entries, retainCurrentPage)
