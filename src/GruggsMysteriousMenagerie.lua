@@ -27,11 +27,14 @@ local registeredEvents = {}
 
 function addOn:OnInitialize()
   self:InitializeDatabase()
+  self:InitializeTransmogDatabase()
 
   Options:InitializeOptions()
   self:RegisterChatCommand("gmm", "SlashCommand")
   self:RegisterChatCommand("gmsummon", function()
-    companionModule:SummonCompanion(true)
+    local petID = companionModule:ChooseRandomCompanion()
+    companionModule:SummonCompanion(petID)
+    companionModule:AnnounceSummon(petID)
   end)
 end
 

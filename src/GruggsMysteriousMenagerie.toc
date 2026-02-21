@@ -4,7 +4,7 @@
 ## Notes: {{NOTES}}
 ## Author: {{AUTHOR}}
 ## Category: Collections
-## SavedVariables: GMM_DB
+## SavedVariables: GMM_DB, GMM_OUTFITS_DB
 ## OptionalDeps: Ace3
 
 Libs.xml
@@ -12,11 +12,12 @@ Libs.xml
 GruggsMysteriousMenagerie.lua
 GMM_DB.lua
 GMM_Options.lua
+Views\DB\GMM_TransmogCompanionDB.lua
 
 # Utils
 Utils\MapInfo.lua
-Utils\PetJournal.lua
 
 # Modules
 Modules.xml
-Views\PetList.xml
+Views\GMM_CompanionTemplates.xml
+Views\GMM_TransmogCompanions.xml
