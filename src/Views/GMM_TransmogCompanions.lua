@@ -7,7 +7,9 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 --- TransmogWardrobeCompanionsMixin
 --------------------------------------------------------------------------------
 GMM_TransmogCompanionsMixin = {
-  EVENTS_TO_REGISTER = {},
+  EVENTS_TO_REGISTER = {
+    "PET_JOURNAL_LIST_UPDATE"
+  },
   COLLECTION_TEMPLATES = {
     ["COLLECTION_ITEM"] = {
       template = "GMM_CompanionModelTemplate", initFunc = GMM_CompanionModelMixin.Init
@@ -46,12 +48,10 @@ function GMM_TransmogCompanionsMixin:InitFilterButton()
 
   local function SetFamilyChecked(filterIndex)
     C_PetJournal.SetPetTypeFilter(filterIndex, not IsFamilyChecked(filterIndex))
-    self:Refresh()
   end
 
   local function SetAllFamilyChecked(value)
     C_PetJournal.SetAllPetTypesChecked(value)
-    self:Refresh()
   end
 
   local function IsShowUnused()
@@ -88,17 +88,14 @@ function GMM_TransmogCompanionsMixin:InitFilterButton()
   self.FilterButton:SetDefaultCallback(function()
     C_PetJournal.SetDefaultFilters()
     self.ShowUnused = true
-    self:Refresh()
   end)
 end
 
 function GMM_TransmogCompanionsMixin:OnSearchTextChanged(queryText, userInput)
   C_PetJournal.SetSearchFilter(queryText)
-  self:Refresh()
 end
 
 function GMM_TransmogCompanionsMixin:OnShow()
-  self:RefreshCollectionEntries()
   self:Refresh()
 end
 
@@ -127,6 +124,10 @@ function GMM_TransmogCompanionsMixin:RegisterEvents()
   for i, event in ipairs(self.EVENTS_TO_REGISTER) do
     self:RegisterEvent(event)
   end
+end
+
+function GMM_TransmogCompanionsMixin:PET_JOURNAL_LIST_UPDATE()
+  self:Refresh()
 end
 
 function GMM_TransmogCompanionsMixin:AttachToWardrobeCollection()

@@ -70,7 +70,7 @@
           </Frame>
         </Frames>
       </Frame>
-      <Frame parentKey="TotalDisplay" inherits="InsetFrameTemplate3">
+      <Frame parentKey="TotalDisplay" inherits="InsetFrameTemplate3" hidden="true">
         <Size x="134" y="20" />
         <Anchors>
           <Anchor point="BOTTOMRIGHT" relativeKey="$parent.PagedContent" relativePoint="TOPRIGHT"
