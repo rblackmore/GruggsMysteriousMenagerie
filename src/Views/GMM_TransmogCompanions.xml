@@ -37,6 +37,16 @@
         </Anchors>
       </DropdownButton>
 
+      <DropdownButton hidden="false" parentKey="CopyToButton"
+        inherits="WowStyle1FilterDropdownTemplate">
+        <KeyValues>
+          <KeyValue key="resizeToText" type="boolean" value="false" />
+        </KeyValues>
+        <Anchors>
+          <Anchor point="TOPRIGHT" relativeKey="$parent.FilterButton" relativePoint="BOTTOMRIGHT"
+            x="0" y="-24" />
+        </Anchors>
+      </DropdownButton>
       <EditBox parentKey="SearchBox" inherits="SearchBoxNineSliceTemplate" letters="40">
         <Size x="142" y="19" />
         <Anchors>

@@ -23,6 +23,7 @@ GMM_TransmogCompanionsMixin = {
 function GMM_TransmogCompanionsMixin:OnLoad()
   self.db = addOn.outfitDb.char
   self:InitFilterButton()
+  self:InitCopyToButton()
   self.PagedContent:SetElementTemplateData(self.COLLECTION_TEMPLATES)
   self.ActiveTabTitle:SetText("Companions")
   self:RegisterEvents()
@@ -80,7 +81,6 @@ function GMM_TransmogCompanionsMixin:InitFilterButton()
     end
   end)
 
-
   self.FilterButton:SetIsDefaultCallback(function()
     return C_PetJournal.IsUsingDefaultFilters() and self.ShowUnused
   end)
@@ -88,6 +88,29 @@ function GMM_TransmogCompanionsMixin:InitFilterButton()
   self.FilterButton:SetDefaultCallback(function()
     C_PetJournal.SetDefaultFilters()
     self.ShowUnused = true
+  end)
+end
+
+function GMM_TransmogCompanionsMixin:InitCopyToButton()
+  self.CopyToButton:SetText("Copy To")
+
+  local function CopyToOutfit(outfitID)
+    addOn:Print("Copying to Outfit ID: ", outfitID)
+    local srcOutfitID = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
+    local src = self:GetOrCreateOutfitTableFor(srcOutfitID)
+    local dest = self:GetOrCreateOutfitTableFor(outfitID)
+    self.db["Outfits"][outfitID] = src
+  end
+
+  self.CopyToButton:SetupMenu(function(_dropdown, rootDescription)
+    rootDescription:SetTag("MENU_TRANSMOG_COMPANIONS_COPYTO")
+
+    for i = 1, C_TransmogOutfitInfo.GetMaxNumberOfUsableOutfits() do
+      local outfitInfo = C_TransmogOutfitInfo.GetOutfitsInfo()[i]
+      if outfitInfo.outfitID ~= C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID() then
+        rootDescription:CreateButton(outfitInfo.name, CopyToOutfit, outfitInfo.outfitID)
+      end
+    end
   end)
 end
 

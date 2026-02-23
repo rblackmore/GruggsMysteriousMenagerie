@@ -31,7 +31,7 @@ function GMM_CompanionModelMixin:OnLeave()
 end
 
 function GMM_CompanionModelMixin:OnMouseUp(button, isInside)
-  if not button == "LeftButton" then
+  if button ~= "LeftButton" then
     return
   end
   if not isInside then
