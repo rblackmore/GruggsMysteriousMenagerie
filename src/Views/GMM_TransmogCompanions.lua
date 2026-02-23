@@ -82,11 +82,13 @@ function GMM_TransmogCompanionsMixin:InitFilterButton()
 
 
   self.FilterButton:SetIsDefaultCallback(function()
-    return C_PetJournal.IsUsingDefaultFilters()
+    return C_PetJournal.IsUsingDefaultFilters() and self.ShowUnused
   end)
 
   self.FilterButton:SetDefaultCallback(function()
-    return C_PetJournal.SetDefaultFilters()
+    C_PetJournal.SetDefaultFilters()
+    self.ShowUnused = true
+    self:Refresh()
   end)
 end
 
