@@ -59,4 +59,14 @@
       <OnEvent method="OnEvent" /> -->
     </Scripts>
   </PlayerModel>
+
+  <!-- Companion Search Box -->
+  <EditBox name="GMM_CompanionWardrobeSearchBoxTemplate" mixin="GMM_CompanionWardrobeSearchBoxMixin"
+    inherits="SearchBoxNineSliceTemplate" virtual="true" letters="40">
+    <Size x="142" y="19" />
+    <Scripts>
+      <OnHide method="OnHide" />
+      <OnTextChanged method="OnTextChanged" />
+    </Scripts>
+  </EditBox>
 </Ui>

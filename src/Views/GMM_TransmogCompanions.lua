@@ -7,7 +7,9 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 --- TransmogWardrobeCompanionsMixin
 --------------------------------------------------------------------------------
 GMM_TransmogCompanionsMixin = {
-  EVENTS_TO_REGISTER = {},
+  EVENTS_TO_REGISTER = {
+    "PET_JOURNAL_LIST_UPDATE"
+  },
   COLLECTION_TEMPLATES = {
     ["COLLECTION_ITEM"] = {
       template = "GMM_CompanionModelTemplate", initFunc = GMM_CompanionModelMixin.Init
@@ -20,9 +22,106 @@ GMM_TransmogCompanionsMixin = {
 --------------------------------------------------------------------------------
 function GMM_TransmogCompanionsMixin:OnLoad()
   self.db = addOn.outfitDb.char
+  self:InitFilterButton()
+  self:InitCopyToButton()
   self.PagedContent:SetElementTemplateData(self.COLLECTION_TEMPLATES)
   self.ActiveTabTitle:SetText("Companions")
   self:RegisterEvents()
+  self:InitSearchBox()
+end
+
+function GMM_TransmogCompanionsMixin:InitSearchBox()
+  self.SearchBox:SetScript("OnHide", function(editBox) editBox:SetText("") end)
+  self.SearchBox:SetScript("OnTextChanged",
+    function(editbox, userInput)
+      SearchBoxTemplate_OnTextChanged(editbox)
+      self:OnSearchTextChanged(editbox:GetText(), userInput)
+    end)
+end
+
+function GMM_TransmogCompanionsMixin:InitFilterButton()
+  self.FilterButton:SetText("Filter")
+  self.ShowUnused = true
+
+  local function IsFamilyChecked(filterIndex)
+    return C_PetJournal.IsPetTypeChecked(filterIndex)
+  end
+
+  local function SetFamilyChecked(filterIndex)
+    C_PetJournal.SetPetTypeFilter(filterIndex, not IsFamilyChecked(filterIndex))
+  end
+
+  local function SetAllFamilyChecked(value)
+    C_PetJournal.SetAllPetTypesChecked(value)
+  end
+
+  local function IsShowUnused()
+    return self.ShowUnused
+  end
+
+  local function SetShowUnused()
+    self.ShowUnused = not IsShowUnused()
+    self:Refresh()
+  end
+
+  self.FilterButton:SetupMenu(function(_dropdown, rootDescription)
+    rootDescription:SetTag("MENU_TRANSMOG_COMPANIONS_FILTER")
+    rootDescription:CreateCheckbox("Show Unused", IsShowUnused, SetShowUnused)
+
+    rootDescription:CreateDivider()
+
+    local familiesSubmenu = rootDescription:CreateButton("Families");
+
+    familiesSubmenu:CreateButton("Uncheck All", SetAllFamilyChecked, false)
+    familiesSubmenu:CreateButton("Check All", SetAllFamilyChecked, true)
+
+    for filterIndex = 1, C_PetJournal.GetNumPetTypes() do
+      familiesSubmenu:CreateCheckbox(_G["BATTLE_PET_NAME_" .. filterIndex], IsFamilyChecked, SetFamilyChecked,
+        filterIndex)
+    end
+  end)
+
+  self.FilterButton:SetIsDefaultCallback(function()
+    return C_PetJournal.IsUsingDefaultFilters() and self.ShowUnused
+  end)
+
+  self.FilterButton:SetDefaultCallback(function()
+    C_PetJournal.SetDefaultFilters()
+    self.ShowUnused = true
+  end)
+end
+
+function GMM_TransmogCompanionsMixin:InitCopyToButton()
+  self.CopyToButton:SetText("Copy To")
+
+  local function CopyToOutfit(outfitID)
+    local srcOutfitID = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
+    local src = self:GetOrCreateOutfitTableFor(srcOutfitID)
+    local dest = self:GetOrCreateOutfitTableFor(outfitID)
+    self.db["Outfits"][outfitID] = src
+  end
+
+  local function CopyToAllOutfits()
+    for i = 1, C_TransmogOutfitInfo.GetMaxNumberOfUsableOutfits() do
+      CopyToOutfit(C_TransmogOutfitInfo.GetOutfitsInfo()[i].outfitID)
+    end
+  end
+
+  self.CopyToButton:SetupMenu(function(_dropdown, rootDescription)
+    rootDescription:SetTag("MENU_TRANSMOG_COMPANIONS_COPYTO")
+    rootDescription:CreateButton("Copy to All", CopyToAllOutfits)
+    rootDescription:CreateDivider()
+    for i = 1, C_TransmogOutfitInfo.GetMaxNumberOfUsableOutfits() do
+      local outfitInfo = C_TransmogOutfitInfo.GetOutfitsInfo()[i]
+      if outfitInfo.outfitID ~= C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID() then
+        rootDescription:CreateButton(outfitInfo.name, CopyToOutfit, outfitInfo.outfitID)
+      end
+    end
+  end)
+end
+
+function GMM_TransmogCompanionsMixin:OnSearchTextChanged(queryText, userInput)
+  C_PetJournal.SetSearchFilter(queryText)
 end
 
 function GMM_TransmogCompanionsMixin:OnShow()
@@ -39,7 +138,8 @@ function GMM_TransmogCompanionsMixin:OnEvent(event, ...)
 end
 
 function GMM_TransmogCompanionsMixin:Refresh()
-  self:RefreshCollectionEntries()
+  self:RefreshJournalEntries()
+  self:RefreshTotalDisplay()
 end
 
 --- Event Handlers
@@ -53,6 +153,10 @@ function GMM_TransmogCompanionsMixin:RegisterEvents()
   for i, event in ipairs(self.EVENTS_TO_REGISTER) do
     self:RegisterEvent(event)
   end
+end
+
+function GMM_TransmogCompanionsMixin:PET_JOURNAL_LIST_UPDATE()
+  self:Refresh()
 end
 
 function GMM_TransmogCompanionsMixin:AttachToWardrobeCollection()
@@ -85,6 +189,26 @@ function GMM_TransmogCompanionsMixin:RefreshCollectionEntries()
   self:SetCollectionEntries(self.petCollectionEntries, true)
 end
 
+function GMM_TransmogCompanionsMixin:RefreshJournalEntries()
+  -- Get pet Data then SetCollectionEntries
+  local numPets, numOwned = C_PetJournal.GetNumPets()
+  self.petCollectionEntries = {}
+
+  for i = 1, numPets do
+    local petID = C_PetJournal.GetPetInfoByIndex(i)
+    if petID then
+      self.petCollectionEntries[i] = C_PetJournal.GetPetInfoTableByPetID(petID)
+      self.petCollectionEntries[i].petId = petID
+    end
+  end
+
+  self:SetCollectionEntries(self.petCollectionEntries, true)
+end
+
+function GMM_TransmogCompanionsMixin:RefreshTotalDisplay()
+  self.TotalDisplay.TotalValue:SetText(#self.petCollectionEntries)
+end
+
 function GMM_TransmogCompanionsMixin:SetCollectionEntries(entries, retainCurrentPage)
   -- Add Sorting Function Here?
 
@@ -95,6 +219,12 @@ function GMM_TransmogCompanionsMixin:SetCollectionEntries(entries, retainCurrent
     if (sourceLeft.isFavorite ~= sourceRight.isFavorite) then
       return sourceLeft.isFavorite
     end
+
+    if sourceLeft.petType ~= sourceRight.petType then
+      return sourceLeft.petType > sourceRight.petType
+    end
+
+    return sourceLeft.name < sourceRight.name
   end
 
   local outfitId = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
@@ -107,7 +237,11 @@ function GMM_TransmogCompanionsMixin:SetCollectionEntries(entries, retainCurrent
       collectionFrame = self,
       isSelected = self:OutfitContainsPetId(outfitDb, itemEntry.petId)
     }
-    table.insert(collectionElements, element)
+    if self.ShowUnused then
+      table.insert(collectionElements, element)
+    elseif element.isSelected then
+      table.insert(collectionElements, element)
+    end
   end
 
   table.sort(collectionElements, compare)
