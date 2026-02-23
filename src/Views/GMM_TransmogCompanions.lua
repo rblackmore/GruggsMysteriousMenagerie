@@ -95,16 +95,22 @@ function GMM_TransmogCompanionsMixin:InitCopyToButton()
   self.CopyToButton:SetText("Copy To")
 
   local function CopyToOutfit(outfitID)
-    addOn:Print("Copying to Outfit ID: ", outfitID)
     local srcOutfitID = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
     local src = self:GetOrCreateOutfitTableFor(srcOutfitID)
     local dest = self:GetOrCreateOutfitTableFor(outfitID)
     self.db["Outfits"][outfitID] = src
   end
 
+  local function CopyToAllOutfits()
+    for i = 1, C_TransmogOutfitInfo.GetMaxNumberOfUsableOutfits() do
+      CopyToOutfit(C_TransmogOutfitInfo.GetOutfitsInfo()[i].outfitID)
+    end
+  end
+
   self.CopyToButton:SetupMenu(function(_dropdown, rootDescription)
     rootDescription:SetTag("MENU_TRANSMOG_COMPANIONS_COPYTO")
-
+    rootDescription:CreateButton("Copy to All", CopyToAllOutfits)
+    rootDescription:CreateDivider()
     for i = 1, C_TransmogOutfitInfo.GetMaxNumberOfUsableOutfits() do
       local outfitInfo = C_TransmogOutfitInfo.GetOutfitsInfo()[i]
       if outfitInfo.outfitID ~= C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID() then
