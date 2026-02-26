@@ -6,13 +6,13 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 --------------------------------------------------------------------------------
 --- TransmogWardrobeCompanionsMixin
 --------------------------------------------------------------------------------
-GMM_TransmogCompanionsMixin = {
+GMM_CompanionsWardrobeMixin = {
   EVENTS_TO_REGISTER = {
     "PET_JOURNAL_LIST_UPDATE"
   },
   COLLECTION_TEMPLATES = {
     ["COLLECTION_ITEM"] = {
-      template = "GMM_CompanionModelTemplate", initFunc = GMM_CompanionModelMixin.Init
+      template = "GMM_TransmogCompanionModelTemplate", initFunc = GMM_TransmogCompanionModelMixin.Init
     }
   }
 }
@@ -20,7 +20,7 @@ GMM_TransmogCompanionsMixin = {
 
 --- Script Handlers
 --------------------------------------------------------------------------------
-function GMM_TransmogCompanionsMixin:OnLoad()
+function GMM_CompanionsWardrobeMixin:OnLoad()
   self.db = addOn.outfitDb.char
   self:InitFilterButton()
   self:InitCopyToButton()
@@ -30,7 +30,7 @@ function GMM_TransmogCompanionsMixin:OnLoad()
   self:InitSearchBox()
 end
 
-function GMM_TransmogCompanionsMixin:InitSearchBox()
+function GMM_CompanionsWardrobeMixin:InitSearchBox()
   self.SearchBox:SetScript("OnHide", function(editBox) editBox:SetText("") end)
   self.SearchBox:SetText(C_PetJournal.GetSearchFilter())
   self.SearchBox:SetScript("OnTextChanged",
@@ -40,7 +40,7 @@ function GMM_TransmogCompanionsMixin:InitSearchBox()
     end)
 end
 
-function GMM_TransmogCompanionsMixin:InitFilterButton()
+function GMM_CompanionsWardrobeMixin:InitFilterButton()
   self.FilterButton:SetText("Filter")
   self.ShowUnused = true
 
@@ -126,7 +126,7 @@ function GMM_TransmogCompanionsMixin:InitFilterButton()
   end)
 end
 
-function GMM_TransmogCompanionsMixin:InitCopyToButton()
+function GMM_CompanionsWardrobeMixin:InitCopyToButton()
   local function GetNumOutfitsUnlocked()
     return C_TransmogOutfitInfo.GetNumberOfOutfitsUnlockedForSource(0) +
         C_TransmogOutfitInfo.GetNumberOfOutfitsUnlockedForSource(1) +
@@ -164,26 +164,26 @@ function GMM_TransmogCompanionsMixin:InitCopyToButton()
   end)
 end
 
-function GMM_TransmogCompanionsMixin:OnSearchTextChanged(queryText, userInput)
+function GMM_CompanionsWardrobeMixin:OnSearchTextChanged(queryText, userInput)
   if userInput then
     C_PetJournal.SetSearchFilter(queryText)
   end
 end
 
-function GMM_TransmogCompanionsMixin:OnShow()
+function GMM_CompanionsWardrobeMixin:OnShow()
   self:Refresh()
 end
 
-function GMM_TransmogCompanionsMixin:OnHide()
+function GMM_CompanionsWardrobeMixin:OnHide()
 end
 
-function GMM_TransmogCompanionsMixin:OnEvent(event, ...)
+function GMM_CompanionsWardrobeMixin:OnEvent(event, ...)
   if (self[event]) then
     self[event](self, ...)
   end
 end
 
-function GMM_TransmogCompanionsMixin:Refresh()
+function GMM_CompanionsWardrobeMixin:Refresh()
   self:RefreshJournalEntries()
   self:RefreshTotalDisplay()
 end
@@ -195,17 +195,17 @@ end
 --- Initialization Logic
 --------------------------------------------------------------------------------
 
-function GMM_TransmogCompanionsMixin:RegisterEvents()
+function GMM_CompanionsWardrobeMixin:RegisterEvents()
   for i, event in ipairs(self.EVENTS_TO_REGISTER) do
     self:RegisterEvent(event)
   end
 end
 
-function GMM_TransmogCompanionsMixin:PET_JOURNAL_LIST_UPDATE()
+function GMM_CompanionsWardrobeMixin:PET_JOURNAL_LIST_UPDATE()
   self:Refresh()
 end
 
-function GMM_TransmogCompanionsMixin:AttachToWardrobeCollection()
+function GMM_CompanionsWardrobeMixin:AttachToWardrobeCollection()
   local container = TransmogFrame
       and TransmogFrame.WardrobeCollection
       and TransmogFrame.WardrobeCollection.TabContent
@@ -224,7 +224,7 @@ end
 
 --- Paged Content Collection Management
 --------------------------------------------------------------------------------
-function GMM_TransmogCompanionsMixin:RefreshCollectionEntries()
+function GMM_CompanionsWardrobeMixin:RefreshCollectionEntries()
   -- Get pet Data then SetCollectionEntries
   self.ownedPetIDs = C_PetJournal.GetOwnedPetIDs()
   self.petCollectionEntries = {}
@@ -235,7 +235,7 @@ function GMM_TransmogCompanionsMixin:RefreshCollectionEntries()
   self:SetCollectionEntries(self.petCollectionEntries, true)
 end
 
-function GMM_TransmogCompanionsMixin:RefreshJournalEntries()
+function GMM_CompanionsWardrobeMixin:RefreshJournalEntries()
   local outfitId = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
   local outfitDb = self:GetOutfitTableOrNil(outfitId)
   self.petCollectionEntries = {}
@@ -263,7 +263,7 @@ function GMM_TransmogCompanionsMixin:RefreshJournalEntries()
   self.PagedContent:SetDataProvider(dataProvider, true)
 end
 
-function GMM_TransmogCompanionsMixin:RefreshTotalDisplay()
+function GMM_CompanionsWardrobeMixin:RefreshTotalDisplay()
   self.TotalDisplay.TotalValue:SetText(#self.petCollectionEntries)
 end
 
@@ -272,7 +272,7 @@ end
 --------------------------------------------------------------------------------
 
 -- TODO: Perhaps this shoudl be 'AddOrRemove, return ture for add, false if removed.'
-function GMM_TransmogCompanionsMixin:AddOrRemovePetToOutfit(outfitid, petId)
+function GMM_CompanionsWardrobeMixin:AddOrRemovePetToOutfit(outfitid, petId)
   local db = self:GetOrCreateOutfitTableFor(outfitid)
   local hasId, index = self:OutfitContainsPetId(db, petId)
   if not hasId then
@@ -286,7 +286,7 @@ function GMM_TransmogCompanionsMixin:AddOrRemovePetToOutfit(outfitid, petId)
   end
 end
 
-function GMM_TransmogCompanionsMixin:GetOrCreateOutfitTableFor(outfitid)
+function GMM_CompanionsWardrobeMixin:GetOrCreateOutfitTableFor(outfitid)
   if self.db["Outfits"][outfitid] then
     return self.db["Outfits"][outfitid]
   end
@@ -299,7 +299,7 @@ function GMM_TransmogCompanionsMixin:GetOrCreateOutfitTableFor(outfitid)
   return self.db["Outfits"][outfitid]
 end
 
-function GMM_TransmogCompanionsMixin:GetOutfitTableOrNil(outfitid)
+function GMM_CompanionsWardrobeMixin:GetOutfitTableOrNil(outfitid)
   if self.db["Outfits"][outfitid] then
     return self.db["Outfits"][outfitid]
   else
@@ -311,7 +311,7 @@ end
 --- Utility
 --------------------------------------------------------------------------------
 
-function GMM_TransmogCompanionsMixin:OutfitContainsPetId(tbl, petId)
+function GMM_CompanionsWardrobeMixin:OutfitContainsPetId(tbl, petId)
   if tbl == nil then return false end
 
   for i, v in ipairs(tbl) do
@@ -329,7 +329,7 @@ local function OnEvent(self, event, ...)
   if event == "ADDON_LOADED" then
     local addOnName = select(1, ...)
     if addOnName == "Blizzard_Transmog" then
-      GMM_CompanionsFrame = CreateFrame("Frame", nil, nil, "GMM_TransmogCompanionsTemplate")
+      GMM_CompanionsFrame = CreateFrame("Frame", nil, nil, "GMM_CompanionsWardrobeTemplate")
       GMM_CompanionsFrame:AttachToWardrobeCollection()
       TransmogFrame.WardrobeCollection.gmmCompanionsTabID =
           TransmogFrame.WardrobeCollection:AddNamedTab("Companions", GMM_CompanionsFrame)
