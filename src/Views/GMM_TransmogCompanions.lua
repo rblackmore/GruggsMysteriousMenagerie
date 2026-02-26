@@ -32,6 +32,7 @@ end
 
 function GMM_TransmogCompanionsMixin:InitSearchBox()
   self.SearchBox:SetScript("OnHide", function(editBox) editBox:SetText("") end)
+  self.SearchBox:SetText(C_PetJournal.GetSearchFilter())
   self.SearchBox:SetScript("OnTextChanged",
     function(editbox, userInput)
       SearchBoxTemplate_OnTextChanged(editbox)
@@ -130,7 +131,9 @@ function GMM_TransmogCompanionsMixin:InitCopyToButton()
 end
 
 function GMM_TransmogCompanionsMixin:OnSearchTextChanged(queryText, userInput)
-  C_PetJournal.SetSearchFilter(queryText)
+  if userInput then
+    C_PetJournal.SetSearchFilter(queryText)
+  end
 end
 
 function GMM_TransmogCompanionsMixin:OnShow()
@@ -199,65 +202,49 @@ function GMM_TransmogCompanionsMixin:RefreshCollectionEntries()
 end
 
 function GMM_TransmogCompanionsMixin:RefreshJournalEntries()
-  -- Get pet Data then SetCollectionEntries
-  local numPets, numOwned = C_PetJournal.GetNumPets()
+  -- local function GetPetInfoTableByIndex(idx)
+  --   local petData = {}
+
+  --   petData.petID, petData.speciesID, petData.owned, petData.customName, petData.level,
+  --   petData.favorite, petData.isRevoked, petData.speciesName, petData.icon, petData.petType,
+  --   petData.companionID, petData.tooltip, petData.description, petData.isWild, petData.canBattle,
+  --   petData.isTradeable, petData.isUnique, petData.obtainable = C_PetJournal.GetPetInfoByIndex(idx)
+  --   return petData
+  -- end
+
+  -- local function GetPetSpeciesTable(speciesID)
+  --   local speciesData = {}
+  --   speciesData.speciesName, speciesData.speciesIcon, speciesData.petType, speciesData.companionID, speciesData.tooltipSource,
+  --   speciesData.tooltipDescription, speciesData.isWild, speciesData.canBattle, speciesData.isTradeable, speciesData.isUnique,
+  --   speciesData.obtainable, speciesData.creatureDisplayID = C_PetJournal.GetPetInfoBySpeciesID(speciesID)
+  -- end
+
+  local outfitId = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
+  local outfitDb = self:GetOutfitTableOrNil(outfitId)
   self.petCollectionEntries = {}
 
-  for i = 1, numPets do
-    local petID = C_PetJournal.GetPetInfoByIndex(i)
-    if petID then
-      self.petCollectionEntries[i] = C_PetJournal.GetPetInfoTableByPetID(petID)
-      self.petCollectionEntries[i].petId = petID
-    end
+  for i = 1, C_PetJournal.GetNumPets() do
+    local petID, speciesID = C_PetJournal.GetPetInfoByIndex(i)
+    self.petCollectionEntries[i] = {
+      templateKey = "COLLECTION_ITEM",
+      index = i,
+      petID = petID,
+      speciesID = speciesID,
+      collectionFrame = self,
+      isSelected = self:OutfitContainsPetId(outfitDb, petID)
+    }
+    -- if not self.ShowUnused and not self.petCollectionEntries[i].isSelected then
+    --   table.remove(self.petCollectionEntries, i)
+    -- end
   end
 
-  self:SetCollectionEntries(self.petCollectionEntries, true)
+  local collectionData = { { elements = self.petCollectionEntries } }
+  local dataProvider = CreateDataProvider(collectionData)
+  self.PagedContent:SetDataProvider(dataProvider, true)
 end
 
 function GMM_TransmogCompanionsMixin:RefreshTotalDisplay()
   self.TotalDisplay.TotalValue:SetText(#self.petCollectionEntries)
-end
-
-function GMM_TransmogCompanionsMixin:SetCollectionEntries(entries, retainCurrentPage)
-  -- Add Sorting Function Here?
-
-  local function compare(left, right)
-    local sourceLeft = left.petInfo
-    local sourceRight = right.petInfo
-
-    if (sourceLeft.isFavorite ~= sourceRight.isFavorite) then
-      return sourceLeft.isFavorite
-    end
-
-    if sourceLeft.petType ~= sourceRight.petType then
-      return sourceLeft.petType > sourceRight.petType
-    end
-
-    return sourceLeft.name < sourceRight.name
-  end
-
-  local outfitId = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
-  local outfitDb = self:GetOutfitTableOrNil(outfitId)
-  local collectionElements = {}
-  for i, itemEntry in ipairs(entries) do
-    local element = {
-      templateKey = "COLLECTION_ITEM",
-      petInfo = itemEntry,
-      collectionFrame = self,
-      isSelected = self:OutfitContainsPetId(outfitDb, itemEntry.petId)
-    }
-    if self.ShowUnused then
-      table.insert(collectionElements, element)
-    elseif element.isSelected then
-      table.insert(collectionElements, element)
-    end
-  end
-
-  table.sort(collectionElements, compare)
-
-  local collectionData = { { elements = collectionElements } }
-  local dataProvider = CreateDataProvider(collectionData)
-  self.PagedContent:SetDataProvider(dataProvider, retainCurrentPage)
 end
 
 --------------------------------------------------------------------------------

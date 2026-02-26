@@ -42,6 +42,17 @@
           </Anchors>
         </Texture>
       </Layer>
+      <Layer level="OVERLAY">
+        <Texture parentKey="UnownedOverlay" alpha="0.5" setAllPoints="true" hidden="true">
+          <Color r="0" g="0" b="0" />
+        </Texture>
+        <Texture parentKey="UnownedBorder" atlas="transmog-setCard-incomplete" useAtlasSize="true"
+          hidden="true">
+          <Anchors>
+            <Anchor point="CENTER" />
+          </Anchors>
+        </Texture>
+      </Layer>
     </Layers>
     <Scripts>
       <OnEnter method="OnEnter" />

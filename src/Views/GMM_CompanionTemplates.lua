@@ -1,3 +1,7 @@
+local addonName, addonTable = ...
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
+local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
+
 GMM_CompanionModelMixin = {}
 
 --------------------------------------------------------------------------------
@@ -13,9 +17,28 @@ function GMM_CompanionModelMixin:Init(elementData)
   if not self.elementData then
     return
   end
+  if self.elementData.petID then
+    -- Owned Pet use getInfo by PetId
+    local speciesID, customName, level, xp, maxXp,
+    displayID, isFavorite, name, icon, petType,
+    creatureID, sourceText, description, isWild, canBattle,
+    isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByPetID(self.elementData.petID)
+    self:SetDisplayInfo(displayID)
+    self.FavoriteIcon:SetShown(C_PetJournal.PetIsFavorite(self.elementData.petID))
 
-  self:SetDisplayInfo(self.elementData.petInfo.displayID)
-  self.FavoriteIcon:SetShown(self.elementData.petInfo.isFavorite)
+    self.Name = name or customName
+    self.Owned = true
+  else
+    -- Unowned Pet use GetInfo By Species
+    local speciesName, speciesIcon, petType, companionID, tooltipSource,
+    tooltipDescription, isWild, canBattle, isTradeable, isUnique,
+    obtainable, creatureDisplayID = C_PetJournal.GetPetInfoBySpeciesID(self.elementData.speciesID)
+    self:SetDisplayInfo(creatureDisplayID)
+
+    self.Name = speciesName
+    self.Owned = false
+  end
+
 
   self:Refresh()
 end
@@ -38,8 +61,12 @@ function GMM_CompanionModelMixin:OnMouseUp(button, isInside)
     return
   end
 
+  if not self.Owned then
+    return
+  end
+
   local viewedOutfitId = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
-  local petId = self.elementData.petInfo.petId
+  local petId = self.elementData.petID
 
   self.elementData.isSelected = self.elementData.collectionFrame:AddOrRemovePetToOutfit(viewedOutfitId, petId)
   self:Refresh()
@@ -67,12 +94,15 @@ function GMM_CompanionModelMixin:RefreshGameTooltip()
     return
   end
   GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-  local itemQuality = C_Item.GetItemQualityByID(self.elementData.petInfo.petId)
 
-  GameTooltip:SetText(self.elementData.petInfo.name)
+  GameTooltip:SetText(self.Name)
   GameTooltip:Show()
 end
 
 function GMM_CompanionModelMixin:UpdateElementBorder()
   self.SelectedBorder:SetShown(self.elementData.isSelected)
+  self.UnownedOverlay:SetShown(not self.Owned)
+  self.UnownedBorder:SetShown(not self.Owned)
+
+  self.Border:SetShown(self.Owned and not self.elementData.isSelected)
 end
