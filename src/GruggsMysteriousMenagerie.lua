@@ -5,7 +5,6 @@ addOn:SetDefaultModuleState(false)
 addOn:SetDefaultModuleLibraries("AceEvent-3.0", "AceConsole-3.0")
 
 
-
 _G["GMM"] = addonTable
 _G["GMM_AddOn"] = addOn
 -- _G["GMM_Companions"] = companionModule

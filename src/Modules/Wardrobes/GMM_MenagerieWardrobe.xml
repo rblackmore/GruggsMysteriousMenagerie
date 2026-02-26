@@ -1,0 +1,150 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/AddOns/Blizzard_SharedXML/UI.xsd">
+
+  <Script file="GMM_MenagerieWardrobe.lua" />
+
+  <Frame name="GMM_MenagerieFrame" mixin="GMM_MenagerieWardrobeMixin"
+    setAllPoints="true" hidden="true" virtual="true">
+    <Layers>
+      <Layer level="OVERLAY">
+        <FontString parentKey="ActiveSlotTitle" inherits="GameFontHighlightHuge" justifyH="LEFT">
+          <Anchors>
+            <Anchor point="TOPLEFT" x="23" y="-58" />
+          </Anchors>
+        </FontString>
+        <Texture parentKey="Divider" atlas="transmog-tabs-header-line" useAtlasSize="true"
+          alpha="0.1">
+          <Anchors>
+            <Anchor point="TOPLEFT" relativeKey="$parent.ActiveSlotTitle" relativePoint="BOTTOMLEFT"
+              x="0" y="-2" />
+          </Anchors>
+        </Texture>
+      </Layer>
+    </Layers>
+    <Frames>
+      <DropdownButton parentKey="FilterButton" inherits="WowStyle1FilterDropdownTemplate">
+        <KeyValues>
+          <KeyValue key="resizeToText" type="boolean" value="false" />
+        </KeyValues>
+        <Anchors>
+          <Anchor point="TOPRIGHT" x="-29" y="-24" />
+        </Anchors>
+      </DropdownButton>
+      <EditBox parentKey="SearchBox">
+        <Anchors>
+          <Anchor point="TOPRIGHT" x="-10" y="1"
+            relativeKey="$parent.FilterButton" relativePoint="TOPLEFT" />
+        </Anchors>
+      </EditBox>
+      <!-- 
+        Potential Display Type Buttons
+        ItemsFrame uses for Setting Ignore Slot or Use Equipped Under the ActiveSlot Title 
+        Perhaps could be used on mounts for selecting Multi/Aquatic?
+      -->
+      <Frame parentKey="PagedContent" inherits="PagedNaturalSizeGridContentFrameTemplate">
+        <KeyValues>
+          <KeyValue key="viewsPerPage" value="1" type="number" />
+          <KeyValue key="xPadding" value="20" type="number" />
+          <KeyValue key="yPadding" value="20" type="number" />
+        </KeyValues>
+        <Anchors>
+          <Anchor point="TOPLEFT" x="30" y="-163" />
+          <Anchor point="BOTTOMRIGHT" x="-30" y="10" />
+        </Anchors>
+        <Frames>
+          <Frame parentKey="View" parentArray="ViewFrames" setAllPoints="true" />
+          <Frame parentKey="PagingControls" inherits="PagingControlsHorizontalTemplate">
+            <KeyValues>
+              <KeyValue key="layoutIndex" value="2" type="number" />
+              <KeyValue key="bottomPadding" value="3" type="number" />
+              <KeyValue key="prevPageSound" value="SOUNDKIT.UI_TRANSMOG_PAGE_TURN" type="global" />
+              <KeyValue key="nextPageSound" value="SOUNDKIT.UI_TRANSMOG_PAGE_TURN" type="global" />
+            </KeyValues>
+            <Anchors>
+              <Anchor point="BOTTOM" x="0" y="5" />
+            </Anchors>
+          </Frame>
+        </Frames>
+      </Frame>
+    </Frames>
+  </Frame>
+
+  <Frame name="GMM_MenagerieTopSlots" inherits="HorizontalLayoutFrame" virtual="true">
+    <KeyValues>
+      <KeyValue key="spacing" value="5" type="number" />
+    </KeyValues>
+    <Anchors>
+      <Anchor point="TOP" y="-48" />
+    </Anchors>
+  </Frame>
+
+  <Button name="GMM_TransmogSlotButtonTemplate" mixin="GMM_TransmogSlotButtonMixin" virtual="true">
+    <Size x="59" y="59" />
+    <Layers>
+
+      <Layer level="BACKGROUND">
+        <Texture parentKey="Icon">
+          <Size x="45" y="45" />
+          <Anchors>
+            <Anchor point="CENTER" />
+          </Anchors>
+        </Texture>
+      </Layer>
+
+      <Layer level="BORDER">
+        <Texture parentKey="Border" atlas="transmog-gearslot-default" useAtlasSize="true">
+          <Anchors>
+            <Anchor point="CENTER" />
+          </Anchors>
+        </Texture>
+      </Layer>
+    </Layers>
+    <Frames>
+      <!-- Adding for potential later use Hidden for now Anchor May need changing for top slots -->
+      <DropdownButton parentKey="FlyoutDropdown" hidden="true"> <!-- needs mixin -->
+        <KeyValues>
+          <KeyValue key="menuPoint" type="string" value="BOTTOM" />
+          <KeyValue key="menuPointX" type="number" value="0" />
+          <KeyValue key="menuPointY" type="number" value="-5" />
+          <KeyValue key="menuRelativePoint" type="string" value="TOP" />
+        </KeyValues>
+        <Size x="43" y="19" />
+        <Anchors>
+          <Anchor point="BOTTOM" relativePoint="TOP" y="-4" />
+        </Anchors>
+        <NormalTexture parentKey="NormalTexture" atlas="transmog-button-pullup" useAtlasSize="true" />
+        <PushedTexture parentKey="PushedTexture" useAtlasSize="true"
+          atlas="transmog-button-pullup-pressed" />
+        <Scripts>
+          <!-- <OnLoad method="OnLoad" />
+          <OnMouseDown method="OnMouseDown" />
+          <OnMouseUp method="OnMouseUp" /> -->
+        </Scripts>
+      </DropdownButton>
+      <Frame parentKey="SelectedFrame" setAllPoints="true" hidden="true" frameLevel="100">
+        <Layers>
+          <Layer level="OVERLAY">
+            <Texture parentKey="Border" atlas="transmog-gearslot-selected" useAtlasSize="true">
+              <Anchors>
+                <Anchor point="CENTER" />
+              </Anchors>
+            </Texture>
+          </Layer>
+        </Layers>
+      </Frame>
+    </Frames>
+
+    <Scripts>
+      <OnLoad method="OnLoad" />
+      <OnShow method="OnShow" />
+      <OnClick method="OnClick" />
+      <!-- 
+      <OnEnter method="OnEnter" />
+      <OnLeave method="OnLeave" />
+       -->
+    </Scripts>
+
+  </Button>
+
+
+</Ui>
