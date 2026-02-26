@@ -15,6 +15,7 @@ local defaults = {
         ["UseCustomName"] = true,
         ["Automation"] = {
           ["delay"] = 5,
+          ["forcesummon"] = false,
           ["GLOBAL"] = true,
           ["SCENARIO"] = true,
           ["RAID"] = true,

@@ -62,6 +62,10 @@ function mod:AutomationHandler()
     return
   end
 
+  if not mod.Settings["Automation"]["forcesummon"] and C_PetJournal.GetSummonedPetGUID() then
+    return
+  end
+
   -- Triggers a timer to summon the pet after x seconds.
   if (self:IsTimerActive()) then
     return

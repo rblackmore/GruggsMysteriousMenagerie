@@ -116,6 +116,14 @@ local automationOptions = {
     step = 1,
     get = function(info) return mod["Settings"]["Automation"]["delay"] end,
     set = function(info, value) mod["Settings"]["Automation"]["delay"] = value end,
+  },
+  ["ForceSummon"] = {
+    order = 11,
+    type = "toggle",
+    name = "Force Summon",
+    desc = "Force Summon even if a pet is already summoned",
+    get = function(info) return mod.Settings["Automation"]["forcesummon"] end,
+    set = function(info, value) mod.Settings["Automation"]["forcesummon"] = value end
   }
 }
 

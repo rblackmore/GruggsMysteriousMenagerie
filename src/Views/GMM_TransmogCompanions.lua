@@ -62,6 +62,7 @@ function GMM_TransmogCompanionsMixin:InitFilterButton()
   end
   local function SetSortChecked(parem)
     C_PetJournal.SetPetSortParameter(parem)
+    self:Refresh()
   end
 
   local function IsShowUnused()
