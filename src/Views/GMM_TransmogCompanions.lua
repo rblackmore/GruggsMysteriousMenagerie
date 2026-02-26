@@ -54,6 +54,14 @@ function GMM_TransmogCompanionsMixin:InitFilterButton()
 
   local function SetAllFamilyChecked(value)
     C_PetJournal.SetAllPetTypesChecked(value)
+    return MenuResponse.Refresh
+  end
+
+  local function IsSortChecked(param)
+    return C_PetJournal.GetPetSortParameter() == param
+  end
+  local function SetSortChecked(parem)
+    C_PetJournal.SetPetSortParameter(parem)
   end
 
   local function IsShowUnused()
@@ -65,16 +73,41 @@ function GMM_TransmogCompanionsMixin:InitFilterButton()
     self:Refresh()
   end
 
+  local function GetCollectedFilter()
+    return C_PetJournal.IsFilterChecked(LE_PET_JOURNAL_FILTER_COLLECTED)
+  end
+  local function SetCollectedFilter()
+    C_PetJournal.SetFilterChecked(LE_PET_JOURNAL_FILTER_COLLECTED, not GetCollectedFilter())
+  end
+
+  local function GetNotCollectedFilter()
+    return C_PetJournal.IsFilterChecked(LE_PET_JOURNAL_FILTER_NOT_COLLECTED)
+  end
+
+  local function SetNotCollectedFilter()
+    C_PetJournal.SetFilterChecked(LE_PET_JOURNAL_FILTER_NOT_COLLECTED, not GetNotCollectedFilter())
+  end
+
   self.FilterButton:SetupMenu(function(_dropdown, rootDescription)
     rootDescription:SetTag("MENU_TRANSMOG_COMPANIONS_FILTER")
     rootDescription:CreateCheckbox("Show Unused", IsShowUnused, SetShowUnused)
 
+    rootDescription:CreateDivider()
+    rootDescription:CreateCheckbox(COLLECTED, GetCollectedFilter, SetCollectedFilter)
+    rootDescription:CreateCheckbox(NOT_COLLECTED, GetNotCollectedFilter, SetNotCollectedFilter)
     rootDescription:CreateDivider()
 
     local familiesSubmenu = rootDescription:CreateButton("Families");
 
     familiesSubmenu:CreateButton("Uncheck All", SetAllFamilyChecked, false)
     familiesSubmenu:CreateButton("Check All", SetAllFamilyChecked, true)
+
+    local sortByMenu = rootDescription:CreateButton(RAID_FRAME_SORT_LABEL)
+
+    sortByMenu:CreateRadio(NAME, IsSortChecked, SetSortChecked, LE_SORT_BY_NAME)
+    sortByMenu:CreateRadio(LEVEL, IsSortChecked, SetSortChecked, LE_SORT_BY_LEVEL)
+    sortByMenu:CreateRadio(RARITY, IsSortChecked, SetSortChecked, LE_SORT_BY_RARITY)
+    sortByMenu:CreateRadio(TYPE, IsSortChecked, SetSortChecked, LE_SORT_BY_PETTYPE)
 
     for filterIndex = 1, C_PetJournal.GetNumPetTypes() do
       familiesSubmenu:CreateCheckbox(_G["BATTLE_PET_NAME_" .. filterIndex], IsFamilyChecked, SetFamilyChecked,
@@ -202,30 +235,13 @@ function GMM_TransmogCompanionsMixin:RefreshCollectionEntries()
 end
 
 function GMM_TransmogCompanionsMixin:RefreshJournalEntries()
-  -- local function GetPetInfoTableByIndex(idx)
-  --   local petData = {}
-
-  --   petData.petID, petData.speciesID, petData.owned, petData.customName, petData.level,
-  --   petData.favorite, petData.isRevoked, petData.speciesName, petData.icon, petData.petType,
-  --   petData.companionID, petData.tooltip, petData.description, petData.isWild, petData.canBattle,
-  --   petData.isTradeable, petData.isUnique, petData.obtainable = C_PetJournal.GetPetInfoByIndex(idx)
-  --   return petData
-  -- end
-
-  -- local function GetPetSpeciesTable(speciesID)
-  --   local speciesData = {}
-  --   speciesData.speciesName, speciesData.speciesIcon, speciesData.petType, speciesData.companionID, speciesData.tooltipSource,
-  --   speciesData.tooltipDescription, speciesData.isWild, speciesData.canBattle, speciesData.isTradeable, speciesData.isUnique,
-  --   speciesData.obtainable, speciesData.creatureDisplayID = C_PetJournal.GetPetInfoBySpeciesID(speciesID)
-  -- end
-
   local outfitId = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
   local outfitDb = self:GetOutfitTableOrNil(outfitId)
   self.petCollectionEntries = {}
 
   for i = 1, C_PetJournal.GetNumPets() do
     local petID, speciesID = C_PetJournal.GetPetInfoByIndex(i)
-    self.petCollectionEntries[i] = {
+    local element = {
       templateKey = "COLLECTION_ITEM",
       index = i,
       petID = petID,
@@ -233,10 +249,13 @@ function GMM_TransmogCompanionsMixin:RefreshJournalEntries()
       collectionFrame = self,
       isSelected = self:OutfitContainsPetId(outfitDb, petID)
     }
-    -- if not self.ShowUnused and not self.petCollectionEntries[i].isSelected then
-    --   table.remove(self.petCollectionEntries, i)
-    -- end
+    if self.ShowUnused then
+      table.insert(self.petCollectionEntries, element)
+    elseif element.isSelected then
+      table.insert(self.petCollectionEntries, element)
+    end
   end
+
 
   local collectionData = { { elements = self.petCollectionEntries } }
   local dataProvider = CreateDataProvider(collectionData)

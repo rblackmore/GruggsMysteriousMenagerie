@@ -100,9 +100,8 @@ function GMM_CompanionModelMixin:RefreshGameTooltip()
 end
 
 function GMM_CompanionModelMixin:UpdateElementBorder()
+  self.Border:SetShown(self.Owned and not self.elementData.isSelected)
   self.SelectedBorder:SetShown(self.elementData.isSelected)
   self.UnownedOverlay:SetShown(not self.Owned)
   self.UnownedBorder:SetShown(not self.Owned)
-
-  self.Border:SetShown(self.Owned and not self.elementData.isSelected)
 end
