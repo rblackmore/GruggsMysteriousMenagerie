@@ -3,7 +3,7 @@
   <!-- Transmog Companions Frames for hosting in the new 12.0.0 Transmog Window Frame -->
 
   <Script
-    file="GMM_TransmogCompanions.lua" />
+    file="GMM_CompanionsWardrobe.lua" />
 
   <!-- Main Companions Frame -->
   <Frame name="GMM_TransmogCompanionsTemplate"
