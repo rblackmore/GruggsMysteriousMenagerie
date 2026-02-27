@@ -1,8 +1,8 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/AddOns/Blizzard_SharedXML/UI.xsd">
   <Script file="GMM_CompanionsWardrobeTemplates.lua" />
-  
-  <!-- Companion Model Element Template -->
+
+  <!-- Companion Model Element Template (This should be re-purposed for General Elemnt on Menagerie Wardrobe Instead-->
   <PlayerModel name="GMM_TransmogCompanionModelTemplate" mixin="GMM_TransmogCompanionModelMixin"
     virtual="true" enableMouse="true">
     <Size x="100" y="132" />
@@ -71,13 +71,4 @@
     </Scripts>
   </PlayerModel>
 
-  <!-- Companion Search Box -->
-  <EditBox name="GMM_CompanionWardrobeSearchBoxTemplate" mixin="GMM_CompanionWardrobeSearchBoxMixin"
-    inherits="SearchBoxNineSliceTemplate" virtual="true" letters="40">
-    <Size x="142" y="19" />
-    <Scripts>
-      <OnHide method="OnHide" />
-      <OnTextChanged method="OnTextChanged" />
-    </Scripts>
-  </EditBox>
 </Ui>

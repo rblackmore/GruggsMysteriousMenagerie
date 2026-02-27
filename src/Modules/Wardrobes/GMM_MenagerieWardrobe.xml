@@ -30,10 +30,20 @@
           <Anchor point="TOPRIGHT" x="-29" y="-24" />
         </Anchors>
       </DropdownButton>
-      <EditBox parentKey="SearchBox">
+      <DropdownButton parentKey="CopyToButton" inherits="WowStyle1FilterDropdownTemplate">
+        <KeyValues>
+          <KeyValue key="resizeToText" type="boolean" value="false" />
+        </KeyValues>
         <Anchors>
-          <Anchor point="TOPRIGHT" x="-10" y="1"
-            relativeKey="$parent.FilterButton" relativePoint="TOPLEFT" />
+          <Anchor point="TOPRIGHT" relativeKey="$parent.FilterButton" relativePoint="BOTTOMRIGHT"
+            x="0" y="-24" />
+        </Anchors>
+      </DropdownButton>
+      <EditBox parentKey="SearchBox" inherits="SearchBoxNineSliceTemplate" letters="40">
+        <Size x="142" y="19" />
+        <Anchors>
+          <Anchor point="TOPRIGHT" relativeKey="$parent.FilterButton" relativePoint="TOPLEFT"
+            x="-10" y="1" />
         </Anchors>
       </EditBox>
       <!-- 
@@ -73,9 +83,6 @@
     <KeyValues>
       <KeyValue key="spacing" value="5" type="number" />
     </KeyValues>
-    <Anchors>
-      <Anchor point="TOP" y="-48" />
-    </Anchors>
   </Frame>
 
   <Button name="GMM_TransmogSlotButtonTemplate" mixin="GMM_TransmogSlotButtonMixin" virtual="true">

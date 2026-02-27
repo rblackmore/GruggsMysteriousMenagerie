@@ -9,10 +9,14 @@ function WardrobeModule:OnEnable()
 end
 
 function WardrobeModule:ADDON_LOADED(event, name)
-  if name ~= "Blizzard_Transmog" then
-    return
-  end
+  if name ~= "Blizzard_Transmog" then return end
 
+  self:InitMenagerieFrame()
+
+  self:UnregisterEvent("ADDON_LOADED")
+end
+
+function WardrobeModule:InitMenagerieFrame()
   local container = TransmogFrame
       and TransmogFrame.WardrobeCollection
       and TransmogFrame.WardrobeCollection.TabContent
@@ -20,42 +24,16 @@ function WardrobeModule:ADDON_LOADED(event, name)
   self.WardrobeCollection = TransmogFrame.WardrobeCollection
 
   self.MenagerieFrame = CreateFrame("Frame", nil, container, "GMM_MenagerieFrame")
-  self.MenagerieFrame:SetFrameStrata(container:GetFrameStrata())
-  self.MenagerieFrame:SetFrameLevel(container:GetFrameLevel() + 1)
   self.MenagerieFrame:ClearAllPoints()
   self.MenagerieFrame:SetAllPoints(container)
-  self.MenagerieFrame.wardrobeCollection = TransmogFrame.WardrobeCollection
-
+  self.MenagerieFrame:SetFrameStrata(container:GetFrameStrata())
+  self.MenagerieFrame:SetFrameLevel(container:GetFrameLevel() + 1)
   self.MenagerieTabID = self.WardrobeCollection:AddNamedTab("Menagerie", self.MenagerieFrame)
-
-  TransmogFrame.WardrobeCollection.gmmMenagerieTabID = self.MenagerieTabID
-
-  local charFrame = TransmogFrame.CharacterPreview
-  local topSlots = CreateFrame("Frame", nil, charFrame, "GMM_MenagerieTopSlots")
-  self.TopSlots = topSlots
-  charFrame.TopSlots = topSlots
-
-  topSlots:ClearAllPoints()
-  topSlots:SetPoint("TOP", 0, -64)
-
-  -- Gather Slot Data.... This should be simple, just set Companion as a title
-  -- maybe need an enum to indicate Companion/Flying/Ground?
-  local slotButton = CreateFrame("Button", nil, topSlots, "GMM_TransmogSlotButtonTemplate")
-
-  local slotData = {
-    menagerieLocation = "Companions",
-    menagerieTabID = self.MenagerieTabID,
-    menagerieFrame = self.MenagerieFrame,
+  self.MenagerieFrame:Init({
     wardrobeCollection = TransmogFrame.WardrobeCollection,
-  }
-
-  slotButton:Init(slotData)
-  slotButton.layoutIndex = 1
-
-  slotButton:Show()
-  topSlots:Show()
-  topSlots:Layout()
-  self:UnregisterEvent("ADDON_LOADED")
+    tabId = self.MenagerieTabID,
+    getSlotsInfo = function() return self:GetMenagerieSlotInfo() end,
+  })
 end
 
 --------------------------------------------------------------------------------
@@ -64,9 +42,50 @@ end
 GMM_MenagerieWardrobeMixin = {
 
 }
+function GMM_MenagerieWardrobeMixin:Init(context)
+  self.wardrobeCollection = context.wardrobeCollection
+  self.menagerieTabID = context.tabId
+  self.GetSlotsInfo = context.getSlotsInfo
+
+  self:InitTopSlots()
+  self:Refresh()
+end
+
+function GMM_MenagerieWardrobeMixin:InitTopSlots()
+  local charFrame = TransmogFrame.CharacterPreview
+  local topSlots = CreateFrame("Frame", nil, charFrame, "GMM_MenagerieTopSlots")
+  topSlots:SetFrameStrata(charFrame:GetFrameStrata())
+  topSlots:SetFrameLevel(charFrame:GetFrameLevel() + 1)
+  topSlots:ClearAllPoints()
+  topSlots:SetPoint("TOP", 0, -64)
+
+  self.TopSlots = topSlots
+  charFrame.TopSlots = topSlots
+
+  for _index, slotInfo in ipairs(self.GetSlotsInfo()) do
+    self:SetupSlot({ index = _index, info = slotInfo })
+  end
+
+  self.TopSlots:Show()
+  self.TopSlots:Layout()
+end
+
+function GMM_MenagerieWardrobeMixin:SetupSlot(context)
+  local btn = CreateFrame("Button", nil, self.TopSlots, "GMM_TransmogSlotButtonTemplate")
+  local slotInfo = context.info
+  btn.layoutIndex = context.index
+  btn:Init({
+    location = slotInfo.slot,
+    title = slotInfo.slotName,
+    icon = slotInfo.icon,
+    menagerieFrame = self,
+    wardrobeCollection = TransmogFrame.WardrobeCollection
+  })
+  btn:Show()
+end
 
 function GMM_MenagerieWardrobeMixin:OnLoad()
-  self.selectedMenagerieSlotData = nil
+  self.selectedSlotData = nil
 end
 
 function GMM_MenagerieWardrobeMixin:OnShow()
@@ -74,7 +93,7 @@ function GMM_MenagerieWardrobeMixin:OnShow()
 end
 
 function GMM_MenagerieWardrobeMixin:Reset()
-  self.selectedMenagerieSlotData = nil
+  self.selectedSlotData = nil
   self:Refresh()
 end
 
@@ -87,18 +106,18 @@ end
 
 function GMM_MenagerieWardrobeMixin:SetMenagerieSlot(slotFrame, forceRefresh)
   local slotData = slotFrame and slotFrame.slotData or nil
-  self.selectedMenagerieSlotData = slotData;
+  self.selectedSlotData = slotData;
+  if not slotData then
+    return
+  end
 
   local changed = true
-  WardrobeModule:Print("Slot Data: ", slotData)
-  WardrobeModule:Print("Slot Data (Location): ", slotData.menagerieLocation)
 
-
-  if self.selectedMenagerieSlotData and slotData and
-      self.selectedMenagerieSlotData.menagerieLocation == slotData.menagerieLocation then
+  if self.selectedSlotData and slotData and
+      self.selectedSlotData.title == slotData.title then
     changed = false
   end
-  self.selectedMenagerieSlotData = slotData
+
   if changed or forceRefresh then
     self:Refresh()
   end
@@ -110,10 +129,9 @@ end
 
 function GMM_MenagerieWardrobeMixin:RefreshActiveSlotTitle()
   local title = ""
-  if self.selectedMenagerieSlotData and self.selectedMenagerieSlotData.menagerieLocation then
-    title = self.selectedMenagerieSlotData.menagerieLocation
+  if self.selectedSlotData and self.selectedSlotData.title then
+    title = self.selectedSlotData.title
   end
-  WardrobeModule:Print("Title is: ", title)
   if self.ActiveSlotTitle then
     self.ActiveSlotTitle:SetText(title)
   end
@@ -123,29 +141,33 @@ end
 --- Slot Button Mixin
 --------------------------------------------------------------------------------
 GMM_TransmogSlotButtonMixin = {}
-
+-- {
+-- location = slotInfo.slot,
+-- title = slotInfo.name,
+-- icon = slotInfo.icon,
+-- menagerieFrame = self,
+-- wardrobeCollection = TransmogFrame.WardrobeCollection
+--   }
 function GMM_TransmogSlotButtonMixin:OnLoad()
-  WardrobeModule:Print("Loading Slot Button")
   self:Update()
 end
 
 function GMM_TransmogSlotButtonMixin:OnShow()
-  WardrobeModule:Print("Showing Slot Button")
   self:Update()
 end
 
 function GMM_TransmogSlotButtonMixin:Init(slotData)
-  WardrobeModule:Print("Initializing Slot Button")
   self.slotData = slotData
+  self:Update()
 end
 
 function GMM_TransmogSlotButtonMixin:Update()
-  WardrobeModule:Print("Updating Slot Button")
-  self.Icon:SetAtlas("category-icons_pets_active")
+  if self.slotData then
+    self.Icon:SetAtlas(self.slotData.icon)
+  end
 end
 
 function GMM_TransmogSlotButtonMixin:OnClick(buttonName)
-  WardrobeModule:Print("Clicked " .. self.slotData.menagerieLocation .. " Button")
   if buttonName == "LeftButton" then
     PlaySound(SOUNDKIT.UI_TRANSMOG_GEAR_SLOT_CLICK);
     self:OnSelect()
@@ -154,5 +176,5 @@ end
 
 function GMM_TransmogSlotButtonMixin:OnSelect()
   self.slotData.menagerieFrame:SetMenagerieSlot(self, true)
-  self.slotData.wardrobeCollection:SetTab(self.slotData.menagerieTabID, true)
+  self.slotData.wardrobeCollection:SetTab(self.slotData.menagerieFrame.menagerieTabID, true)
 end

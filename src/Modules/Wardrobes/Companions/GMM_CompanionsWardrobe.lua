@@ -31,6 +31,7 @@ function GMM_CompanionsWardrobeMixin:OnLoad()
 end
 
 function GMM_CompanionsWardrobeMixin:InitSearchBox()
+  -- TODO: SearchBox Clear button fails to reset PagedContent, probably need to get a handle on the clear button and override it's OnClick?
   self.SearchBox:SetScript("OnHide", function(editBox) editBox:SetText("") end)
   self.SearchBox:SetText(C_PetJournal.GetSearchFilter())
   self.SearchBox:SetScript("OnTextChanged",
