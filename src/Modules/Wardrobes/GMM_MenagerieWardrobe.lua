@@ -40,6 +40,13 @@ end
 --- Menagerie Wardrobe Mixin
 --------------------------------------------------------------------------------
 GMM_MenagerieWardrobeMixin = {
+  EVENTS_TO_REGISTER = {},
+  COLLECTION_TEMPLATES = {
+    ["COLLECTION_ITEM"] = {
+      template = "GMM_MenagerieElementModelTemplate",
+      initFunc = GMM_MenagerieElementModelMixin.Init
+    }
+  }
 
 }
 function GMM_MenagerieWardrobeMixin:Init(context)
@@ -85,20 +92,29 @@ function GMM_MenagerieWardrobeMixin:SetupSlot(context)
 end
 
 function GMM_MenagerieWardrobeMixin:OnLoad()
-  self.selectedSlotData = nil
+  self:Reset()
+  self.PagedContent:SetElementTemplateData(self.COLLECTION_TEMPLATES)
 end
 
 function GMM_MenagerieWardrobeMixin:OnShow()
-  self:Refresh()
+  -- self:Refresh()
+end
+
+function GMM_MenagerieWardrobeMixin:OnHide()
 end
 
 function GMM_MenagerieWardrobeMixin:Reset()
   self.selectedSlotData = nil
-  self:Refresh()
 end
 
 function GMM_MenagerieWardrobeMixin:Refresh()
   self:RefreshActiveSlotTitle()
+  self:RefreshFilterButtons()
+  self:RefreshCollectionEntries();
+
+  -- self:RefreshWeaponDropdown();
+  -- self:RefreshDisplayTypeButtons();
+  -- self:RefreshSecondaryAppearanceToggle();
   -- TODO: Refresh everything else, Filter, CopyTo Button, and PagedContent.
   -- This will all be different, start with Compansions, already done that
   -- Mounts might require different element template, maybe, I don't know.
@@ -112,9 +128,10 @@ function GMM_MenagerieWardrobeMixin:SetMenagerieSlot(slotFrame, forceRefresh)
   end
 
   local changed = true
+  local selectedSlotData = self:GetSelectedMenagerieSlotData()
 
-  if self.selectedSlotData and slotData and
-      self.selectedSlotData.title == slotData.title then
+  if selectedSlotData and slotData and
+      selectedSlotData.title == slotData.title then
     changed = false
   end
 
@@ -124,18 +141,76 @@ function GMM_MenagerieWardrobeMixin:SetMenagerieSlot(slotFrame, forceRefresh)
 end
 
 function GMM_MenagerieWardrobeMixin:GetSelectedMenagerieSlotData()
-  return self.selectedMenagerieSlotData
+  return self.selectedSlotData
 end
 
 function GMM_MenagerieWardrobeMixin:RefreshActiveSlotTitle()
   local title = ""
-  if self.selectedSlotData and self.selectedSlotData.title then
-    title = self.selectedSlotData.title
+  local selectedSlotData = self:GetSelectedMenagerieSlotData()
+  if selectedSlotData and selectedSlotData.title then
+    title = selectedSlotData.title
   end
   if self.ActiveSlotTitle then
     self.ActiveSlotTitle:SetText(title)
   end
 end
+
+function GMM_MenagerieWardrobeMixin:RefreshFilterButtons()
+  local selectedSlotData = self:GetSelectedMenagerieSlotData()
+
+  if not selectedSlotData then
+    self.CompanionFilterButton:Hide()
+    self.MountFilterButton:Hide()
+    return
+  end
+  if selectedSlotData.location == GMM_MenagerieSlot.Companions then
+    self.CompanionFilterButton:Show()
+    self.MountFilterButton:Hide()
+  elseif selectedSlotData.location == GMM_MenagerieSlot.FlyingMounts or selectedSlotData.location == GMM_MenagerieSlot.GroundMounts then
+    self.CompanionFilterButton:Hide()
+    self.MountFilterButton:Show()
+  end
+end
+
+function GMM_MenagerieWardrobeMixin:RefreshCollectionEntries()
+  self.itemEntries = nil
+  local selectedSlotData = self:GetSelectedMenagerieSlotData()
+  if selectedSlotData and selectedSlotData.location == GMM_MenagerieSlot.Companions then
+    WardrobeModule:Print("Getting Companion Entries")
+    self.itemEntries = WardrobeModule:GetCompanionEntries({ ShowUnused = true })
+  elseif selectedSlotData and selectedSlotData.location == GMM_MenagerieSlot.FlyingMounts then
+    WardrobeModule:Print("Getting Mount Entries")
+    self.itemEntries = WardrobeModule:GetMountEntries() -- Not Implemented yet.
+  end
+
+  if not self.itemEntries then
+    return
+  end
+
+  local retrainCurrentPage = true
+  self:SetCollectionEntries(self.itemEntries, retrainCurrentPage)
+end
+
+function GMM_MenagerieWardrobeMixin:SetCollectionEntries(entries, retrainCurrentPage)
+  local collectionElements = {}
+  for _index, itemEntry in ipairs(entries) do
+    local element = {
+      templateKey = "COLLECTION_ITEM",
+      itemInfo = itemEntry,
+      collectionFrame = self
+    }
+    table.insert(collectionElements, element)
+  end
+
+  WardrobeModule:Print("Element Count: ", #collectionElements)
+  local collectionData = { { elements = collectionElements } }
+  local dataProvider = CreateDataProvider(collectionData)
+  self.PagedContent:SetDataProvider(dataProvider, retrainCurrentPage)
+end
+
+function GMM_MenagerieWardrobeMixin:InitCompanionFilterButton() end
+
+function GMM_MenagerieWardrobeMixin:InitMountFilterButton() end
 
 --------------------------------------------------------------------------------
 --- Slot Button Mixin

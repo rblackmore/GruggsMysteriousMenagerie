@@ -1,6 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/AddOns/Blizzard_SharedXML/UI.xsd">
 
+  <Include file="GMM_MenagerieWardrobeTemplates.xml" />
   <Script file="GMM_MenagerieWardrobe.lua" />
 
   <Frame name="GMM_MenagerieFrame" mixin="GMM_MenagerieWardrobeMixin"
@@ -22,7 +23,17 @@
       </Layer>
     </Layers>
     <Frames>
-      <DropdownButton parentKey="FilterButton" inherits="WowStyle1FilterDropdownTemplate">
+      <DropdownButton parentKey="CompanionFilterButton" inherits="WowStyle1FilterDropdownTemplate"
+        hidden="true">
+        <KeyValues>
+          <KeyValue key="resizeToText" type="boolean" value="false" />
+        </KeyValues>
+        <Anchors>
+          <Anchor point="TOPRIGHT" x="-29" y="-24" />
+        </Anchors>
+      </DropdownButton>
+      <DropdownButton parentKey="MountFilterButton" inherits="WowStyle1FilterDropdownTemplate"
+        hidden="true">
         <KeyValues>
           <KeyValue key="resizeToText" type="boolean" value="false" />
         </KeyValues>
@@ -77,6 +88,11 @@
         </Frames>
       </Frame>
     </Frames>
+    <Scripts>
+      <OnLoad method="OnLoad" />
+      <OnShow method="OnShow" />
+      <OnHide method="OnHide" />
+    </Scripts>
   </Frame>
 
   <Frame name="GMM_MenagerieTopSlots" inherits="HorizontalLayoutFrame" virtual="true">
