@@ -35,51 +35,59 @@ function WardrobeModule:GetMenagerieSlotInfo()
   return menagerieSlots
 end
 
+-- Should use C_PetJournal to build a collection of companions with either petID or speciesID
+-- MenagerieFrame is responsible to turning these into an element data object for use with a Dataprovider
+-- Dataprovider will then be sent to the PagedContent
 function WardrobeModule:GetCompanionEntries(filters)
-  -- Should use C_PetJournal to build a collection of companions with either petID or speciesID
-  -- MenagerieFrame is responsible to turning these into an element data object for use with a Dataprovider
-  -- Dataprovider will then be sent to the PagedContent
   local outfitId = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
   local companionDB = self:GetCompanionsForOutfitOrNil(outfitId)
 
   local entries = {}
   for i = 1, C_PetJournal.GetNumPets() do
     local petID, speciesID = C_PetJournal.GetPetInfoByIndex(i)
-    local element = {
+    local petEntry = {
       index = i,
       petID = petID,
       speciesID = speciesID,
       isSelected = self:OutfitContainsPetId(companionDB, petID)
     }
     if filters.ShowUnused then
-      table.insert(entries, element)
-    elseif element.isSelected then
-      table.insert(entries, element)
+      table.insert(entries, petEntry)
+    elseif petEntry.isSelected then
+      table.insert(entries, petEntry)
     end
   end
   return entries
 end
 
-function WardrobeModule:GetMountEntries()
-  -- Same as Companion Entries
-  -- Should I have a parem that sets filters to include types?
-  -- ie: All, Ground Only, Flying Only, Passenger or Aquatic?
+function WardrobeModule:GetMountEntries(filters)
   local entries = {}
-  table.insert(entries, {
-    index = 1,
-    mountID = "Mount-ID-123456789",
-    isSelected = true,
-  })
-  table.insert(entries, {
-    index = 2,
-    mountID = "Mount-ID-123456789",
-    isSelected = false,
-  })
-  table.insert(entries, {
-    index = 2,
-    mountID = "Mount-ID-123456789",
-    isSelected = true,
-  })
+  for _index, mountID in ipairs(C_MountJournal.GetMountIDs()) do
+    local name, spellID, icon, isActive, isUsable,
+    sourceType, isFavorite, isFactionSpecific, faction,
+    shouldHideOnChar, isCollected,
+    _, isSteadyFlight         = C_MountJournal.GetMountInfoByID(mountID)
+    local creatureDisplayInfoID, description, source,
+    isSelfMount, mountTypeID, uiModelSceneID, animID, spellVisualKitID,
+    disablePlayerMountPreview = C_MountJournal.GetMountInfoExtraByID(mountID)
+
+    local grounded            = mountTypeID == 230 -- Update to Include other TypeIDs that are ground only.
+    local canFly              = mountTypeID == 424 or mountTypeID == 247 or mountTypeID == 248
+    if isCollected then
+      if filters.IncludeGround then
+        table.insert(entries, {
+          index = _index,
+          mountID = mountID
+        })
+      elseif not grounded and canFly then
+        table.insert(entries, {
+          index = _index,
+          mountID = mountID
+        })
+      end
+    end
+  end
+
   return entries
 end
 

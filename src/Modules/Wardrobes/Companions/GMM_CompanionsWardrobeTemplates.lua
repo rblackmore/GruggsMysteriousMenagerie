@@ -41,8 +41,6 @@ function GMM_TransmogCompanionModelMixin:Init(elementData)
     self.Owned = false
   end
 
-  self:SetDisplayInfo(self.displayID)
-
   self:Refresh()
 end
 

@@ -180,7 +180,10 @@ function GMM_MenagerieWardrobeMixin:RefreshCollectionEntries()
     self.itemEntries = WardrobeModule:GetCompanionEntries({ ShowUnused = true })
   elseif selectedSlotData and selectedSlotData.location == GMM_MenagerieSlot.FlyingMounts then
     WardrobeModule:Print("Getting Mount Entries")
-    self.itemEntries = WardrobeModule:GetMountEntries() -- Not Implemented yet.
+    self.itemEntries = WardrobeModule:GetMountEntries({ IncludeGround = false }) -- Not Implemented yet.
+  elseif selectedSlotData and selectedSlotData.location == GMM_MenagerieElementModelMixin.GroundMounts then
+    WardrobeModule:Print("Getting Ground Mount Entries")
+    self.itemEntries = WardrobeModule:GetMountEntries({ IncludeGround = true }) -- Not Implemented yet.
   end
 
   if not self.itemEntries then
@@ -194,8 +197,9 @@ end
 function GMM_MenagerieWardrobeMixin:SetCollectionEntries(entries, retrainCurrentPage)
   local collectionElements = {}
   for _index, itemEntry in ipairs(entries) do
+    -- element is the data object provided to each element on the pagedcontent.
     local element = {
-      templateKey = "COLLECTION_ITEM",
+      templateKey = "COLLECTION_ITEM", -- Add Property to indicate Pet or Mount
       itemInfo = itemEntry,
       collectionFrame = self
     }
