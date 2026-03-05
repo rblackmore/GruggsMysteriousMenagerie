@@ -4,6 +4,10 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
 local mod = addOn:GetModule("CompanionModule")
 
+--------------------------------------------------------------------------------
+--- Database Schema
+--------------------------------------------------------------------------------
+
 local default =
 {
   meta = {
@@ -22,7 +26,7 @@ local default =
     },
     continents = {
       -- keyed using UiMapID
-      -- [12] = { pets = {}} (Kalimdor)
+      -- [12] = { pets = {}, order = {}, total = 0} (Kalimdor)
 
     },
     zones = {
@@ -37,6 +41,14 @@ local default =
       }
       }
       ]] --
+    },
+    owned = {},
+    cities = {
+      --[[
+      Cities are zones, but we can check if the player is resting?
+      Check if the mapID matches a city id?
+      I may need to create a custom list of known city id's?
+      ]]
     }
   },
   ["char"] = {
@@ -46,10 +58,24 @@ local default =
   }
 }
 
-function mod:RefreshProfilePointers()
-  self.dbp = self.CompanionDB.profile
-  self.dbc = self.CompanionDB.char
+--------------------------------------------------------------------------------
+--- Local Helper Functions
+--------------------------------------------------------------------------------
+local function GetContinentIDForMap(mapID)
+  local info = mapID and C_Map.GetMapInfo(mapID)
+  while info do
+    if info.mapType == Enum.UIMapType.Continent then
+      return info.mapID
+    end
+    if not info.parentMapID then break end
+    info = C_Map.GetMapInfo(info.parentMapID)
+  end
+  return nil
 end
+
+--------------------------------------------------------------------------------
+--- Module API
+--------------------------------------------------------------------------------
 
 function mod:InitializeCompanionDatabase()
   self.CompanionDB = LibStub("AceDB-3.0"):New("GMM_COMPANIONS_DB", default, true)
@@ -59,6 +85,16 @@ function mod:InitializeCompanionDatabase()
   self.CompanionDB.RegisterCallback(self, "OnProfileCopied", "OnAceDBProfileEvent")
   self.CompanionDB.RegisterCallback(self, "OnProfileReset", "OnAceDBProfileEvent")
   self:EnsureGlobal()
+  self:EnsureOwned()
+end
+
+function mod:RefreshProfilePointers()
+  self.dbp = self.CompanionDB.profile
+  self.dbc = self.CompanionDB.char
+end
+
+function mod:RefreshEffectivePetList()
+  self.EffectivePetList = self:GetEffectivePetList()
 end
 
 function mod:OnAceDBProfileEvent(...)
@@ -93,6 +129,7 @@ function mod:EnsureZone(continentID, zoneID)
   local z = self.dbp.zones[continentID][zoneID]
   if not z then
     z = { pets = {}, order = {}, total = 0 }
+    self.dbp.zones[continentID][zoneID] = z
   end
   return z
 end
@@ -105,6 +142,24 @@ function mod:EnsureOutfit(outfitID)
     self.dbc.outfits[outfitID] = o
   end
   return o
+end
+
+function mod:EnsureOwned()
+  local o = self:RefreshOwnedList()
+  self.dbp.owned = o
+  return o
+end
+
+function mod:RefreshOwnedList()
+  local list = { pets = {}, order = {}, total = 0 }
+  local numPets = C_PetJournal.GetNumPets()
+  for i = 1, numPets do
+    local petGUID = C_PetJournal.GetPetInfoByIndex(i)
+    if petGUID then
+      self:AddPet(list, petGUID)
+    end
+  end
+  return list
 end
 
 function mod:AddPet(list, petGUID)
@@ -136,6 +191,18 @@ function mod:RemovePet(list, petGUID)
   return false
 end
 
+function mod:FilterExistingPetGUIDs(petsSet)
+  if not petsSet then return nil end
+  local filtered = {}
+  for guid in pairs(petsSet) do
+    local speciesID = C_PetJournal.GetPetInfoByPetID(guid)
+    if speciesID ~= nil then
+      filtered[guid] = true
+    end
+  end
+  return filtered
+end
+
 function mod:GetCurrentPetList(mapID, outfitID, continentID)
   -- 1) Outfit
   if outfitID and self.dbc.outfits and self.dbc.outfits[outfitID] then
@@ -154,5 +221,19 @@ function mod:GetCurrentPetList(mapID, outfitID, continentID)
   end
 
   -- 4 ) Global Default
-  return self:EnsureGlobal()
+  local global = self:EnsureGlobal()
+  if global and global.order and #global.order > 0 then
+    return global
+  end
+
+  -- 5) Default to Owned Pets if Global is Empty
+  return self:EnsureOwned()
+end
+
+function mod:GetEffectivePetList()
+  local outfitID = C_TransmogOutfitInfo.GetActiveOutfitID()
+  local mapID = C_Map.GetBestMapForUnit("player")
+  local continentID = GetContinentIDForMap(mapID)
+
+  return self:GetCurrentPetList(mapID, outfitID, continentID)
 end

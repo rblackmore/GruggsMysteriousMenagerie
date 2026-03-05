@@ -6,7 +6,7 @@ local mod = addOn:GetModule("CompanionModule");
 
 function mod:OnInitialize()
   self:InitializeAutomation()
-  self.CompanionDB = addOn.db["profile"]["Companions"]
+  self:InitializeCompanionDatabase()
   self.Settings = self.CompanionDB["Settings"]
 end
 
