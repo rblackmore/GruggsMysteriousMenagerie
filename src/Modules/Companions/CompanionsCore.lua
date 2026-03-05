@@ -30,6 +30,45 @@ function mod:PickRandomPetId()
   return petId
 end
 
+function mod:PickWeightedRandom()
+  local list = self.EffectivePetList or self:RefreshEffectivePetList()
+  if not list or not list.order or #list.order == 0 then
+    return nil, "No Pets in the current effective list"
+  end
+  local weights = list.weights or {}
+  local totalW, tmp = 0, {}
+
+  for _, guid in ipairs(list.order) do
+    if list.pets and list.pets[guid] then
+      local speciesID = C_PetJournal.GetPetInfoByPetID(guid)
+      if speciesID then
+        local w = tonumber(weights[guid]) or 1.0
+        if w > 0 then
+          totalW = totalW + w
+          table.insert(tmp, { guid = guid, w = w })
+        end
+      else -- prune
+        list.pets[guid] = nil
+        if list.weights then list.weights[guid] = nil end
+      end
+    end
+  end
+
+  if totalW <= 0 or #tmp == 0 then
+    return nil, "No valid pets with positive weights."
+  end
+
+  local r = math.random() * totalW
+  local acc = 0
+  for i = 1, #tmp do
+    acc = acc + tmp[i].w
+    if r <= acc then
+      return tmp[i].guid
+    end
+  end
+  return tmp[#tmp].guid
+end
+
 function mod:RequestCompanion(petId)
   if InCombatLockdown() then
     self:RegisterEvent("PLAYER_REGEN_ENABLED", function()

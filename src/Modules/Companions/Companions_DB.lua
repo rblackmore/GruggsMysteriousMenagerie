@@ -62,7 +62,7 @@ function mod:OnProfileEvent(...)
 end
 
 function mod:EnsureGlobal()
-  self.dbp.global = self.dbp.global or { pets = {}, order = {}, total = 0 }
+  self.dbp.global = self.dbp.global or { pets = {}, order = {}, weights = {}, total = 0 }
 
   self.dbp.global.pets = self.dbp.global.pets or {}
   self.dbp.global.order = self.dbp.global.order or {}
@@ -109,7 +109,7 @@ function mod:EnsureOwned()
 end
 
 function mod:RemoveGlobal()
-  self.dbp.global = { pets = {}, order = {}, total = 0 }
+  self.dbp.global = { pets = {}, order = {}, weights = {}, total = 0 }
 end
 
 function mod:RemoveContinent(continentID)
@@ -154,16 +154,22 @@ function mod:RefreshOwnedList()
   return list
 end
 
-function mod:AddPet(list, petGUID)
+function mod:AddPet(list, petGUID, weight)
   list.pets = list.pets or {}
   list.order = list.order or {}
+  list.weights = list.weights or {}
   list.total = list.total or 0
 
-  if not list.pets[petGUID] then
+  if not list.pets[petGUID] then -- Add New Pet
     list.pets[petGUID] = true
     table.insert(list.order, petGUID)
+    list.weights[petGUID] = tonumber(weight) or 1.0
     list.total = (list.total or 0) + 1
     return true
+  else
+    if weight ~= nil then -- Update existing pet Weight
+      list.weights[petGUID] = tonumber(weight) or 1.0
+    end
   end
   return false
 end
@@ -171,6 +177,7 @@ end
 function mod:RemovePet(list, petGUID)
   if list and list.pets and list.pets[petGUID] then
     list.pets[petGUID] = nil
+    if list.weights then list.weights[petGUID] = nil end
     for i, id in ipairs(list.order) do
       if id == petGUID then
         table.remove(list.order, i)

@@ -6,12 +6,12 @@
   <Script file="DB\GMM_DB.lua" />
 
   <!-- Companions Module -->
-  <Script file="Modules\Companions\GMM_Companions.lua" />
-  <Script file="Modules\Companions\GMM_CompanionCache.lua" />
-  <Script file="DB\GMM_COMPANION_DB.lua" />
+  <Script file="Modules\Companions\CompanionsCore.lua" />
+  <Script file="Modules\Companions\CompanionsCache.lua" />
+  <Script file="Modules\Companions\Companions_DB.lua" />
+  <Script file="Modules\Companions\Components\CompanionsSettings.lua" />
 
   <!-- <Script file="Modules\Companions\Components\Automation.lua" /> -->
-  <!-- <Script file="Modules\Companions\Components\Options.lua" /> -->
 
   <!-- Wardrobes -->
   <!-- <Include file="Modules\Wardrobes\Companions\GMM_CompanionsWardrobeTemplates.xml" /> -->

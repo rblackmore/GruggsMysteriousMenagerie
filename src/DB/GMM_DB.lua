@@ -12,7 +12,7 @@ function addOn:InitializeDatabase()
   self.dbCompanions = self.db:RegisterNamespace("Companions", {
     profile = {
 
-      global = { pets = {}, order = {}, total = 0 },
+      global = { pets = {}, order = {}, weights = {}, total = 0 },
       continents = {},
       zones = {},
       owned = {},
