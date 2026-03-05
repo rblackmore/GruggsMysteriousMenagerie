@@ -139,6 +139,7 @@ end
 
 function mod:RefreshEffectivePetList()
   self.EffectivePetList = self:GetEffectivePetList()
+  return self.EffectivePetList
 end
 
 function mod:RefreshOwnedList()

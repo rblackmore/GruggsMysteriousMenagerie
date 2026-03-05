@@ -4,6 +4,7 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
 local mod = addOn:GetModule("CompanionModule")
 
+-- These events are when to automatically summon a companion.
 local eventsToRegister = {
   "ZONE_CHANGED_NEW_AREA", --> Player changes major Zone, et, Orgrimmar -> Durotar.
   "ZONE_CHANGED",          --> Player changes minor zone, eg, Valley of Honor -> The Drag.

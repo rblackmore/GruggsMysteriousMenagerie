@@ -30,8 +30,6 @@ function Cache:OnEnable()
   self:RequestRefresh()
 end
 
-function Cache:OnEnable() end
-
 function Cache:OnDisable()
   if self._refreshTimer then
     self:CancelTimer(self._refreshTimer)
@@ -44,6 +42,7 @@ function Cache:BucketRefresh()
 end
 
 function Cache:RequestRefresh()
+  Comp:Print("Requesting Refresh")
   if self._refreshTimer then
     self:CancelTimer(self._refreshTimer)
   end
@@ -54,6 +53,7 @@ function Cache:RequestRefresh()
 end
 
 function Cache:DoRefresh()
+  Comp:Print("Doing Refresh")
   Comp:RefreshEffectivePetList()
   self:SendMessage("GMM_EFFECTIVE_PET_LIST_UPDATED")
 end

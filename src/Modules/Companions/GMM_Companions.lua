@@ -7,6 +7,7 @@ _G["GMM_Companions"] = mod
 
 function mod:OnInitialize()
   self:InitializeDatabasePointers()
+  self:RegisterChatCommand("gmsummon", "SummonCommand")
 end
 
 function mod:OnEnable()
@@ -16,6 +17,59 @@ function mod:OnEnable()
 end
 
 function mod:OnDisable()
+end
+
+function mod:PickRandomPetId()
+  local list = self.EffectivePetList or self:RefreshEffectivePetList()
+  if not list or not list.order or #list.order == 0 then
+    return nil, "No Pets in the current effective list"
+  end
+
+  local rando = math.random(#list.order)
+  local petId = list.order[rando]
+  return petId
+end
+
+function mod:RequestCompanion(petId)
+  if InCombatLockdown() then
+    self:RegisterEvent("PLAYER_REGEN_ENABLED", function()
+      self:SummonCompanion(petId)
+      self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+    end)
+  else
+    self:SummonCompanion(petId)
+  end
+end
+
+function mod:SummonCompanion(petId)
+  local currentCompanion = C_PetJournal.GetSummonedPetGUID()
+  if currentCompanion == petId then
+    return false
+  end
+  C_PetJournal.SummonPetByGUID(petId)
+  return C_PetJournal.GetSummonedPetGUID() == petId
+end
+
+function mod:SummonCommand(...)
+  local dismiss = select(1, ...)
+
+  if dismiss and dismiss == "dismiss" then
+    mod:SummonOrDismissRandomCompanion()
+  else
+    local petId = self:PickRandomPetId()
+    self:RequestCompanion(petId)
+  end
+end
+
+function mod:SummonOrDismissRandomCompanion()
+  local currentCompanion = C_PetJournal.GetSummonedPetGUID()
+  if currentCompanion then
+    C_PetJournal.DismissSummonedPet(currentCompanion)
+    return
+  end
+
+  local petId = self:PickRandomPetId()
+  self:RequestCompanion(petId)
 end
 
 -- Using a priority list, chooses a random petId from a variety of Data Tables.
