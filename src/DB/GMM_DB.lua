@@ -27,7 +27,7 @@ function addOn:InitializeDatabase()
   self.dbMounts = self.db:RegisterNamespace("Mounts", {
     profile = {
 
-      global = { pets = {}, order = {}, total = 0 },
+      global = { mounts = {}, order = {}, total = 0 },
       continents = {},
       zones = {},
       cities = {},
