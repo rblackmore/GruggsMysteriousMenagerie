@@ -4,7 +4,7 @@
 ## Notes: {{NOTES}}
 ## Author: {{AUTHOR}}
 ## Category: Collections
-## SavedVariables: GMM_DB, GMM_OUTFITS_DB
+## SavedVariables: GMM_DB, GMM_OUTFITS_DB, GMM_COMPANIONS_DB
 ## OptionalDeps: Ace3
 
 Libs.xml
