@@ -4,19 +4,16 @@
 ## Notes: {{NOTES}}
 ## Author: {{AUTHOR}}
 ## Category: Collections
-## SavedVariables: GMM_DB, GMM_OUTFITS_DB, GMM_COMPANIONS_DB
+## SavedVariables: GMM_DB
 ## OptionalDeps: Ace3
 
 Libs.xml
+Imports.xml
 
-GruggsMysteriousMenagerie.lua
-
-DB\GMM_DB.lua
-DB\GMM_OutfitDB.lua
-GMM_Options.lua
+# DB\GMM_OutfitDB.lua
+# GMM_Options.lua
 
 # Utils
-Utils\MapInfo.lua
+# Utils\MapInfo.lua
 
 # Modules
-ModulesImports.xml

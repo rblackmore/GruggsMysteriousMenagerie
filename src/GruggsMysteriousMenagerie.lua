@@ -2,23 +2,17 @@ local addonName, addonTable = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
 addOn:SetDefaultModuleState(false)
-addOn:SetDefaultModuleLibraries("AceEvent-3.0", "AceConsole-3.0")
+addOn:SetDefaultModuleLibraries("AceEvent-3.0", "AceConsole-3.0", "AceBucket-3.0")
 
----@class AceAddon: AceTimer-3.0
-local companionModule = addOn:NewModule("CompanionModule", "AceTimer-3.0");
----@class AceAddon: AceConsole-3.0, AceEvent-3.0
-local Options = addOn:NewModule("Options")
----@class AceAddon: AceConsole-3.0, AceEvent-3.0
-local PetJournal = addOn:NewModule("GMM_PetJournal")
----@class AceAddon: AceConsole-3.0, AceEvent-3.0
-local MapInfo = addOn:NewModule("GMM_MapInfo")
+-- ---@class AceAddon: AceTimer-3.0
+-- local companionModule = addOn:NewModule("CompanionModule", "AceTimer-3.0");
+-- ---@class AceAddon: AceConsole-3.0, AceEvent-3.0
+-- local Options = addOn:NewModule("Options")
 
 _G["GMM"] = addonTable
 _G["GMM_AddOn"] = addOn
-_G["GMM_Companions"] = companionModule
-_G["GMM_Options"] = Options
-_G["GMM_PetJournal"] = PetJournal
-_G["GMM_MapInfo"] = MapInfo
+-- _G["GMM_Companions"] = companionModule
+-- _G["GMM_Options"] = Options
 
 
 local registeredEvents = {}
@@ -27,28 +21,19 @@ local registeredEvents = {}
 
 function addOn:OnInitialize()
   self:InitializeDatabase()
-  self:InitializeTransmogDatabase()
 
-  Options:InitializeOptions()
-  self:RegisterChatCommand("gmm", "SlashCommand")
-  self:RegisterChatCommand("gmsummon", function()
-    local petID = companionModule:ChooseRandomCompanion()
-    companionModule:SummonCompanion(petID)
-    companionModule:AnnounceSummon(petID)
-  end)
+  -- Options:InitializeOptions()
+  -- self:RegisterChatCommand("gmm", "SlashCommand")
+  -- self:RegisterChatCommand("gmsummon", function()
+  --   local petID = companionModule:ChooseRandomCompanion()
+  --   companionModule:SummonCompanion(petID)
+  --   companionModule:AnnounceSummon(petID)
+  -- end)
 end
 
-function addOn:OnEnable()
-  for name, module in self:IterateModules() do
-    module:Enable()
-  end
-end
+function addOn:OnEnable() end
 
-function addOn:OnDisable()
-  for name, module in self:IterateModules() do
-    module:Disable()
-  end
-end
+function addOn:OnDisable() end
 
 function addOn:SlashCommand(args)
   if InCombatLockdown() then
