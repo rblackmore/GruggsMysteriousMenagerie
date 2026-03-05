@@ -36,6 +36,12 @@ function Config:OnInitialize()
   self.ConfigFrames = self.ConfigFrames or {}
   self.ConfigFrames["GMM_Configuration"] = { frame = frame, frameId = frameId }
 
+  local profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(addOn.db)
+  AceConfig:RegisterOptionsTable("GMM_Profiles", profileOptions)
+  frame, frameId = AceConfigDialog:AddToBlizOptions("GMM_Profiles", "Profiles", "GMM")
+  self.ConfigFrames["GMM_Profiles"] = { frame = frame, frameId = frameId }
+
+
   self:RegisterChatCommand("gmm", "OpenConfigCommand")
 end
 
@@ -52,6 +58,8 @@ function Config:OpenConfigCommand(...)
 
     if categorySelect and categorySelect == "comp" or categorySelect == "companions" then
       categorySelect = "Companions"
+    elseif categorySelect and categorySelect == "profile" or categorySelect == "profiles" then
+      categorySelect = "Profiles"
     elseif categorySelect then
       addOn:Printf("Category %s not found, opening general settings", categorySelect)
     end
