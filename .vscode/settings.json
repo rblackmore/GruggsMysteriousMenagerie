@@ -72,7 +72,10 @@
     "LE_PET_JOURNAL_FILTER_COLLECTED",
     "LE_PET_JOURNAL_FILTER_NOT_COLLECTED",
     "LE_SORT_BY_RARITY",
-    "SAY"
+    "SAY",
+    "RAID",
+    "ARENA",
+    "BATTLEGROUND"
   ],
   "Lua.runtime.version": "Lua 5.1",
   "Lua.workspace.checkThirdParty": "false",

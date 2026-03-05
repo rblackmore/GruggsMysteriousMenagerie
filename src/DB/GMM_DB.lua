@@ -45,17 +45,28 @@ function addOn:InitializeDatabase()
         MessageFormat = "Help me %s you're my only hope!!!",
         Channel = "SAY",
         UseCustomName = true,
+        Automation = {
+          delay = 5,
+          forcesummon = false,
+          GLOBAL = true,
+          SCENARIO = true,
+          RAID = true,
+          DUNGEON = true,
+          ARENA = true,
+          BATTLEGROUND = true,
+          RESTING = true,
+        },
+        mounts = {},
+        ui = {
+          showMinimapButton = true,
+        },
+        meta = { schemaVersion = 1, createdAt = time(), lastUpdated = time() },
       },
-      mounts = {},
-      ui = {
-        showMinimapButton = true,
+      global = {
+        debut = false,
       },
-      meta = { schemaVersion = 1, createdAt = time(), lastUpdated = time() },
-    },
-    global = {
-      debut = false,
-    },
-    char = {}
+      char = {}
+    }
   })
 
   self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileEvent")

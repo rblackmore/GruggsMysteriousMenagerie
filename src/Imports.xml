@@ -4,6 +4,7 @@
   <!-- Primary Module -->
   <Script file="GruggsMysteriousMenagerie.lua" />
   <Script file="DB\GMM_DB.lua" />
+  <Script file="ConfigOptions.lua" />
 
   <!-- Companions Module -->
   <Script file="Modules\Companions\CompanionsCore.lua" />
