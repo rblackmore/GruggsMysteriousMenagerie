@@ -11,8 +11,10 @@
   <Script file="Modules\Companions\CompanionsCache.lua" />
   <Script file="Modules\Companions\Companions_DB.lua" />
   <Script file="Modules\Companions\Components\CompanionsSettings.lua" />
+  <Script file="Modules\Companions\Components\CompanionsAutomation.lua" />
 
-  <!-- <Script file="Modules\Companions\Components\Automation.lua" /> -->
+  <!-- Utilities -->
+  <Script file="Utils\MapInfo.lua" />
 
   <!-- Wardrobes -->
   <!-- <Include file="Modules\Wardrobes\Companions\GMM_CompanionsWardrobeTemplates.xml" /> -->

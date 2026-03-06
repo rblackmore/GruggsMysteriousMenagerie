@@ -85,6 +85,7 @@ function mod:SummonCompanion(petId)
   if currentCompanion == petId then
     return false
   end
+
   C_PetJournal.SummonPetByGUID(petId)
   return C_PetJournal.GetSummonedPetGUID() == petId
 end
@@ -93,6 +94,7 @@ function mod:SummonCommand(...)
   local dismiss = select(1, ...)
 
   if dismiss and dismiss == "dismiss" then
+    addOn:Print("Toggling Companion (dismiss)")
     mod:SummonOrDismissRandomCompanion()
   else
     local petId = self:PickRandomPetId()

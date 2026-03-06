@@ -15,7 +15,7 @@ function addOn:InitializeDatabase()
       global = { pets = {}, order = {}, weights = {}, total = 0 },
       continents = {},
       zones = {},
-      owned = {},
+      fallback = {},
       cities = {},
       meta = { schemaVersion = 1, createdAt = time(), lastUpdated = time() },
     },
@@ -45,6 +45,7 @@ function addOn:InitializeDatabase()
         MessageFormat = "Help me %s you're my only hope!!!",
         Channel = "SAY",
         UseCustomName = true,
+        UseFavoritesFallback = true,
         Automation = {
           delay = 5,
           forcesummon = false,

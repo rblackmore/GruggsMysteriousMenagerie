@@ -50,15 +50,27 @@ local function BuildOptionsTable()
   }
 
   local companionOptions = {
-    ["EnablePetOfTheDay"] = {
+    -- ["EnablePetOfTheDay"] = {
+    --   type = "toggle",
+    --   name = "Pet of the Day",
+    --   desc = "Saves the first pet summoned for the day, and summons only that one for the rest of the day.",
+    --   get = function(info)
+    --     return mod.SettingsNS.profile.companions["Automation"]["PetOfTheDay"].Enabled
+    --   end,
+    --   set = function(info, value)
+    --     mod.SettingsNS.profile.companions["Automation"]["PetOfTheDay"].Enabled = value
+    --   end,
+    -- },
+    ["UseFavoritesFallback"] = {
       type = "toggle",
-      name = "Pet of the Day",
-      desc = "Saves the first pet summoned for the day, and summons only that one for the rest of the day.",
+      name = "Use Favorites as Fallback",
+      desc = "Use only favorite pets as the fallback pool",
       get = function(info)
-        return mod.SettingsNS.profile.companions["Automation"]["PetOfTheDay"].Enabled
+        return mod.SettingsNS.profile.companions["UseFavoritesFallback"]
       end,
       set = function(info, value)
-        mod.SettingsNS.profile.companions["Automation"]["PetOfTheDay"].Enabled = value
+        mod.SettingsNS.profile.companions["UseFavoritesFallback"] = value
+        mod:EnsureFallback()
       end,
     }
   }
@@ -161,13 +173,13 @@ local function BuildOptionsTable()
         type = "group",
         args = automationOptions
       },
-      -- companionManagementGroup = {
-      --   order = 3,
-      --   inline = true,
-      --   name = "Special Features",
-      --   type = "group",
-      --   args = companionOptions
-      -- },
+      companionManagementGroup = {
+        order = 3,
+        inline = true,
+        name = "Configuration",
+        type = "group",
+        args = companionOptions
+      },
     }
   }
   return options

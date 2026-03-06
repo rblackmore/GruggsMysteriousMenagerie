@@ -3,6 +3,8 @@ local addonName, _ = ...
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
 local mod = addOn:GetModule("CompanionModule")
+---@class AceAddon: AceEvent-3.0, AceTimer-3.0
+local Auto = mod:NewModule("CompanionAutomation", "AceEvent-3.0", "AceTimer-3.0")
 
 -- These events are when to automatically summon a companion.
 local eventsToRegister = {
@@ -17,53 +19,21 @@ local eventsToRegister = {
 
 local registeredEvents = {}
 
-function mod:InitializeAutomation()
+function Auto:OnInitialize()
   for _, event in ipairs(eventsToRegister) do
     if not registeredEvents[event] then
-      self:RegisterEvent(event)
+      self:RegisterEvent(event, "AutomationHandler")
       registeredEvents[event] = true
     end
   end
 end
 
-function mod:PLAYER_REGEN_ENABLED()
-  self:AutomationHandler();
-end
-
-function mod:PLAYER_MOUNT_DISPLAY_CHANGED()
-  self:AutomationHandler()
-end
-
-function mod:ZONE_CHANGED_NEW_AREA()
-  self:AutomationHandler()
-end
-
-function mod:ZONE_CHANGED()
-  self:AutomationHandler()
-end
-
-function mod:PLAYER_UNGHOST()
-  self:AutomationHandler()
-end
-
-function mod:PLAYER_ALIVE()
-  self:AutomationHandler()
-end
-
-function mod:PLAYER_CONTROL_GAINED()
-  self:AutomationHandler()
-end
-
-function mod:UNIT_EXITED_VEHICLE()
-  self:AutomationHandler()
-end
-
-function mod:AutomationHandler()
-  if not mod.Settings.Automation[addOn.MapInfo:GetCurrentZoneType()] then
+function Auto:AutomationHandler(...)
+  if not mod.SettingsNS.profile.companions.Automation[addOn.MapInfo:GetCurrentZoneType()] then
     return
   end
 
-  if not mod.Settings["Automation"]["forcesummon"] and C_PetJournal.GetSummonedPetGUID() then
+  if not mod.SettingsNS.profile.companions.Automation.forcesummon and C_PetJournal.GetSummonedPetGUID() then
     return
   end
 
@@ -71,22 +41,23 @@ function mod:AutomationHandler()
   if (self:IsTimerActive()) then
     return
   end
+
   if not HasFullControl() then
     return
   end
 
-  local delay = mod.Settings.Automation.delay
-  self.currentTimerId = self:ScheduleTimer(function()
-    local petId = self:ChooseRandomCompanion()
+  local delay = mod.SettingsNS.profile.companions.Automation.delay
+  self._summonTimer = self:ScheduleTimer(function()
+    local petId = mod:PickRandomPetId()
     if petId then
-      self:CallSummonCompanion(petId)
+      mod:RequestCompanion(petId)
     end
   end, delay)
 end
 
-function mod:IsTimerActive()
-  if self.currentTimerId ~= nil then
-    local timeLeft = self:TimeLeft(self.currentTimerId)
+function Auto:IsTimerActive()
+  if self._summonTimer ~= nil then
+    local timeLeft = self:TimeLeft(self._summonTimer)
     return timeLeft > 0
   end
   return false

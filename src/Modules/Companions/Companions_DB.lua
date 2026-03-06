@@ -45,7 +45,7 @@ function mod:InitializeDatabasePointers()
   self.CompanionsNS.RegisterCallback(self, "OnProfileReset", "OnProfileEvent")
 
   self:EnsureGlobal()
-  self:EnsureOwned()
+  self:EnsureFallback()
 end
 
 function mod:RefreshProfilePointers()
@@ -102,10 +102,15 @@ function mod:EnsureOutfit(outfitID)
   return o
 end
 
-function mod:EnsureOwned()
-  local o = self:RefreshOwnedList()
-  self.dbp.owned = o
-  return o
+function mod:EnsureFallback()
+  local useFavorites =
+      self.settingsProfile and
+      self.settingsProfile.companions and
+      self.settingsProfile.companions.UseFavoritesFallback
+
+  local fb = self:RefreshFallbackList(useFavorites)
+  self.dbp.fallback = fb
+  return fb
 end
 
 function mod:RemoveGlobal()
@@ -142,13 +147,15 @@ function mod:RefreshEffectivePetList()
   return self.EffectivePetList
 end
 
-function mod:RefreshOwnedList()
+function mod:RefreshFallbackList(favoritesOnly)
   local list = { pets = {}, order = {}, total = 0 }
   local numPets = C_PetJournal.GetNumPets()
   for i = 1, numPets do
-    local petGUID = C_PetJournal.GetPetInfoByIndex(i)
-    if petGUID then
-      self:AddPet(list, petGUID)
+    local petID, _, _, _, _, favorite = C_PetJournal.GetPetInfoByIndex(i)
+    if petID then
+      if not favoritesOnly or favorite then
+        self:AddPet(list, petID)
+      end
     end
   end
   return list
@@ -213,8 +220,8 @@ function mod:GetCurrentPetList(mapID, outfitID, continentID)
     return global
   end
 
-  -- 5) Default to Owned Pets if Global is Empty
-  return self:EnsureOwned()
+  -- 5) Default to Fallback Pets if Global is Empty
+  return self:EnsureFallback()
 end
 
 function mod:GetEffectivePetList()
