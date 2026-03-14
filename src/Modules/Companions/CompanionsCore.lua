@@ -8,6 +8,8 @@ _G["GMM_Companions"] = mod
 function mod:OnInitialize()
   self:InitializeDatabasePointers()
   self:RegisterChatCommand("gmsummon", "SummonCommand")
+  self:RegisterChatCommand("gmmsummon", "SummonCommand")
+  self:RegisterMessage("GMM_COMPANION_SUMMONED", "OnCompanionSummoned")
 end
 
 function mod:OnEnable()
@@ -69,123 +71,108 @@ function mod:PickWeightedRandom()
   return tmp[#tmp].guid
 end
 
-function mod:RequestCompanion(petId)
+function mod:RequestCompanion(userInitiated)
+  local podSettings = self.settingsProfile.companions["Automation"]["petoftheday"]
+  local petId
+
+  if podSettings.Enabled then
+    petId = self:GetPetOfTheDay()
+  else
+    petId = self:PickWeightedRandom() or self:PickRandomPetId()
+  end
+
   if InCombatLockdown() then
     self:RegisterEvent("PLAYER_REGEN_ENABLED", function()
-      self:SummonCompanion(petId)
+      self:SummonCompanion(petId, userInitiated)
       self:UnregisterEvent("PLAYER_REGEN_ENABLED")
     end)
   else
-    self:SummonCompanion(petId)
+    self:SummonCompanion(petId, userInitiated)
   end
 end
 
-function mod:SummonCompanion(petId)
+function mod:SummonCompanion(petId, userInitiated)
   local currentCompanion = C_PetJournal.GetSummonedPetGUID()
+
   if currentCompanion == petId then
     return false
   end
 
   C_PetJournal.SummonPetByGUID(petId)
-  return C_PetJournal.GetSummonedPetGUID() == petId
+
+  self:SendMessage("GMM_COMPANION_SUMMONED", petId, userInitiated)
 end
 
 function mod:SummonCommand(...)
-  local dismiss = select(1, ...)
+  local arg1 = select(1, ...)
 
-  if dismiss and dismiss == "dismiss" then
-    addOn:Print("Toggling Companion (dismiss)")
-    mod:SummonOrDismissRandomCompanion()
+  if arg1 and arg1:lower() == "setpod" or arg1:lower() == "pod" then
+    self:SetActivePetAsPetOfTheDay()
+    return
+  end
+
+  if arg1 and arg1:lower() == "dismiss" then
+    mod:SummonOrDismissRandomCompanion(true)
   else
-    local petId = self:PickRandomPetId()
-    self:RequestCompanion(petId)
+    self:RequestCompanion(true)
   end
 end
 
-function mod:SummonOrDismissRandomCompanion()
+function mod:SetActivePetAsPetOfTheDay()
+  local currentPetGUID = C_PetJournal.GetSummonedPetGUID()
+  if not currentPetGUID then
+    return
+  end
+
+  local petInfo = C_PetJournal.GetPetInfoTableByPetID(currentPetGUID)
+  local name = petInfo.customName or petInfo.name
+  self:Print(format("Setting %s as pet of the day!", name))
+  self:SetPetOfTheDay(currentPetGUID)
+end
+
+function mod:SummonOrDismissRandomCompanion(userInitiated)
   local currentCompanion = C_PetJournal.GetSummonedPetGUID()
   if currentCompanion then
     C_PetJournal.DismissSummonedPet(currentCompanion)
     return
   end
 
-  local petId = self:PickRandomPetId()
-  self:RequestCompanion(petId)
+  self:RequestCompanion(userInitiated)
 end
 
--- Using a priority list, chooses a random petId from a variety of Data Tables.
--- function mod:ChooseRandomCompanion(force)
---   local podSettings = self.Settings["Automation"]["PetOfTheDay"]
+function mod:SetPetOfTheDay(petId)
+  local podSettings = self.settingsProfile.companions["Automation"]["petoftheday"]
+  local currentDate = date("*t")
+  podSettings.PetId = petId
+  podSettings.Date = {
+    ["year"] = currentDate.year,
+    ["month"] = currentDate.month,
+    ["day"] = currentDate.day,
+  }
 
---   if podSettings.Enabled and not force then
---     return self:GetPetofTheDay()
---   end
+  self.PetOfTheDay = { PetId = petId, Date = podSettings.Date }
+end
 
---   local outfitDb = addOn:GetActiveOutfitTable()
+function mod:GetPetOfTheDay()
+  local podSettings = self.settingsProfile.companions["Automation"]["petoftheday"]
+  local summonedDate = podSettings.Date
+  local today = date("*t")
+  if summonedDate.year ~= today.year or summonedDate.month ~= today.month or summonedDate.day ~= today.day then
+    self:SetPetOfTheDay(self:PickRandomPetId())
+  end
+  return podSettings.PetId
+end
 
---   if outfitDb and outfitDb.Total > 0 then
---     local rando = math.random(#outfitDb)
---     return outfitDb[rando]
---   end
+function mod:OnCompanionSummoned(_, petId, userInitiated)
+  if userInitiated then
+    self:AnnounceSummon(petId)
+  end
+end
 
---   -- TODO: Pick Random from other sources.
-
---   -- Ultimate Default - Just pick any owned pet.
---   local ownedPetIds = C_PetJournal.GetOwnedPetIDs()
---   return ownedPetIds[math.random(#ownedPetIds)]
--- end
-
--- -- Calls SummonCompanion Immediately if not in Combat, else registers for 'PLAYER_REGEN_ENABLED' and calls When out of combat.
--- function mod:CallSummonCompanion(petId)
---   if InCombatLockdown() then
---     self:RegisterEvent("PLAYER_REGEN_ENABLED", function()
---       mod:SummonCompanion(petId)
---       self:UnregisterEvent("PLAYER_REGEN_ENABLED")
---     end)
---   else
---     mod:SummonCompanion(petId)
---   end
--- end
-
--- function mod:SummonCompanion(petId)
---   local currentPet = C_PetJournal.GetSummonedPetGUID()
---   if petId == currentPet then
---     return false
---   end
-
---   C_PetJournal.SummonPetByGUID(petId)
---   return true
--- end
-
--- function mod:AnnounceSummon(petId)
---   local dbSettings = self.Settings
---   local petData = C_PetJournal.GetPetInfoTableByPetID(petId)
-
---   local name = dbSettings["UseCustomName"] and petData.customName or petData.name
-
---   local msgFormat = dbSettings["MessageFormat"]
---   local channel = dbSettings["Channel"]
-
---   C_ChatInfo.SendChatMessage(format(msgFormat, name), channel)
--- end
-
--- function mod:SetPetOfTheDay(petId)
---   local podSettings = self.Settings["Automation"]["PetOfTheDay"]
---   local currentDate = date("*t")
---   podSettings.PetId = petId
---   podSettings.Date = {
---     ["year"] = currentDate.year,
---     ["month"] = currentDate.month,
---     ["day"] = currentDate.day,
---   }
--- end
-
--- function mod:GetPetofTheDay()
---   local podSettings = self.Settings["Automation"]["PetOfTheDay"]
---   local summonedDate = podSettings.Date
---   local today = date("*t")
---   if summonedDate.year ~= today.year or summonedDate.month ~= today.month or summonedDate.day ~= today.day then
---     self:SetPetOfTheDay(self:ChooseRandomCompanion(true))
---   end
---   return podSettings.PetId
--- end
+function mod:AnnounceSummon(petId)
+  local petInfo = C_PetJournal.GetPetInfoTableByPetID(petId)
+  local name = self.settingsProfile.companions["UseCustomName"] and petInfo.customName or petInfo.name
+  local msgFormat = self.settingsProfile.companions["MessageFormat"]
+  local channel = self.settingsProfile.companions["Channel"] or "SAY"
+  C_ChatInfo.SendChatMessage(format(msgFormat, name), channel)
+end

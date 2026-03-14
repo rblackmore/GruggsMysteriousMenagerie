@@ -50,7 +50,7 @@ function Auto:AutomationHandler(...)
   self._summonTimer = self:ScheduleTimer(function()
     local petId = mod:PickRandomPetId()
     if petId then
-      mod:RequestCompanion(petId)
+      mod:RequestCompanion(false)
     end
   end, delay)
 end

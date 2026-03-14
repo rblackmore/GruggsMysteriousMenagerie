@@ -3,9 +3,9 @@ local addonName, addonTable = ...
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 
 
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 --- Module API
-
+--------------------------------------------------------------------------------
 function addOn:InitializeDatabase()
   self.db = LibStub("AceDB-3.0"):New("GMM_DB", { profile = {}, char = {}, global = {} }, true)
 
@@ -56,6 +56,15 @@ function addOn:InitializeDatabase()
           ARENA = true,
           BATTLEGROUND = true,
           RESTING = true,
+          petoftheday = {
+            Enabled = false,
+            Date = {
+              ["year"] = 2004,
+              ["month"] = 11,
+              ["day"] = 23,
+            },
+            Pet = nil,
+          },
         },
         mounts = {},
         ui = {
