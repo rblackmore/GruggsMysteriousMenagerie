@@ -3,62 +3,114 @@ local addonName, _ = ...
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
 local mod = addOn:GetModule("CompanionModule")
----@class AceAddon: AceEvent-3.0, AceTimer-3.0
-local Auto = mod:NewModule("CompanionAutomation", "AceEvent-3.0", "AceTimer-3.0")
 
--- These events are when to automatically summon a companion.
-local eventsToRegister = {
-  "ZONE_CHANGED_NEW_AREA", --> Player changes major Zone, et, Orgrimmar -> Durotar.
-  "ZONE_CHANGED",          --> Player changes minor zone, eg, Valley of Honor -> The Drag.
-  "PLAYER_MOUNT_DISPLAY_CHANGED",
-  "PLAYER_UNGHOST",        --> Fired After being a ghost
-  "PLAYER_ALIVE",          --> Fired After being resurrected.
-  "PLAYER_CONTROL_GAINED", --> After Taxi
-  "UNIT_EXITED_VEHICLE",   --> After exiting vehicle.
-}
+mod.Core = mod.Core or {}
+mod.Core.EventHandler = {}
+mod.Core.Automation = mod.Core.Automation or {}
 
-local registeredEvents = {}
+local Core = mod.Core
+local DB = mod.DB
 
-function Auto:OnInitialize()
-  for _, event in ipairs(eventsToRegister) do
-    if not registeredEvents[event] then
-      self:RegisterEvent(event, "AutomationHandler")
-      registeredEvents[event] = true
+LibStub("AceEvent-3.0"):Embed(Core.EventHandler)
+
+--------------------------------------------------------------------------------
+--- Private Functions
+--------------------------------------------------------------------------------
+local function SummonCompanion(petId, userInitiated)
+  local currentCompanion = C_PetJournal.GetSummonedPetGUID()
+
+  if currentCompanion == petId then
+    return false
+  end
+
+  C_PetJournal.SummonPetByGUID(petId)
+
+  mod:SendMessage("GMM_COMPANION_SUMMONED", petId, userInitiated)
+end 
+
+--------------------------------------------------------------------------------
+--- Public API
+--------------------------------------------------------------------------------
+function Core:Init()
+  self.Automation:Init()
+end
+
+function Core:PickRandomPetId()
+  local list = DB.EffectivePetList or DB:RefreshEffectivePetList()
+
+  if not list or not list.order or #list.order == 0 then
+    return nil, "No Pets in the current effective list"
+  end
+
+  local rando = math.random(#list.order)
+  local petId = list.order[rando]
+  return petId
+end
+
+--- TODO: Review the logic of this function. It seems to iterate through list of pets to find one to pick.
+--- Consider a binary search instead?
+function Core:PickWeightedRandom()
+  local list = DB.EffectivePetList or DB:RefreshEffectivePetList()
+
+  if not list or not list.order or #list.order == 0 then
+    return nil, "No Pets in the current effective list"
+  end
+
+  local weights = list.weights or {}
+  local totalW, tmp = 0, {}
+
+  for _, guid in ipairs(list.order) do
+    if list.pets and list.pets[guid] then
+      local speciesID = C_PetJournal.GetPetInfoByPetID(guid)
+      if speciesID then
+        local w = tonumber(weights[guid]) or 1.0
+        totalW = totalW + w
+        table.insert(tmp, { guid = guid, weight = w })
+      end
     end
   end
-end
 
-function Auto:AutomationHandler(...)
-  if not mod.SettingsNS.profile.companions.Automation[addOn.MapInfo:GetCurrentZoneType()] then
-    return
-  end
+  local rando = math.random() * totalW
+  local upto = 0
 
-  if not mod.SettingsNS.profile.companions.Automation.forcesummon and C_PetJournal.GetSummonedPetGUID() then
-    return
-  end
-
-  -- Triggers a timer to summon the pet after x seconds.
-  if (self:IsTimerActive()) then
-    return
-  end
-
-  if not HasFullControl() then
-    return
-  end
-
-  local delay = mod.SettingsNS.profile.companions.Automation.delay
-  self._summonTimer = self:ScheduleTimer(function()
-    local petId = mod:PickRandomPetId()
-    if petId then
-      mod:RequestCompanion(false)
+  for _, item in ipairs(tmp) do
+    upto = upto + item.weight
+    if upto >= rando then
+      return item.guid
     end
-  end, delay)
+  end
+
+  return nil, "Failed to pick a pet based on weights."
 end
 
-function Auto:IsTimerActive()
-  if self._summonTimer ~= nil then
-    local timeLeft = self:TimeLeft(self._summonTimer)
-    return timeLeft > 0
+function Core:RequestCompanion(userInitiated)
+  local podSettings = DB.settingsProfile.companions["Automation"]["petoftheday"]
+  local petId
+
+  if podSettings.Enabled then
+    petId = DB:GetPetOfTheDay()
+  else
+    petId = self:PickWeightedRandom() or self:PickRandomPetId()
   end
-  return false
+
+  if InCombatLockdown() then
+    self.EventHandler:RegisterEvent("PLAYER_REGEN_ENABLED", function()
+      SummonCompanion(petId, userInitiated)
+      self.EventHandler:UnregisterEvent("PLAYER_REGEN_ENABLED")
+    end)
+  else
+    SummonCompanion(petId, userInitiated)
+  end
 end
+
+function Core:SummonOrDismissRandomCompanion(userInitiated)
+  local currentCompanion = C_PetJournal.GetSummonedPetGUID()
+  if currentCompanion then
+    C_PetJournal.SummonPetByGUID(currentCompanion)
+    return
+  end
+
+  self:RequestCompanion(userInitiated)
+end
+
+

@@ -234,3 +234,36 @@ function DB:GetEffectivePetList()
 
   return self:GetCurrentPetList(mapID, outfitID, continentID)
 end
+
+function DB:GetPetOfTheDay()
+  local podSettings = self.settingsProfile.companions["Automation"]["petoftheday"]
+  local summonedDate = podSettings.Date
+  local today = date("*t")
+
+  if not summonedDate or summonedDate.day ~= today.day or summonedDate.month ~= today.month or summonedDate.year ~= today.year then
+    local petId = mod.Core:PickRandomPetId()
+    self:SetPetOfTheDay(petId)
+  end
+  return podSettings.PetId
+end
+
+function DB:ClearPetOfTheDay()
+  local podSettings = self.settingsProfile.companions["Automation"]["petoftheday"]
+  podSettings.PetId = nil
+  podSettings.Date = nil
+end
+
+function DB:SetPetOfTheDay(petId)
+  local podSettings = self.settingsProfile.companions["Automation"]["petoftheday"]
+  podSettings.PetId = petId
+  podSettings.Date = date("*t")
+end
+
+function DB:SetActivePetAsPetOfTheDay()
+  local currentPetGUID = C_PetJournal.GetSummonedPetGUID()
+  if not currentPetGUID then
+    return
+  end
+
+  DB:SetPetOfTheDay(currentPetGUID)
+end

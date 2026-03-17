@@ -4,11 +4,10 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
 local mod = addOn:GetModule("CompanionModule")
 
-mod.DB = mod.DB or {}
 mod.Config = mod.Config or {}
 
 local DB = mod.DB
-local Config = mod.Config or {}
+local Config = mod.Config
 
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
@@ -194,8 +193,7 @@ function Config:Init()
   local options = BuildOptionsTable()
   AceConfig:RegisterOptionsTable("GMM_Companions", options)
   local frame, frameId = AceConfigDialog:AddToBlizOptions("GMM_Companions", "Companions", "GMM")
-  Config.ConfigFrames = Config.ConfigFrames or {}
-  Config.ConfigFrames["GMM_Companions"] = { frame = frame, frameId = frameId }
+  addOn.UI:RegisterConfigurationFrame("GMM_Companions", frame, frameId)
 end
 
 --------------------------------------------------------------------------------

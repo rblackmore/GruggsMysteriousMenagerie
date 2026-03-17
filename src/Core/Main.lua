@@ -12,12 +12,12 @@ addOn:SetDefaultModuleLibraries("AceEvent-3.0", "AceConsole-3.0")
 addOn.DB = {}
 addOn.UI = {}
 addOn.UI.ConfigFrames = {}
-addOn.SlashCmd = {}
 addOn.Config = {}
-addOn.Utilities = {}
+addOn.SlashCmd = {}
 
 function addOn:OnInitialize()
   self.DB:Init()
+  self.UI:Init()
   self.Config:Init()
   self.SlashCmd:Init()
 end

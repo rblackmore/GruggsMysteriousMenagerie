@@ -11,15 +11,19 @@ Libs.xml
 
 # Core Addon Files
 Core\Main.lua
+Core\UI.lua
 Core\DB.lua
 Core\Config.lua
 Core\SlashCmd.lua
 
+# Companions Module
 Modules\Companions\Main.lua
 Modules\Companions\DB.lua
 Modules\Companions\Config.lua
 Modules\Companions\Core.lua
 Modules\Companions\Cache.lua
+Modules\Companions\Commands.lua
+Modules\Companions\Automation.lua
 
 Utils\MapInfo.lua
 
