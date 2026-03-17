@@ -9,14 +9,23 @@ _G["GMM"] = addonTable
 _G["GMM_AddOn"] = addOn
 -- _G["GMM_Companions"] = companionModule
 -- _G["GMM_Options"] = Options
-
+addOn.Core = addOn.Core or {}
+addOn.DB = addOn.DB or {}
+addOn.UI = addOn.UI or {}
+addOn.UI.ConfigFrames = addOn.UI.ConfigFrames or {}
+addOn.SlashCmd = addOn.SlashCmd or {}
+addOn.Config = addOn.Config or {}
 
 local registeredEvents = {}
 -------------------------------------------------------------------------------
 --- Public API
 
 function addOn:OnInitialize()
-  self:InitializeDatabase()
+  self.DB:Init()
+  self.Config:Init()
+  self.SlashCmd:Init()
+
+  -- self:InitializeDatabase()
 
   -- Options:InitializeOptions()
   -- self:RegisterChatCommand("gmm", "SlashCommand")
@@ -30,17 +39,3 @@ end
 function addOn:OnEnable() end
 
 function addOn:OnDisable() end
-
-function addOn:SlashCommand(args)
-  if InCombatLockdown() then
-    self:Printf("Opening Settings when out of Combat")
-    self:RegisterEvent("PLAYER_REGEN_ENABLED", function()
-      self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-      Settings.OpenToCategory(Options["ConfigFrames"]["GMM_Companions"]["Id"])
-    end)
-    registeredEvents["PLAYER_REGEN_ENABLED"] = true
-    return
-  else
-    Settings.OpenToCategory(Options["ConfigFrames"]["GMM_Companions"]["Id"])
-  end
-end
