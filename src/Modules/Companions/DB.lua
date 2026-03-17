@@ -4,6 +4,9 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
 local mod = addOn:GetModule("CompanionModule")
 
+mod.DB = mod.DB or {}
+local DB = mod.DB
+
 --------------------------------------------------------------------------------
 --- Local Helper Functions
 --------------------------------------------------------------------------------
@@ -34,9 +37,9 @@ end
 --------------------------------------------------------------------------------
 --- Database Module API
 --------------------------------------------------------------------------------
-function mod:InitializeDatabasePointers()
-  self.CompanionsNS = addOn.dbCompanions
-  self.SettingsNS = addOn.dbSettings
+function DB:Init()
+  self.CompanionsNS = addOn.DB.CompanionNS
+  self.SettingsNS = addOn.DB.SettingsNS
 
   self:RefreshProfilePointers()
 
@@ -48,20 +51,20 @@ function mod:InitializeDatabasePointers()
   self:EnsureFallback()
 end
 
-function mod:RefreshProfilePointers()
+function DB:RefreshProfilePointers()
   if not self.CompanionsNS then return end
 
   self.dbp = self.CompanionsNS.profile
   self.dbc = self.CompanionsNS.char
-  self.settingsProfile = self.SettingsNS and self.SettingsNS.profile or nil
+  self.settingsProfile = self.SettingsNS and self.SettingsNS.profile
 end
 
-function mod:OnProfileEvent(...)
+function DB:OnProfileEvent(...)
   self:RefreshProfilePointers()
   -- self:RefreshUI() if UI References Data
 end
 
-function mod:EnsureGlobal()
+function DB:EnsureGlobal()
   self.dbp.global = self.dbp.global or { pets = {}, order = {}, weights = {}, total = 0 }
 
   self.dbp.global.pets = self.dbp.global.pets or {}
@@ -71,7 +74,7 @@ function mod:EnsureGlobal()
   return self.dbp.global
 end
 
-function mod:EnsureContinent(continentID)
+function DB:EnsureContinent(continentID)
   self.dbp.continents = self.dbp.continents or {}
   local c = self.dbp.continents[continentID]
   if not c then
@@ -81,7 +84,7 @@ function mod:EnsureContinent(continentID)
   return c
 end
 
-function mod:EnsureZone(continentID, zoneID)
+function DB:EnsureZone(continentID, zoneID)
   self.dbp.zones = self.dbp.zones or {}
   self.dbp.zones[continentID] = self.dbp.zones[continentID] or {}
   local z = self.dbp.zones[continentID][zoneID]
@@ -92,7 +95,7 @@ function mod:EnsureZone(continentID, zoneID)
   return z
 end
 
-function mod:EnsureOutfit(outfitID)
+function DB:EnsureOutfit(outfitID)
   self.dbc.outfits = self.dbc.outfits or {}
   local o = self.dbc.outfits[outfitID]
   if not o then
@@ -102,7 +105,7 @@ function mod:EnsureOutfit(outfitID)
   return o
 end
 
-function mod:EnsureFallback()
+function DB:EnsureFallback()
   local useFavorites =
       self.settingsProfile and
       self.settingsProfile.companions and
@@ -113,11 +116,11 @@ function mod:EnsureFallback()
   return fb
 end
 
-function mod:RemoveGlobal()
+function DB:RemoveGlobal()
   self.dbp.global = { pets = {}, order = {}, weights = {}, total = 0 }
 end
 
-function mod:RemoveContinent(continentID)
+function DB:RemoveContinent(continentID)
   if self.dbp.continents then
     self.dbp.continents[continentID] = nil
     return true
@@ -125,7 +128,7 @@ function mod:RemoveContinent(continentID)
   return false
 end
 
-function mod:RemoveZone(continentID, zoneID)
+function DB:RemoveZone(continentID, zoneID)
   if self.dbp.zones[continentID] and self.dbp.zones[continentID][zoneID] then
     self.dbp.zones[continentID][zoneID] = nil
     return true
@@ -134,7 +137,7 @@ function mod:RemoveZone(continentID, zoneID)
   return false
 end
 
-function mod:RemoveOutfit(outfitID)
+function DB:RemoveOutfit(outfitID)
   if self.dbc.outfits and self.dbc.outfits[outfitID] then
     self.dbc.outfits[outfitID] = nil
     return true
@@ -142,12 +145,12 @@ function mod:RemoveOutfit(outfitID)
   return false
 end
 
-function mod:RefreshEffectivePetList()
+function DB:RefreshEffectivePetList()
   self.EffectivePetList = self:GetEffectivePetList()
   return self.EffectivePetList
 end
 
-function mod:RefreshFallbackList(favoritesOnly)
+function DB:RefreshFallbackList(favoritesOnly)
   local list = { pets = {}, order = {}, total = 0 }
   local numPets = C_PetJournal.GetNumPets()
   for i = 1, numPets do
@@ -161,7 +164,7 @@ function mod:RefreshFallbackList(favoritesOnly)
   return list
 end
 
-function mod:AddPet(list, petGUID, weight)
+function DB:AddPet(list, petGUID, weight)
   list.pets = list.pets or {}
   list.order = list.order or {}
   list.weights = list.weights or {}
@@ -181,7 +184,7 @@ function mod:AddPet(list, petGUID, weight)
   return false
 end
 
-function mod:RemovePet(list, petGUID)
+function DB:RemovePet(list, petGUID)
   if list and list.pets and list.pets[petGUID] then
     list.pets[petGUID] = nil
     if list.weights then list.weights[petGUID] = nil end
@@ -197,7 +200,7 @@ function mod:RemovePet(list, petGUID)
   return false
 end
 
-function mod:GetCurrentPetList(mapID, outfitID, continentID)
+function DB:GetCurrentPetList(mapID, outfitID, continentID)
   -- 1) Outfit
   if outfitID and self.dbc.outfits and self.dbc.outfits[outfitID] then
     return self.dbc.outfits[outfitID]
@@ -224,7 +227,7 @@ function mod:GetCurrentPetList(mapID, outfitID, continentID)
   return self:EnsureFallback()
 end
 
-function mod:GetEffectivePetList()
+function DB:GetEffectivePetList()
   local outfitID = C_TransmogOutfitInfo.GetActiveOutfitID()
   local mapID = C_Map.GetBestMapForUnit("player")
   local continentID = GetContinentIDForMap(mapID)

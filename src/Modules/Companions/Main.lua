@@ -1,12 +1,24 @@
+--------------------------------------------------------------------------------
+-- Companion Module Initialization and Lifecycle
+--------------------------------------------------------------------------------
+---
 local addonName, addonTable = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
 local mod = addOn:NewModule("CompanionModule", "AceTimer-3.0");
-_G["GMM_Companions"] = mod
+
+mod.DB = {}
+mod.UI = {}
+mod.SlashCmd = {}
+mod.Config = {}
+mod.Utilities = {}
 
 function mod:OnInitialize()
-  self:InitializeDatabasePointers()
+  mod.DB:Init()
+  mod.Config:Init()
+  -- mod.SlashCmd:Init()
+
   self:RegisterChatCommand("gmsummon", "SummonCommand")
   self:RegisterChatCommand("gmmsummon", "SummonCommand")
   self:RegisterMessage("GMM_COMPANION_SUMMONED", "OnCompanionSummoned")
@@ -21,6 +33,9 @@ end
 function mod:OnDisable()
 end
 
+--------------------------------------------------------------------------------
+---  TODO: The Following Functions should belong in mod.Core namespace
+--------------------------------------------------------------------------------
 function mod:PickRandomPetId()
   local list = self.EffectivePetList or self:RefreshEffectivePetList()
   if not list or not list.order or #list.order == 0 then

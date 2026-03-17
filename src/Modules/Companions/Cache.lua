@@ -7,9 +7,12 @@ local addonName, addonTable = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
-local Comp = addOn:GetModule("CompanionModule")
+local mod = addOn:GetModule("CompanionModule")
 ---@class AceAddon: AceEvent-3.0, AceBucket-3.0, AceTimer-3.0
-local Cache = Comp:NewModule("CompanionCache", "AceEvent-3.0", "AceBucket-3.0", "AceTimer-3.0")
+local Cache = mod:NewModule("CompanionCache", "AceEvent-3.0", "AceBucket-3.0", "AceTimer-3.0")
+
+mod.DB = mod.DB or {}
+local DB = mod.DB
 
 local DEBOUNCE_SECONDS = 0.15
 local PET_BUCKET_SEC = 0.5
@@ -27,9 +30,9 @@ function Cache:OnEnable()
 
   self:RegisterBucketEvent("PET_JOURNAL_LIST_UPDATE", PET_BUCKET_SEC, "BucketRefresh")
 
-  addOn.dbCompanions.RegisterCallback(self, "OnProfileChanged", "RequestRefresh")
-  addOn.dbCompanions.RegisterCallback(self, "OnProfileCopied", "RequestRefresh")
-  addOn.dbCompanions.RegisterCallback(self, "OnProfileReset", "RequestRefresh")
+  DB.CompanionsNS.RegisterCallback(self, "OnProfileChanged", "RequestRefresh")
+  DB.CompanionsNS.RegisterCallback(self, "OnProfileCopied", "RequestRefresh")
+  DB.CompanionsNS.RegisterCallback(self, "OnProfileReset", "RequestRefresh")
 
   self:RegisterEvent("TRANSMOG_COLLECTION_UPDATED", "RequestRefresh")
   self:RequestRefresh()
@@ -57,6 +60,6 @@ function Cache:RequestRefresh()
 end
 
 function Cache:DoRefresh()
-  Comp:RefreshEffectivePetList()
+  mod.DB:RefreshEffectivePetList()
   self:SendMessage("GMM_EFFECTIVE_PET_LIST_UPDATED")
 end

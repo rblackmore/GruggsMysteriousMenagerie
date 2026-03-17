@@ -37,7 +37,7 @@ function Config:Init()
   local frame, frameId = AceConfigDialog:AddToBlizOptions("GMM_Configuration", "GMM")
   addOn.UI.ConfigFrames["GMM_Configuration"] = { frame = frame, frameId = frameId }
 
-  local profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(addOn.db)
+  local profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(addOn.DB.AceDatabase)
   AceConfig:RegisterOptionsTable("GMM_Profiles", profileOptions)
   frame, frameId = AceConfigDialog:AddToBlizOptions("GMM_Profiles", "Profiles", "GMM")
   addOn.UI.ConfigFrames["GMM_Profiles"] = { frame = frame, frameId = frameId }

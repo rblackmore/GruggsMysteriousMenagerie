@@ -15,7 +15,14 @@ Core\DB.lua
 Core\Config.lua
 Core\SlashCmd.lua
 
-Imports.xml
+Modules\Companions\Main.lua
+Modules\Companions\DB.lua
+Modules\Companions\Config.lua
+Modules\Companions\Core.lua
+Modules\Companions\Cache.lua
+
+Utils\MapInfo.lua
+
 
 # DB\GMM_OutfitDB.lua
 # GMM_Options.lua

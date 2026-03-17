@@ -16,7 +16,6 @@ addOn.SlashCmd = {}
 addOn.Config = {}
 addOn.Utilities = {}
 
-local registeredEvents = {}
 function addOn:OnInitialize()
   self.DB:Init()
   self.Config:Init()
