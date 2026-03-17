@@ -8,9 +8,7 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 addOn.Config = addOn.Config or {}
 addOn.UI = addOn.UI or {}
 addOn.UI.ConfigFrames = addOn.UI.ConfigFrames or {}
-addOn.SlashCmd = addOn.SlashCmd or {}
 local Config = addOn.Config
-local SlashCmd = addOn.SlashCmd
 --------------------------------------------------------------------------------
 --- Local Helper Functions
 --------------------------------------------------------------------------------
@@ -43,37 +41,6 @@ function Config:Init()
   AceConfig:RegisterOptionsTable("GMM_Profiles", profileOptions)
   frame, frameId = AceConfigDialog:AddToBlizOptions("GMM_Profiles", "Profiles", "GMM")
   addOn.UI.ConfigFrames["GMM_Profiles"] = { frame = frame, frameId = frameId }
-
-  addOn:RegisterChatCommand("gmm", function(...)
-    SlashCmd:OpenConfig(...)
-  end)
-end
-
-function SlashCmd:OpenConfig(...)
-  if InCombatLockdown() then
-    addOn:Print("Opening Settings when out of Combat")
-    addOn:RegisterEvent("PLAYER_REGEN_ENABLED", function(...)
-      addOn:UnregisterEvent("PLAYER_REGEN_ENABLED")
-      self:OpenConfig(...)
-    end)
-    return
-  else
-    local categorySelect = select(1, ...)
-
-    if categorySelect and (categorySelect == "comp" or categorySelect == "companions") then
-      categorySelect = "Companions"
-    elseif categorySelect and (categorySelect == "profile" or categorySelect == "profiles") then
-      categorySelect = "Profiles"
-    elseif categorySelect then
-      addOn:Printf("Unknown Settings category '%s'", categorySelect)
-    end
-
-    if categorySelect and addOn.UI.ConfigFrames["GMM_" .. categorySelect] then
-      Settings.OpenToCategory(addOn.UI.ConfigFrames["GMM_" .. categorySelect]["frameId"])
-    else
-      Settings.OpenToCategory(addOn.UI.ConfigFrames["GMM_Configuration"]["frameId"])
-    end
-  end
 end
 
 function Config:GetValue(info)

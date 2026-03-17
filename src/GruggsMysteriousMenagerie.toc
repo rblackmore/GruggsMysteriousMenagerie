@@ -8,6 +8,13 @@
 ## OptionalDeps: Ace3
 
 Libs.xml
+
+# Core Addon Files
+Core\Main.lua
+Core\DB.lua
+Core\Config.lua
+Core\SlashCmd.lua
+
 Imports.xml
 
 # DB\GMM_OutfitDB.lua
