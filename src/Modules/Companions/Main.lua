@@ -12,12 +12,14 @@ mod.DB = {}
 mod.Core = {}
 mod.Commands = {}
 mod.Config = {}
+mod.Cache = {}
 
 function mod:OnInitialize()
   mod.DB:Init()
   mod.Core:Init()
   mod.Commands:Init()
   mod.Config:Init()
+  mod.Cache:Init()
 end
 
 function mod:OnEnable()

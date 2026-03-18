@@ -10,6 +10,7 @@ mod.Core.Automation = mod.Core.Automation or {}
 
 local Core = mod.Core
 local DB = mod.DB
+local Cache = mod.Cache
 
 LibStub("AceEvent-3.0"):Embed(Core.EventHandler)
 
@@ -26,7 +27,7 @@ local function SummonCompanion(petId, userInitiated)
   C_PetJournal.SummonPetByGUID(petId)
 
   mod:SendMessage("GMM_COMPANION_SUMMONED", petId, userInitiated)
-end 
+end
 
 --------------------------------------------------------------------------------
 --- Public API
@@ -36,7 +37,7 @@ function Core:Init()
 end
 
 function Core:PickRandomPetId()
-  local list = DB.EffectivePetList or DB:RefreshEffectivePetList()
+  local list = Cache:GetEffectivePetList()
 
   if not list or not list.order or #list.order == 0 then
     return nil, "No Pets in the current effective list"
@@ -50,7 +51,7 @@ end
 --- TODO: Review the logic of this function. It seems to iterate through list of pets to find one to pick.
 --- Consider a binary search instead?
 function Core:PickWeightedRandom()
-  local list = DB.EffectivePetList or DB:RefreshEffectivePetList()
+  local list = Cache:GetEffectivePetList()
 
   if not list or not list.order or #list.order == 0 then
     return nil, "No Pets in the current effective list"
@@ -112,5 +113,3 @@ function Core:SummonOrDismissRandomCompanion(userInitiated)
 
   self:RequestCompanion(userInitiated)
 end
-
-

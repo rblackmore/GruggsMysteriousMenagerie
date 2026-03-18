@@ -145,10 +145,10 @@ function DB:RemoveOutfit(outfitID)
   return false
 end
 
-function DB:RefreshEffectivePetList()
-  self.EffectivePetList = self:GetEffectivePetList()
-  return self.EffectivePetList
-end
+-- function DB:RefreshEffectivePetList()
+--   self.EffectivePetList = self:GetEffectivePetList()
+--   return self.EffectivePetList
+-- end
 
 function DB:RefreshFallbackList(favoritesOnly)
   local list = { pets = {}, order = {}, total = 0 }

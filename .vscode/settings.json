@@ -95,7 +95,8 @@
     "HelpTip",
     "TRANSMOGRIFY_CLEAR_ALL_PENDING",
     "PlayerUtil",
-    "ItemUtil"
+    "ItemUtil",
+    "PET_JOURNAL"
   ],
   "Lua.runtime.version": "Lua 5.1",
   "Lua.workspace.checkThirdParty": "false",

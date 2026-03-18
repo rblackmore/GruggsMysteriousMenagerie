@@ -8,58 +8,43 @@ local addonName, addonTable = ...
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
 local mod = addOn:GetModule("CompanionModule")
----@class AceAddon: AceEvent-3.0, AceBucket-3.0, AceTimer-3.0
-local Cache = mod:NewModule("CompanionCache", "AceEvent-3.0", "AceBucket-3.0", "AceTimer-3.0")
 
-mod.DB = mod.DB or {}
+mod.Cache = mod.Cache or {}
 local DB = mod.DB
+local Cache = mod.Cache
 
-local DEBOUNCE_SECONDS = 0.15
-local PET_BUCKET_SEC = 0.5
+LibStub("AceTimer-3.0"):Embed(Cache)
+LibStub("AceBucket-3.0"):Embed(Cache)
+LibStub("AceEvent-3.0"):Embed(Cache)
 
-function Cache:OnInitialize()
-  self._refreshTimer = nil
+local BUCKET_INTERVAL = 0.5
+
+local eventsToRegister = {
+  "PLAYER_ENTERING_WORLD",
+  "ZONE_CHANGED",
+  "ZONE_CHANGED_INDOORS",
+  "ZONE_CHANGED_NEW_AREA",
+  "NEW_WMO_CHUNK",
+  "PET_JOURNAL_LIST_UPDATE",
+  "TRANSMOG_COLLECTION_UPDATED"
+}
+
+function Cache:Init()
+  self:RegisterBucketEvent(eventsToRegister, BUCKET_INTERVAL, "Refresh")
+
+  DB.CompanionsNS.RegisterCallback(self, "OnProfileChanged", "Refresh")
+  DB.CompanionsNS.RegisterCallback(self, "OnProfileCopied", "Refresh")
+  DB.CompanionsNS.RegisterCallback(self, "OnProfileReset", "Refresh")
+
+  self:Refresh()
 end
 
-function Cache:OnEnable()
-  self:RegisterEvent("PLAYER_ENTERING_WORLD", "RequestRefresh")
-  self:RegisterEvent("ZONE_CHANGED", "RequestRefresh")
-  self:RegisterEvent("ZONE_CHANGED_INDOORS", "RequestRefresh")
-  self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "RequestRefresh")
-  self:RegisterEvent("NEW_WMO_CHUNK", "RequestRefresh") -- wtf is this event?
-
-  self:RegisterBucketEvent("PET_JOURNAL_LIST_UPDATE", PET_BUCKET_SEC, "BucketRefresh")
-
-  DB.CompanionsNS.RegisterCallback(self, "OnProfileChanged", "RequestRefresh")
-  DB.CompanionsNS.RegisterCallback(self, "OnProfileCopied", "RequestRefresh")
-  DB.CompanionsNS.RegisterCallback(self, "OnProfileReset", "RequestRefresh")
-
-  self:RegisterEvent("TRANSMOG_COLLECTION_UPDATED", "RequestRefresh")
-  self:RequestRefresh()
-end
-
-function Cache:OnDisable()
-  if self._refreshTimer then
-    self:CancelTimer(self._refreshTimer)
-    self._refreshTimer = nil
-  end
-end
-
-function Cache:BucketRefresh()
-  self:RequestRefresh()
-end
-
-function Cache:RequestRefresh()
-  if self._refreshTimer then
-    self:CancelTimer(self._refreshTimer)
-  end
-  self._refreshTimer = self:ScheduleTimer(function()
-    self._refreshTimer = nil
-    self:DoRefresh()
-  end, DEBOUNCE_SECONDS)
-end
-
-function Cache:DoRefresh()
-  mod.DB:RefreshEffectivePetList()
+function Cache:Refresh(...)
+  self.EffectivePetList = DB:GetEffectivePetList()
   self:SendMessage("GMM_EFFECTIVE_PET_LIST_UPDATED")
+  return self.EffectivePetList
+end
+
+function Cache:GetEffectivePetList()
+  return self.EffectivePetList or self:Refresh()
 end
