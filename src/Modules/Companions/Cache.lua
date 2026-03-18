@@ -25,12 +25,12 @@ local eventsToRegister = {
   "ZONE_CHANGED_INDOORS",
   "ZONE_CHANGED_NEW_AREA",
   "NEW_WMO_CHUNK",
-  "PET_JOURNAL_LIST_UPDATE",
   "TRANSMOG_COLLECTION_UPDATED"
 }
 
 function Cache:Init()
-  self:RegisterBucketEvent(eventsToRegister, BUCKET_INTERVAL, "Refresh")
+  self:RegisterBucketEvent(eventsToRegister, BUCKET_INTERVAL, "RefreshEffectiveList")
+  self:RegisterBucketEvent("PET_JOURNAL_LIST_UPDATE", BUCKET_INTERVAL, "Refresh")
 
   DB.CompanionsNS.RegisterCallback(self, "OnProfileChanged", "Refresh")
   DB.CompanionsNS.RegisterCallback(self, "OnProfileCopied", "Refresh")
@@ -40,11 +40,44 @@ function Cache:Init()
 end
 
 function Cache:Refresh(...)
-  self.EffectivePetList = DB:GetEffectivePetList()
-  self:SendMessage("GMM_EFFECTIVE_PET_LIST_UPDATED")
-  return self.EffectivePetList
+  self:RefreshFallbackList()
+  self:RefreshEffectiveList()
 end
 
 function Cache:GetEffectivePetList()
-  return self.EffectivePetList or self:Refresh()
+  return self.EffectivePetList or self:RefreshEffectiveList()
+end
+
+function Cache:GetFallbackList()
+  return self.FallbackList or self:RefreshFallbackList()
+end
+
+function Cache:RefreshEffectiveList()
+  local list = DB:GetEffectivePetList()
+  self.EffectivePetList = list
+  self:SendMessage("GMM_EFFECTIVE_PET_LIST_UPDATED")
+  return list
+end
+
+function Cache:RefreshFallbackList()
+  local useFavorites =
+      DB.settingsProfile and
+      DB.settingsProfile.companions and
+      DB.settingsProfile.companions.UseFavoritesFallback
+
+  local list = { pets = {}, order = {}, total = 0 }
+  local petGUIDs = C_PetJournal.GetOwnedPetIDs()
+
+  for i = 1, #petGUIDs do
+    local speciesID, _, _, _, _, _, isFavorite = C_PetJournal.GetPetInfoByPetID(petGUIDs[i])
+    if speciesID then
+      if not useFavorites or isFavorite then
+        DB:AddPet(list, petGUIDs[i])
+      end
+    end
+  end
+
+  self.FallbackList = list
+  self:SendMessage("GMM_FALLBACK_PET_LIST_UPDATED")
+  return list
 end

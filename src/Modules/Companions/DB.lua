@@ -6,6 +6,7 @@ local mod = addOn:GetModule("CompanionModule")
 
 mod.DB = mod.DB or {}
 local DB = mod.DB
+local Cache = mod.Cache
 
 --------------------------------------------------------------------------------
 --- Local Helper Functions
@@ -48,7 +49,6 @@ function DB:Init()
   self.CompanionsNS.RegisterCallback(self, "OnProfileReset", "OnProfileEvent")
 
   self:EnsureGlobal()
-  self:EnsureFallback()
 end
 
 function DB:RefreshProfilePointers()
@@ -105,17 +105,6 @@ function DB:EnsureOutfit(outfitID)
   return o
 end
 
-function DB:EnsureFallback()
-  local useFavorites =
-      self.settingsProfile and
-      self.settingsProfile.companions and
-      self.settingsProfile.companions.UseFavoritesFallback
-
-  local fb = self:RefreshFallbackList(useFavorites)
-  self.dbp.fallback = fb
-  return fb
-end
-
 function DB:RemoveGlobal()
   self.dbp.global = { pets = {}, order = {}, weights = {}, total = 0 }
 end
@@ -143,28 +132,6 @@ function DB:RemoveOutfit(outfitID)
     return true
   end
   return false
-end
-
--- function DB:RefreshEffectivePetList()
---   self.EffectivePetList = self:GetEffectivePetList()
---   return self.EffectivePetList
--- end
-
-function DB:RefreshFallbackList(favoritesOnly)
-  C_PetJournal.ClearSearchFilter()
-  C_PetJournal.SetDefaultFilters()
-
-  local list = { pets = {}, order = {}, total = 0 }
-  local numPets = C_PetJournal.GetNumPets()
-  for i = 1, numPets do
-    local petID, _, _, _, _, favorite = C_PetJournal.GetPetInfoByIndex(i)
-    if petID then
-      if not favoritesOnly or favorite then
-        self:AddPet(list, petID)
-      end
-    end
-  end
-  return list
 end
 
 function DB:AddPet(list, petGUID, weight)
@@ -203,7 +170,7 @@ function DB:RemovePet(list, petGUID)
   return false
 end
 
-function DB:GetCurrentPetList(mapID, outfitID, continentID)
+function DB:GetListFor(outfitID, mapID, continentID)
   -- 1) Outfit
   if outfitID and self.dbc.outfits and self.dbc.outfits[outfitID] then
     return self.dbc.outfits[outfitID]
@@ -227,7 +194,7 @@ function DB:GetCurrentPetList(mapID, outfitID, continentID)
   end
 
   -- 5) Default to Fallback Pets if Global is Empty
-  return self:EnsureFallback()
+  return Cache:GetFallbackList()
 end
 
 function DB:GetEffectivePetList()
@@ -235,7 +202,7 @@ function DB:GetEffectivePetList()
   local mapID = C_Map.GetBestMapForUnit("player")
   local continentID = GetContinentIDForMap(mapID)
 
-  return self:GetCurrentPetList(mapID, outfitID, continentID)
+  return self:GetListFor(outfitID, mapID, continentID)
 end
 
 function DB:GetPetOfTheDay()
