@@ -151,6 +151,9 @@ end
 -- end
 
 function DB:RefreshFallbackList(favoritesOnly)
+  C_PetJournal.ClearSearchFilter()
+  C_PetJournal.SetDefaultFilters()
+
   local list = { pets = {}, order = {}, total = 0 }
   local numPets = C_PetJournal.GetNumPets()
   for i = 1, numPets do
