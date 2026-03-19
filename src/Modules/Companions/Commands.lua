@@ -11,20 +11,28 @@ local Core = mod.Core
 local DB = mod.DB
 
 function Commands:Init()
-  mod:RegisterChatCommand("gmsummon", function(...) Commands:Summon(...) end)
-  mod:RegisterChatCommand("gmmsummon", function(...) Commands:Summon(...) end)
+  -- TODO: Remove these chat commands in a later update.
+  mod:RegisterChatCommand("gmsummon", function(...)
+    mod:Printf("/gmsummon command is deprecated and will be removed in a future update, use '/gmm summon' instead")
+    Commands:Summon(...)
+  end)
+  mod:RegisterChatCommand("gmmsummon", function(...)
+    mod:Printf("/gmmsummon command is deprecated and will be removed in a future update, use '/gmm summon' instead")
+    Commands:Summon(...)
+  end)
+
   mod:RegisterMessage("GMM_COMPANION_SUMMONED", function(...) Commands:OnSummoned(...) end)
 end
 
 function Commands:Summon(...)
-  local arg1 = select(1, ...)
+  local arg1 = select(1, ...) and select(1, ...):lower()
 
-  if arg1 and arg1:lower() == "setpod" or arg1:lower() == "pod" then
+  if arg1 and arg1 == "setpod" or arg1 == "pod" then
     DB:SetActivePetAsPetOfTheDay()
     return
   end
 
-  if arg1 and arg1:lower() == "dismiss" then
+  if arg1 and arg1 == "dismiss" then
     Core:SummonOrDismissRandomCompanion(true)
   else
     Core:RequestCompanion(true)
