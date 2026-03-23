@@ -22,7 +22,8 @@ function DB:Init()
       meta = { schemaVersion = 1, createdAt = time(), lastUpdated = time() },
     },
     char = {
-      outfits = {}
+      outfits = {},
+      meta = { schemaVersion = 1, createdAt = time(), lastUpdated = time() },
     }
   })
 
@@ -37,7 +38,8 @@ function DB:Init()
       meta = { schemaVersion = 1, createdAt = time(), lastUpdated = time() },
     },
     char = {
-      outfits = {}
+      outfits = {},
+      meta = { schemaVersion = 1, createdAt = time(), lastUpdated = time() },
     }
   })
 
@@ -77,7 +79,9 @@ function DB:Init()
       global = {
         debut = false,
       },
-      char = {}
+      char = {
+        meta = { schemaVersion = 1, createdAt = time(), lastUpdated = time() },
+      }
     }
   })
 

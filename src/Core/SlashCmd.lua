@@ -59,5 +59,8 @@ function SlashCmd:HandleCommand(input)
 
   if not command or string.len(command) == 0 then
     self:OpenConfig("comp")
+    return
   end
+
+  addOn:Printf("Unknown Command Argument '%s'", command)
 end
