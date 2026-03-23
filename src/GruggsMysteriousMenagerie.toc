@@ -24,14 +24,3 @@ Modules\Companions\Core.lua
 Modules\Companions\Cache.lua
 Modules\Companions\Commands.lua
 Modules\Companions\Automation.lua
-
-Utils\MapInfo.lua
-
-
-# DB\GMM_OutfitDB.lua
-# GMM_Options.lua
-
-# Utils
-# Utils\MapInfo.lua
-
-# Modules

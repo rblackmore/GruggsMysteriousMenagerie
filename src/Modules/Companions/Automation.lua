@@ -13,6 +13,29 @@ local DB = mod.DB
 LibStub("AceEvent-3.0"):Embed(Auto)
 LibStub("AceTimer-3.0"):Embed(Auto)
 
+--------------------------------------------------------------------------------
+--- Local Helper Function and Tables
+--------------------------------------------------------------------------------
+
+local instanceTypes = {
+
+  ["pvp"] = "BATTLEGROUND",
+  ["arena"] = "ARENA",
+  ["party"] = "DUNGEON",
+  ["raid"] = "RAID",
+  ["scenario"] = "SCENARIO",
+  ["neighborhood"] = "NEIGHBORHOOD",
+  ["none"] = "GLOBAL",
+}
+
+local function GetInstanceZoneType()
+  if IsResting() then
+    return "RESTING"
+  end
+  local _, instanceType = IsInInstance()
+  return instanceType[instanceType] or "GLOBAL"
+end
+
 -- These events are when to automatically summon a companion.
 local eventsToRegister = {
   "ZONE_CHANGED_NEW_AREA", --> Player changes major Zone, et, Orgrimmar -> Durotar.
@@ -26,6 +49,10 @@ local eventsToRegister = {
 
 local registeredEvents = {}
 
+--------------------------------------------------------------------------------
+--- Namespace API
+--------------------------------------------------------------------------------
+
 function Auto:Init()
   for _, event in ipairs(eventsToRegister) do
     if not registeredEvents[event] then
@@ -36,7 +63,7 @@ function Auto:Init()
 end
 
 function Auto:Handler(...)
-  if not DB.settingsProfile.companions.Automation[addOn.MapInfo:GetCurrentZoneType()] then
+  if not DB.settingsProfile.companions.Automation[GetInstanceZoneType()] then
     return
   end
 
