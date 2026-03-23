@@ -8,7 +8,7 @@
 ## OptionalDeps: Ace3
 
 Libs.xml
-
+Locales\Locales.xml
 # Core Addon Files
 Core\Main.lua
 Core\UI.lua
