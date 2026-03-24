@@ -9,7 +9,9 @@
 
 Libs.xml
 Locales\Locales.xml
+
 # Core Addon Files
+Core\Enum.lua
 Core\Main.lua
 Core\UI.lua
 Core\DB.lua

@@ -6,6 +6,7 @@ local mod = addOn:GetModule("CompanionModule")
 
 mod.DB = mod.DB or {}
 local DB = mod.DB
+local Enums = addonTable.Enums
 
 --------------------------------------------------------------------------------
 --- Local Helper Functions
@@ -59,8 +60,6 @@ function DB:Init()
   self.CompanionsNS.RegisterCallback(self, "OnProfileChanged", "OnProfileEvent")
   self.CompanionsNS.RegisterCallback(self, "OnProfileCopied", "OnProfileEvent")
   self.CompanionsNS.RegisterCallback(self, "OnProfileReset", "OnProfileEvent")
-
-  self:EnsureGlobal()
 end
 
 function DB:RefreshProfilePointers()
@@ -165,6 +164,29 @@ function DB:AddPet(list, petGUID, weight)
     end
   end
   return false
+end
+
+function DB:AddPetToScope(scope, key1, key2, petGUID, weight)
+  local list = nil
+  if scope == Enums.ListScope.Outfit then
+    list = self:EnsureOutfit(key1)
+  elseif scope == Enums.ListScope.Zone then
+    list = self:EnsureZone(key1, key2)
+  elseif scope == Enums.ListScope.Continent then
+    list = self:EnsureContinent(key1)
+  elseif scope == Enums.ListScope.Global then
+    list = self:EnsureGlobal()
+  else
+    return false, "Invalid Scope"
+  end
+  if not petGUID then
+    return false, "Missing PetGUID"
+  end
+
+  local speciesID = C_PetJournal.GetPetInfoByPetID(petGUID)
+  if not speciesID then return false, "Invalid PetGUID" end
+  local added = self:AddPet(list, petGUID, weight)
+  return true, added and "Added" or "Updated"
 end
 
 function DB:RemovePet(list, petGUID)
