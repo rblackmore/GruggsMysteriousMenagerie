@@ -1,4 +1,4 @@
-local addonName, _ = ...
+local addonName, addonTable = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
@@ -6,6 +6,7 @@ local mod = addOn:GetModule("CompanionModule")
 
 mod.Commands = mod.Commands or {}
 local Commands = mod.Commands
+local Enums = addonTable.Enums
 
 function Commands:Init(db, core)
   self.db = db
@@ -51,4 +52,27 @@ function Commands:OnSummoned(_, petId, userInitiated)
   if userInitiated then
     self:AnnounceSummon(petId)
   end
+end
+
+function Commands:AddPet(scope, key1, key2, petGUID, weight)
+  -- Not sure about this. 
+  -- Should SlashCmd.lua deal with a hyperlink and making sure all params are there, or should I do that here?
+  
+  self.db:AddPetToScope(scope, key1, key2, petGUID, weight)
+end
+
+function Commands:AddPetToOutfit(outfitId, petGUID, weight)
+  self.db:AddPetToScope(Enums.ListScope.Outfit, outfitId, nil, petGUID, weight)
+end
+
+function Commands:AddPetToZone(continentId, zoneId, petGUID, weight)
+  self.db:AddPetToScope(Enums.ListScope.Zone, continentId, zoneId, petGUID, weight)
+end
+
+function Commands:AddPetToContinent(continentId, petGUID, weight)
+  self.db:AddPetToScope(Enums.ListScope.Continent, continentId, nil, petGUID, weight)
+end
+
+function Commands:AddPetToGlobal(petGUID, weight)
+  self.db:AddPetToScope(Enums.ListScope.Global, nil, nil, petGUID, weight)
 end
