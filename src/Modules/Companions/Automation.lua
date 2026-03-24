@@ -6,18 +6,16 @@ local mod = addOn:GetModule("CompanionModule")
 
 mod.Core.Automation = mod.Core.Automation or {}
 
-local Core = mod.Core
 local Auto = mod.Core.Automation
-local DB = mod.DB
 
 LibStub("AceEvent-3.0"):Embed(Auto)
 LibStub("AceTimer-3.0"):Embed(Auto)
 
 --------------------------------------------------------------------------------
---- Local Helper Function and Tables
+--- Local Constants and Functions
 --------------------------------------------------------------------------------
 
-local instanceTypes = {
+local INSTANCE_TYPES = {
 
   ["pvp"] = "BATTLEGROUND",
   ["arena"] = "ARENA",
@@ -33,11 +31,11 @@ local function GetInstanceZoneType()
     return "RESTING"
   end
   local _, instanceType = IsInInstance()
-  return instanceType[instanceType] or "GLOBAL"
+  return INSTANCE_TYPES[instanceType] or "GLOBAL"
 end
 
 -- These events are when to automatically summon a companion.
-local eventsToRegister = {
+local EVENTS_TO_REGISTER = {
   "ZONE_CHANGED_NEW_AREA", --> Player changes major Zone, et, Orgrimmar -> Durotar.
   "ZONE_CHANGED",          --> Player changes minor zone, eg, Valley of Honor -> The Drag.
   "PLAYER_MOUNT_DISPLAY_CHANGED",
@@ -47,27 +45,29 @@ local eventsToRegister = {
   "UNIT_EXITED_VEHICLE",   --> After exiting vehicle.
 }
 
-local registeredEvents = {}
+local REGISTERED_EVENTS = {}
 
 --------------------------------------------------------------------------------
 --- Namespace API
 --------------------------------------------------------------------------------
 
-function Auto:Init()
-  for _, event in ipairs(eventsToRegister) do
-    if not registeredEvents[event] then
+function Auto:Init(core)
+  self.core = core
+  for _, event in ipairs(EVENTS_TO_REGISTER) do
+    if not REGISTERED_EVENTS[event] then
       self:RegisterEvent(event, "Handler")
-      registeredEvents[event] = true
+      REGISTERED_EVENTS[event] = true
     end
   end
 end
 
 function Auto:Handler(...)
-  if not DB.settingsProfile.companions.Automation[GetInstanceZoneType()] then
+  local settings = self.core.db:GetCompanionSettings()
+  if not settings.Automation[GetInstanceZoneType()] then
     return
   end
 
-  if not DB.settingsProfile.companions.Automation.forcesummon and C_PetJournal.GetSummonedPetGUID() then
+  if not settings.Automation.forcesummon and C_PetJournal.GetSummonedPetGUID() then
     return
   end
 
@@ -79,12 +79,9 @@ function Auto:Handler(...)
     return
   end
 
-  local delay = DB.settingsProfile.companions.Automation.delay
+  local delay = settings.Automation.delay
   self._summonTimer = self:ScheduleTimer(function()
-    local petId = Core:PickRandomPetId()
-    if petId then
-      Core:RequestCompanion(false)
-    end
+    self.core:RequestCompanion(false)
   end, delay)
 end
 

@@ -5,12 +5,11 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 local mod = addOn:GetModule("CompanionModule")
 
 mod.Commands = mod.Commands or {}
-
 local Commands = mod.Commands
-local Core = mod.Core
-local DB = mod.DB
 
-function Commands:Init()
+function Commands:Init(db, core)
+  self.db = db
+  self.core = core
   -- TODO: Remove these chat commands in a later update.
   mod:RegisterChatCommand("gmsummon", function(...)
     mod:Printf("/gmsummon command is deprecated and will be removed in a future update, use '/gmm summon' instead")
@@ -28,22 +27,23 @@ function Commands:Summon(...)
   local arg1 = select(1, ...) and select(1, ...):lower()
 
   if arg1 and arg1 == "setpod" or arg1 == "pod" then
-    DB:SetActivePetAsPetOfTheDay()
+    self.core:SetActivePetAsPetOfTheDay()
     return
   end
 
   if arg1 and arg1 == "dismiss" then
-    Core:SummonOrDismissRandomCompanion(true)
+    self.core:SummonOrDismissRandomCompanion(true)
   else
-    Core:RequestCompanion(true)
+    self.core:RequestCompanion(true)
   end
 end
 
 function Commands:AnnounceSummon(petId)
   local petInfo = C_PetJournal.GetPetInfoTableByPetID(petId)
-  local name = DB.settingsProfile.companions["UseCustomName"] and petInfo.customName or petInfo.name
-  local msgFormat = DB.settingsProfile.companions["MessageFormat"] or "Welcome %s!"
-  local channelTarget = DB.settingsProfile.companions["Channel"] or "SAY"
+  local settings = self.db:GetCompanionSettings()
+  local name = settings["UseCustomName"] and petInfo.customName or petInfo.name
+  local msgFormat = settings["MessageFormat"] or "Welcome %s!"
+  local channelTarget = settings["Channel"] or "SAY"
   C_ChatInfo.SendChatMessage(format(msgFormat, name), channelTarget)
 end
 

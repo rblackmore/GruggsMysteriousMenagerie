@@ -9,8 +9,6 @@ mod.Core.EventHandler = {}
 mod.Core.Automation = mod.Core.Automation or {}
 
 local Core = mod.Core
-local DB = mod.DB
-local Cache = mod.Cache
 
 LibStub("AceEvent-3.0"):Embed(Core.EventHandler)
 
@@ -32,12 +30,14 @@ end
 --------------------------------------------------------------------------------
 --- Public API
 --------------------------------------------------------------------------------
-function Core:Init()
-  self.Automation:Init()
+function Core:Init(db, cache)
+  self.db = db
+  self.cache = cache
+  self.Automation:Init(self)
 end
 
 function Core:PickRandomPetId()
-  local list = Cache:GetEffectivePetList()
+  local list = self.cache:GetEffectivePetList()
 
   if not list or not list.order or #list.order == 0 then
     return nil, "No Pets in the current effective list"
@@ -48,10 +48,38 @@ function Core:PickRandomPetId()
   return petId
 end
 
+function Core:GetPetOfTheDay()
+  local podSettings = self.db.settingsProfile.companions["Automation"]["petoftheday"]
+  local summonedDate = podSettings.Date
+  local today = date("*t")
+
+  if not summonedDate or summonedDate.day ~= today.day or summonedDate.month ~= today.month or summonedDate.year ~= today.year then
+    local petId = self:PickRandomPetId()
+    self.db:SetPetOfTheDay(petId)
+  end
+  return podSettings.PetId
+end
+
+function Core:ClearPetOfTheDay()
+  local settings = self.db:GetCompanionSettings()
+  local podSettings = settings["Automation"]["petoftheday"]
+  podSettings.PetId = nil
+  podSettings.Date = nil
+end
+
+function Core:SetActivePetAsPetOfTheDay()
+  local currentPetGUID = C_PetJournal.GetSummonedPetGUID()
+  if not currentPetGUID then
+    return
+  end
+
+  self.db:SetPetOfTheDay(currentPetGUID)
+end
+
 --- TODO: Review the logic of this function. It seems to iterate through list of pets to find one to pick.
 --- Consider a binary search instead?
 function Core:PickWeightedRandom()
-  local list = Cache:GetEffectivePetList()
+  local list = self.cache:GetEffectivePetList()
 
   if not list or not list.order or #list.order == 0 then
     return nil, "No Pets in the current effective list"
@@ -85,11 +113,12 @@ function Core:PickWeightedRandom()
 end
 
 function Core:RequestCompanion(userInitiated)
-  local podSettings = DB.settingsProfile.companions["Automation"]["petoftheday"]
+  local settings = self.db:GetCompanionSettings()
+  local podSettings = settings["Automation"]["petoftheday"]
   local petId
 
   if podSettings.Enabled then
-    petId = DB:GetPetOfTheDay()
+    petId = self:GetPetOfTheDay()
   else
     petId = self:PickWeightedRandom() or self:PickRandomPetId()
   end

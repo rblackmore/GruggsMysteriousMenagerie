@@ -5,8 +5,6 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 local mod = addOn:GetModule("CompanionModule")
 
 mod.Config = mod.Config or {}
-
-local DB = mod.DB
 local Config = mod.Config
 
 local AceConfig = LibStub("AceConfig-3.0")
@@ -15,7 +13,8 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 --------------------------------------------------------------------------------
 --- Local Helper Functions
 --------------------------------------------------------------------------------
-local function BuildOptionsTable()
+local function BuildOptionsTable(db)
+  local DB = db
   local announcementOptions = {
     ["MessageFormat"] = {
       type = "input",
@@ -189,8 +188,9 @@ end
 --------------------------------------------------------------------------------
 --- Lifecycle Methods
 --------------------------------------------------------------------------------
-function Config:Init()
-  local options = BuildOptionsTable()
+function Config:Init(db)
+  self.db = db
+  local options = BuildOptionsTable(self.db)
   AceConfig:RegisterOptionsTable("GMM_Companions", options)
   local frame, frameId = AceConfigDialog:AddToBlizOptions("GMM_Companions", "Companions", "GMM")
   addOn.UI:RegisterConfigurationFrame("GMM_Companions", frame, frameId)
@@ -201,16 +201,16 @@ end
 --------------------------------------------------------------------------------
 function Config:GetValue(info)
   if info.arg then
-    return DB.settingsProfile.companions[info.arg][info[#info]]
+    return self.db.settingsProfile.companions[info.arg][info[#info]]
   else
-    return DB.settingsProfile.companions[info[#info]]
+    return self.db.settingsProfile.companions[info[#info]]
   end
 end
 
 function Config:SetValue(info, value)
   if info.arg then
-    DB.settingsProfile.companions[info.arg][info[#info]] = value
+    self.db.settingsProfile.companions[info.arg][info[#info]] = value
   else
-    DB.settingsProfile.companions[info[#info]] = value
+    self.db.settingsProfile.companions[info[#info]] = value
   end
 end

@@ -6,7 +6,6 @@ local mod = addOn:GetModule("CompanionModule")
 
 mod.DB = mod.DB or {}
 local DB = mod.DB
-local Cache = mod.Cache
 
 --------------------------------------------------------------------------------
 --- Local Helper Functions
@@ -194,7 +193,7 @@ function DB:GetListFor(outfitID, mapID, continentID)
   end
 
   -- 5) Default to Fallback Pets if Global is Empty
-  return Cache:GetFallbackList()
+  return self:GetFallbackList()
 end
 
 function DB:GetEffectivePetList()
@@ -205,22 +204,23 @@ function DB:GetEffectivePetList()
   return self:GetListFor(outfitID, mapID, continentID)
 end
 
-function DB:GetPetOfTheDay()
-  local podSettings = self.settingsProfile.companions["Automation"]["petoftheday"]
-  local summonedDate = podSettings.Date
-  local today = date("*t")
+function DB:GetFallbackList()
+  local settings = self:GetCompanionSettings()
+  local useFavorites = settings["UseFavoritesFallback"]
 
-  if not summonedDate or summonedDate.day ~= today.day or summonedDate.month ~= today.month or summonedDate.year ~= today.year then
-    local petId = mod.Core:PickRandomPetId()
-    self:SetPetOfTheDay(petId)
+  local list = { pets = {}, order = {}, total = 0 }
+  local petGUIDs = C_PetJournal.GetOwnedPetIDs()
+
+  for i = 1, #petGUIDs do
+    local speciesID, _, _, _, _, _, isFavorite = C_PetJournal.GetPetInfoByPetID(petGUIDs[i])
+    if speciesID then
+      if not useFavorites or isFavorite then
+        self:AddPet(list, petGUIDs[i])
+      end
+    end
   end
-  return podSettings.PetId
-end
 
-function DB:ClearPetOfTheDay()
-  local podSettings = self.settingsProfile.companions["Automation"]["petoftheday"]
-  podSettings.PetId = nil
-  podSettings.Date = nil
+  return list
 end
 
 function DB:SetPetOfTheDay(petId)
@@ -229,11 +229,16 @@ function DB:SetPetOfTheDay(petId)
   podSettings.Date = date("*t")
 end
 
-function DB:SetActivePetAsPetOfTheDay()
-  local currentPetGUID = C_PetJournal.GetSummonedPetGUID()
-  if not currentPetGUID then
-    return
+function DB:GetCompanionSettings()
+  if not self.settingsProfile or not self.settingsProfile.companions then
+    return {}
   end
+  return self.settingsProfile.companions
+end
 
-  DB:SetPetOfTheDay(currentPetGUID)
+function DB:GetCompanionNamespace()
+  if not self.CompanionsNS then
+    return {}
+  end
+  return self.CompanionsNS
 end

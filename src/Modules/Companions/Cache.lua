@@ -10,16 +10,16 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 local mod = addOn:GetModule("CompanionModule")
 
 mod.Cache = mod.Cache or {}
-local DB = mod.DB
 local Cache = mod.Cache
 
 LibStub("AceTimer-3.0"):Embed(Cache)
 LibStub("AceBucket-3.0"):Embed(Cache)
 LibStub("AceEvent-3.0"):Embed(Cache)
 
+--- Local Constants
 local BUCKET_INTERVAL = 0.5
 
-local eventsToRegister = {
+local EVENTS_TO_REGISTER = {
   "PLAYER_ENTERING_WORLD",
   "ZONE_CHANGED",
   "ZONE_CHANGED_INDOORS",
@@ -28,13 +28,17 @@ local eventsToRegister = {
   "TRANSMOG_COLLECTION_UPDATED"
 }
 
-function Cache:Init()
-  self:RegisterBucketEvent(eventsToRegister, BUCKET_INTERVAL, "RefreshEffectiveList")
+--------------------------------------------------------------------------------
+--- Cache Publid API
+--------------------------------------------------------------------------------
+function Cache:Init(db)
+  self.db = db
+  self:RegisterBucketEvent(EVENTS_TO_REGISTER, BUCKET_INTERVAL, "RefreshEffectiveList")
   self:RegisterBucketEvent("PET_JOURNAL_LIST_UPDATE", BUCKET_INTERVAL, "Refresh")
 
-  DB.CompanionsNS.RegisterCallback(self, "OnProfileChanged", "Refresh")
-  DB.CompanionsNS.RegisterCallback(self, "OnProfileCopied", "Refresh")
-  DB.CompanionsNS.RegisterCallback(self, "OnProfileReset", "Refresh")
+  self.db:GetCompanionNamespace().RegisterCallback(self, "OnProfileChanged", "Refresh")
+  self.db:GetCompanionNamespace().RegisterCallback(self, "OnProfileCopied", "Refresh")
+  self.db:GetCompanionNamespace().RegisterCallback(self, "OnProfileReset", "Refresh")
 
   self:Refresh()
 end
@@ -53,30 +57,14 @@ function Cache:GetFallbackList()
 end
 
 function Cache:RefreshEffectiveList()
-  local list = DB:GetEffectivePetList()
+  local list = self.db:GetEffectivePetList()
   self.EffectivePetList = list
   self:SendMessage("GMM_EFFECTIVE_PET_LIST_UPDATED")
   return list
 end
 
 function Cache:RefreshFallbackList()
-  local useFavorites =
-      DB.settingsProfile and
-      DB.settingsProfile.companions and
-      DB.settingsProfile.companions.UseFavoritesFallback
-
-  local list = { pets = {}, order = {}, total = 0 }
-  local petGUIDs = C_PetJournal.GetOwnedPetIDs()
-
-  for i = 1, #petGUIDs do
-    local speciesID, _, _, _, _, _, isFavorite = C_PetJournal.GetPetInfoByPetID(petGUIDs[i])
-    if speciesID then
-      if not useFavorites or isFavorite then
-        DB:AddPet(list, petGUIDs[i])
-      end
-    end
-  end
-
+  local list = self.db:GetFallbackList()
   self.FallbackList = list
   self:SendMessage("GMM_FALLBACK_PET_LIST_UPDATED")
   return list

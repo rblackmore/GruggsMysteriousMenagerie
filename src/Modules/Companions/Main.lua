@@ -16,10 +16,10 @@ mod.Cache = {}
 
 function mod:OnInitialize()
   mod.DB:Init()
-  mod.Core:Init()
-  mod.Commands:Init()
-  mod.Config:Init()
-  mod.Cache:Init()
+  mod.Cache:Init(mod.DB)
+  mod.Core:Init(mod.DB, mod.Cache)
+  mod.Commands:Init(mod.DB, mod.Core)
+  mod.Config:Init(mod.DB)
 end
 
 function mod:OnEnable()
