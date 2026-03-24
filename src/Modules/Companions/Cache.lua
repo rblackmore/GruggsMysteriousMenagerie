@@ -58,6 +58,11 @@ end
 
 function Cache:RefreshEffectiveList()
   local list = self.db:GetEffectivePetList()
+
+  if not list or not list.order or #list.order == 0 then
+    list = self:GetFallbackList()
+  end
+
   self.EffectivePetList = list
   self:SendMessage("GMM_EFFECTIVE_PET_LIST_UPDATED")
   return list

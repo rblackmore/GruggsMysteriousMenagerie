@@ -34,6 +34,19 @@ local function FilterExistingPetGUIDs(petsSet)
   return filtered
 end
 
+local function ListHasPets(list)
+  if not list then
+    return false
+  end
+  if type(list.total) == "number" and list.total > 0 then
+    return true
+  end
+  if list.order and #list.order > 0 then
+    return true
+  end
+  return false
+end
+
 --------------------------------------------------------------------------------
 --- Database Module API
 --------------------------------------------------------------------------------
@@ -68,6 +81,7 @@ function DB:EnsureGlobal()
 
   self.dbp.global.pets = self.dbp.global.pets or {}
   self.dbp.global.order = self.dbp.global.order or {}
+  self.dbp.global.weights = self.dbp.global.weights or {}
   self.dbp.global.total = self.dbp.global.total or 0
 
   return self.dbp.global
@@ -169,39 +183,40 @@ function DB:RemovePet(list, petGUID)
   return false
 end
 
-function DB:GetListFor(outfitID, mapID, continentID)
-  -- 1) Outfit
-  if outfitID and self.dbc.outfits and self.dbc.outfits[outfitID] then
-    return self.dbc.outfits[outfitID]
-  end
-
-  -- 2) Zone
-  if continentID and mapID and self.dbp.zones and self.dbp.zones[continentID] then
-    local zl = self.dbp.zones[continentID][mapID]
-    if zl then return zl end
-  end
-
-  -- 3) Continent
-  if continentID and self.dbp.continents and self.dbp.continents[continentID] then
-    return self.dbp.continents[continentID]
-  end
-
-  -- 4 ) Global Default
-  local global = self:EnsureGlobal()
-  if global and global.order and #global.order > 0 then
-    return global
-  end
-
-  -- 5) Default to Fallback Pets if Global is Empty
-  return self:GetFallbackList()
-end
-
 function DB:GetEffectivePetList()
   local outfitID = C_TransmogOutfitInfo.GetActiveOutfitID()
   local mapID = C_Map.GetBestMapForUnit("player")
   local continentID = GetContinentIDForMap(mapID)
 
   return self:GetListFor(outfitID, mapID, continentID)
+end
+
+function DB:GetListFor(outfitID, mapID, continentID)
+  -- 1) Outfit
+  if outfitID and self.dbc.outfits and ListHasPets(self.dbc.outfits[outfitID]) then
+    return self.dbc.outfits[outfitID]
+  end
+
+  -- 2) Zone
+  if continentID and mapID and self.dbp.zones and self.dbp.zones[continentID] then
+    local zl = self.dbp.zones[continentID][mapID]
+    if ListHasPets(zl) then
+      return zl
+    end
+  end
+
+  -- 3) Continent
+  if continentID and self.dbp.continents and ListHasPets(self.dbp.continents[continentID]) then
+    return self.dbp.continents[continentID]
+  end
+
+  -- 4 ) Global
+  if self.dbp.global and ListHasPets(self.dbp.global) then
+    return self.dbp.global
+  end
+
+  -- 5) Fallback should be handled by Cache to avoid rebuilding each time on DB side
+  return nil
 end
 
 function DB:GetFallbackList()
