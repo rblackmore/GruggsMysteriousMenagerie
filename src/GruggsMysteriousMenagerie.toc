@@ -9,9 +9,11 @@
 
 Libs.xml
 Locales\Locales.xml
+# Utilities
+Utils\Enum.lua
+Utils\Maps.lua
 
 # Core Addon Files
-Core\Enum.lua
 Core\Main.lua
 Core\UI.lua
 Core\DB.lua

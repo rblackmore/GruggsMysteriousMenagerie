@@ -7,22 +7,11 @@ local mod = addOn:GetModule("CompanionModule")
 mod.DB = mod.DB or {}
 local DB = mod.DB
 local Enums = addonTable.Enums
+local Maps = addonTable.Maps
 
 --------------------------------------------------------------------------------
 --- Local Helper Functions
 --------------------------------------------------------------------------------
-local function GetContinentIDForMap(mapID)
-  local info = mapID and C_Map.GetMapInfo(mapID)
-  while info do
-    if info.mapType == Enum.UIMapType.Continent then
-      return info.mapID
-    end
-    if not info.parentMapID then break end
-    info = C_Map.GetMapInfo(info.parentMapID)
-  end
-  return nil
-end
-
 local function FilterExistingPetGUIDs(petsSet)
   if not petsSet then return nil end
   local filtered = {}
@@ -208,7 +197,7 @@ end
 function DB:GetEffectivePetList()
   local outfitID = C_TransmogOutfitInfo.GetActiveOutfitID()
   local mapID = C_Map.GetBestMapForUnit("player")
-  local continentID = GetContinentIDForMap(mapID)
+  local continentID = Maps:GetContinentIDForMap(mapID)
 
   return self:GetListFor(outfitID, mapID, continentID)
 end

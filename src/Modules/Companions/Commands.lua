@@ -7,6 +7,7 @@ local mod = addOn:GetModule("CompanionModule")
 mod.Commands = mod.Commands or {}
 local Commands = mod.Commands
 local Enums = addonTable.Enums
+local Maps = addonTable.Maps
 
 function Commands:Init(db, core)
   self.db = db
@@ -54,12 +55,13 @@ function Commands:OnSummoned(_, petId, userInitiated)
   end
 end
 
-function Commands:AddPet(scope, key1, key2, petGUID, weight)
-  -- Not sure about this. 
-  -- Should SlashCmd.lua deal with a hyperlink and making sure all params are there, or should I do that here?
-  
-  self.db:AddPetToScope(scope, key1, key2, petGUID, weight)
-end
+function Commands:Add() end
+
+function Commands:Remove() end
+
+function Commands:Clear() end
+
+function Commands:List() end
 
 function Commands:AddPetToOutfit(outfitId, petGUID, weight)
   self.db:AddPetToScope(Enums.ListScope.Outfit, outfitId, nil, petGUID, weight)

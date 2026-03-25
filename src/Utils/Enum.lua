@@ -8,5 +8,5 @@ Enums.ListScope = {
   Global = "global",
   Continent = "continent",
   Zone = "zone",
-  Outfit = "outfit"
+  Outfit = "outfit",
 }
