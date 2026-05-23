@@ -57,6 +57,20 @@
         "panel": "new",
         "close": false
       }
+    },
+    {
+      "label": "clean",
+      "type": "shell",
+      "command": "rm -R build; rm -R publish",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+       "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "close": false
+      }
     }
   ]
 }
