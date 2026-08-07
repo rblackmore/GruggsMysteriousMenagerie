@@ -158,11 +158,11 @@ end
 function DB:AddPetToScope(scope, key1, key2, petGUID, weight)
   local list = nil
   if scope == Enums.ListScope.Outfit then
-    list = self:EnsureOutfit(key1)
+    list = self:EnsureOutfit(key1)     -- key1 = outfitID
   elseif scope == Enums.ListScope.Zone then
-    list = self:EnsureZone(key1, key2)
+    list = self:EnsureZone(key1, key2) -- key1 = continentId, key2 = zoneID
   elseif scope == Enums.ListScope.Continent then
-    list = self:EnsureContinent(key1)
+    list = self:EnsureContinent(key1)  -- key1 = continentID
   elseif scope == Enums.ListScope.Global then
     list = self:EnsureGlobal()
   else
@@ -176,6 +176,28 @@ function DB:AddPetToScope(scope, key1, key2, petGUID, weight)
   if not speciesID then return false, "Invalid PetGUID" end
   local added = self:AddPet(list, petGUID, weight)
   return true, added and "Added" or "Updated"
+end
+
+function DB:AddPetsToScope(scope, key1, key2, petGUIDs, weight)
+  for _, v in ipairs(petGUIDs) do
+    self:AddPetToScope(scope, key1, key2, v, weight);
+  end
+end
+
+function DB:AddPetToGlobal(petGUID, weight)
+  self:AddPetToScope(Enums.ListScope.Global, nil, nil, petGUID, weight);
+end
+
+function DB:AddPetToContinent(petGUID, continentID, weight)
+  self:AddPetToScope(Enums.ListScope.Continent, continentID, nil, petGUID, weight);
+end
+
+function DB:AddPetToZone(petGUID, continentID, zoneID, weight)
+  self:AddPetToScope(Enums.ListScope.Zone, continentID, zoneID, petGUID, weight);
+end
+
+function DB:AddPetToOutfit(petGUID, outfitID, weight)
+  self:AddPetToScope(Enums.ListScope.Outfit, outfitID, nil, petGUID, weight);
 end
 
 function DB:RemovePet(list, petGUID)

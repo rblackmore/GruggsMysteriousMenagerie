@@ -55,26 +55,12 @@ function Commands:OnSummoned(_, petId, userInitiated)
   end
 end
 
-function Commands:Add() end
+function Commands:Add(scope, key1, key2, petGUIDs, weight)
+  self.db:AddPetsToScope(scope, key1, key2, petGUIDs, weight)
+end
 
 function Commands:Remove() end
 
 function Commands:Clear() end
 
 function Commands:List() end
-
-function Commands:AddPetToOutfit(outfitId, petGUID, weight)
-  self.db:AddPetToScope(Enums.ListScope.Outfit, outfitId, nil, petGUID, weight)
-end
-
-function Commands:AddPetToZone(continentId, zoneId, petGUID, weight)
-  self.db:AddPetToScope(Enums.ListScope.Zone, continentId, zoneId, petGUID, weight)
-end
-
-function Commands:AddPetToContinent(continentId, petGUID, weight)
-  self.db:AddPetToScope(Enums.ListScope.Continent, continentId, nil, petGUID, weight)
-end
-
-function Commands:AddPetToGlobal(petGUID, weight)
-  self.db:AddPetToScope(Enums.ListScope.Global, nil, nil, petGUID, weight)
-end

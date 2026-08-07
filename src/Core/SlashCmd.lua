@@ -1,6 +1,7 @@
 local addonName, addonTable = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
+local companionModule = addOn:GetModule("Companions")
 
 
 addOn.SlashCmd = addOn.SlashCmd or {}
@@ -12,6 +13,26 @@ LibStub("AceConsole-3.0"):Embed(SlashCmd)
 --------------------------------------------------------------------------------
 --- Local Functions and Constants
 --------------------------------------------------------------------------------
+
+-- Possible List Action Verbs.
+local listVerbs = {
+  add = true,
+  remove = true,
+  clear = true,
+  list = true,
+}
+
+local scopeMap = {
+  global = { type = Enums.ListScope.Global, context = nil },
+  g = { type = Enums.ListScope.Global, context = nil },
+  continent = { type = Enums.ListScope.Continent, context = C_Map.GetBestMapForUnit("player") },
+  c = { type = Enums.ListScope.Continent, context = C_Map.GetBestMapForUnit("player") },
+  zone = { type = Enums.ListScope.Zone, context = C_Map.GetBestMapForUnit("player") },
+  z = { type = Enums.ListScope.Zone, context = C_Map.GetBestMapForUnit("player") },
+  outfit = { type = Enums.ListScope.Outfit, context = C_TransmogOutfitInfo.GetActiveOutfitID() },
+  o = { type = Enums.ListScope.Outfit, context = C_TransmogOutfitInfo.GetActiveOutfitID() }
+}
+
 local function GetArgTable(input)
   local args = {}
   local pos = 1
@@ -27,37 +48,27 @@ local function GetArgTable(input)
   return args
 end
 
-local function ValidateListAction(action)
-  local actionMethodNames = {
-    add = true,
-    remove = true,
-    clear = true,
-    list = true,
-  }
-  return actionMethodNames[action]
-end
-
 local function GetScopeContext(scope)
-  local scopeMap = {
-    global = { type = Enums.ListScope.Global, context = nil },
-    g = { type = Enums.ListScope.Global, context = nil },
-    continent = { type = Enums.ListScope.Continent, context = C_Map.GetBestMapForUnit("player") },
-    c = { type = Enums.ListScope.Continent, context = C_Map.GetBestMapForUnit("player") },
-    zone = { type = Enums.ListScope.Zone, context = C_Map.GetBestMapForUnit("player") },
-    z = { type = Enums.ListScope.Zone, context = C_Map.GetBestMapForUnit("player") },
-    outfit = { type = Enums.ListScope.Outfit, context = C_TransmogOutfitInfo.GetActiveOutfitID() },
-    o = { type = Enums.ListScope.Outfit, context = C_TransmogOutfitInfo.GetActiveOutfitID() }
-  }
-  local result = scopeMap[scope:lower()]
+  if not scope then
+    return nil
+  end
+
+  scope = scope:lower()
+
+  local result = scopeMap[scope]
   if not result then
     addOn:Printf("Unknown List Identifier %s", scope)
   end
   return result
 end
 
-local function GetModuleFromItem(itemLInk)
+local Modules = {
+  CompanionModule = "Companions",
+  MountModule = "Mounts",
+}
+local function SelectModuleName(itemLInk)
   if LinkUtil.IsLinkType(itemLInk, LinkTypes.BattlePet) then
-    return addOn:GetModule("CompanionModule", true)
+    return Modules.CompanionModule
   elseif LinkUtil.IsLinkType(itemLInk, LinkTypes.MountEquipment) then
     -- TODO: Doesn't seem to be a mount Type, probably uses 'Spell', Investigate
   end
@@ -111,17 +122,17 @@ function SlashCmd:HandleCommand(input)
   end
 
   if action == "summon" then
-    local companionModule = addOn:GetModule("CompanionModule", true)
     if companionModule then
       companionModule.Commands:Summon(args[2])
     end
     return
   end
 
-  -- if ValidateListAction(action) then
-  --   table.remove(args, 1)
-  --   self:HandleListAction(action, args)
-  -- end
+  if listVerbs[action] then
+    table.remove(args, 1)
+    self:HandleListAction(action, args)
+    return
+  end
 
   if not action or string.len(action) == 0 then
     self:OpenConfig("comp")
@@ -136,6 +147,7 @@ function SlashCmd:HandleListAction(action, args)
   --[[
     action = add, remove, list, clear
 
+    Update (7-8-2026) -- No longer allowing scope in command, will default to global.
     args shoud be the following
     { <list-identity>, <item-link> }
     <list-identity> = global, continent, zone, outfit, g, c, z, o
@@ -146,18 +158,18 @@ function SlashCmd:HandleListAction(action, args)
     Step 3: Extract ID(s) from hyperlinks. (perhaps these get sent to the Command and it extracts these instead.)
     Step #: Call Appropriate Command (Add, Remove, Clear, List)
   ]] --
-  local scopeContext = GetScopeContext(args[1])
+
   local itemLinks = args
-  table.remove(itemLinks, 1)
-  table.remove(itemLinks, 1)
-  local mod = GetModuleFromItem(itemLinks[1])
-  local context = {}
-  context.petGUIDs = itemLinks
-  if action == "add" then
-    mod.Commands:Add(scopeContext.type, scopeContext.context, itemLinks)
-  elseif action == "remove" then
-  elseif action == "clear" then
-  elseif action == "list" then
+  table.remove(itemLinks, 1) -- remove Verb Argument.
+  local module = SelectModuleName(itemLinks[1])
+  if (module == Modules.CompanionModule) then
+    if action == "add" then
+      -- TODO: Create petGUID list form item links
+      companionModule.DB:AddPetToGlobal(itemLinks[1])
+    elseif action == "remove" then
+    elseif action == "clear" then
+    elseif action == "list" then
+    end
   end
 end
 
