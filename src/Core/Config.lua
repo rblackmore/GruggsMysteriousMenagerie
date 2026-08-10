@@ -28,6 +28,16 @@ local function BuildOptionsTable()
     }
   }
 end
+
+local Categories = {
+  companions = "Companions",
+  companion = "Companions",
+  comp = "Companions",
+  profile = "Profiles",
+  profiles = "Profiles",
+  prof = "Profiles"
+}
+
 --------------------------------------------------------------------------------
 --- Options Module API
 --------------------------------------------------------------------------------
@@ -58,4 +68,16 @@ function Config:SetValue(info, value)
   else
     DB.dbp[info[#info]] = value
   end
+end
+
+function Config:OpenConfig(args)
+  addOn:DeferIfInCombatLockdown(function()
+    local categorySelect = Categories[args[1]]
+
+    if categorySelect and addOn.UI.ConfigFrames["GMM_" .. categorySelect] then
+      Settings.OpenToCategory(addOn.UI.ConfigFrames["GMM_" .. categorySelect]["frameId"])
+    else
+      Settings.OpenToCategory(addOn.UI.ConfigFrames["GMM_Configuration"]["frameId"])
+    end
+  end, "Opening Settings when out of Combat")
 end
