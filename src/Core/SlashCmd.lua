@@ -1,7 +1,6 @@
 local addonName, addonTable = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
-local companionModule = addOn:GetModule("Companions")
 
 
 addOn.SlashCmd = addOn.SlashCmd or {}
@@ -13,25 +12,6 @@ LibStub("AceConsole-3.0"):Embed(SlashCmd)
 --------------------------------------------------------------------------------
 --- Local Functions and Constants
 --------------------------------------------------------------------------------
-
--- Possible List Action Verbs.
-local listVerbs = {
-  add = true,
-  remove = true,
-  clear = true,
-  list = true,
-}
-
-local scopeMap = {
-  global = { type = Enums.ListScope.Global, context = nil },
-  g = { type = Enums.ListScope.Global, context = nil },
-  continent = { type = Enums.ListScope.Continent, context = C_Map.GetBestMapForUnit("player") },
-  c = { type = Enums.ListScope.Continent, context = C_Map.GetBestMapForUnit("player") },
-  zone = { type = Enums.ListScope.Zone, context = C_Map.GetBestMapForUnit("player") },
-  z = { type = Enums.ListScope.Zone, context = C_Map.GetBestMapForUnit("player") },
-  outfit = { type = Enums.ListScope.Outfit, context = C_TransmogOutfitInfo.GetActiveOutfitID() },
-  o = { type = Enums.ListScope.Outfit, context = C_TransmogOutfitInfo.GetActiveOutfitID() }
-}
 
 local function GetArgTable(input)
   local args = {}
@@ -113,27 +93,46 @@ end
 function SlashCmd:HandleCommand(input)
   local args = GetArgTable(input)
 
-  local action = args[1] and args[1]:lower()
+  local moduleName = args[1] and args[1]:lower()
+  local action = args[2] and args[2]:lower()
+  local scope = args[3] and args[3]:lower()
 
-  if action == "config" then
+  if moduleName == "config" then
     table.remove(args, 1)
     self:OpenConfig(args)
     return
   end
 
-  if action == "summon" then
+  if moduleName == "summon" then
+    local companionModule = addOn:GetModule("Companions")
     if companionModule then
       companionModule.Commands:Summon(args[2])
     end
     return
   end
 
-  if listVerbs[action] then
-    table.remove(args, 1)
-    self:HandleListAction(action, args)
+  local module = addOn.Modules[moduleName]
+
+  if not module then
+    self:Print("Unknown Module: " .. SelectModuleName)
+    -- TODO: Show Help
     return
   end
 
+  if not action then
+    self:Printf("Usage: /gmm %s <action> [items]", moduleName)
+    -- TODO: Show Help
+    return
+  end
+
+  if module.Commands.HandleAction then
+    local items = { select(3, unpack(args)) }
+    module.Commands:HandleAction(action, items)
+  else
+    self:Printf("%s module does not support actions", moduleName)
+  end
+
+  -- Default to opening Configuration.
   if not action or string.len(action) == 0 then
     self:OpenConfig("comp")
     return
@@ -141,43 +140,3 @@ function SlashCmd:HandleCommand(input)
 
   addOn:Printf("Unknown Command Argument '%s'", action)
 end
-
-function SlashCmd:HandleListAction(action, args)
-  addOn:Print("Handling List Action")
-  --[[
-    action = add, remove, list, clear
-
-    Update (7-8-2026) -- No longer allowing scope in command, will default to global.
-    args shoud be the following
-    { <list-identity>, <item-link> }
-    <list-identity> = global, continent, zone, outfit, g, c, z, o
-    <item-link> = link pet or mount (possibly array)
-
-    Step 1: Identify Link type, Pet or Mount, confirm all links in array are same type.
-    Step 2: Get Appropriate Module
-    Step 3: Extract ID(s) from hyperlinks. (perhaps these get sent to the Command and it extracts these instead.)
-    Step #: Call Appropriate Command (Add, Remove, Clear, List)
-  ]] --
-
-  local itemLinks = args
-  table.remove(itemLinks, 1) -- remove Verb Argument.
-  local module = SelectModuleName(itemLinks[1])
-  if (module == Modules.CompanionModule) then
-    if action == "add" then
-      -- TODO: Create petGUID list form item links
-      companionModule.DB:AddPetToGlobal(itemLinks[1])
-    elseif action == "remove" then
-    elseif action == "clear" then
-    elseif action == "list" then
-    end
-  end
-end
-
--- local link = self:GetArgs(input)
--- if not link then
---   addOn:Print("No Arguments for Test")
--- end
--- local type, options, displayText = LinkUtil.ExtractLink(link)
--- addOn:Print("type: ", type)
--- addOn:Print("options: ", options)
--- addOn:Print("displayText: ", displayText)

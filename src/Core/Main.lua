@@ -14,6 +14,12 @@ addOn.UI = {}
 addOn.UI.ConfigFrames = {}
 addOn.Config = {}
 addOn.SlashCmd = {}
+addOn.Modules = {
+  companions = addOn:GetModule("CompanionModule"),
+  companion = addOn:GetModule("CompanionModule"),
+  pet = addOn:GetModule("CompanionModule"),
+  pets = addOn:GetModule("CompanionModule")
+}
 
 function addOn:OnInitialize()
   self.DB:Init()

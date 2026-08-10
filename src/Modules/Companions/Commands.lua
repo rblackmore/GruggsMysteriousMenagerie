@@ -9,6 +9,25 @@ local Commands = mod.Commands
 local Enums = addonTable.Enums
 local Maps = addonTable.Maps
 
+--------------------------------------------------------------------------------
+--- Local Functions and Constants
+--------------------------------------------------------------------------------
+
+local scopeMap = {
+  global = { type = Enums.ListScope.Global, context = nil },
+  g = { type = Enums.ListScope.Global, context = nil },
+  continent = { type = Enums.ListScope.Continent, context = C_Map.GetBestMapForUnit("player") },
+  c = { type = Enums.ListScope.Continent, context = C_Map.GetBestMapForUnit("player") },
+  zone = { type = Enums.ListScope.Zone, context = C_Map.GetBestMapForUnit("player") },
+  z = { type = Enums.ListScope.Zone, context = C_Map.GetBestMapForUnit("player") },
+  outfit = { type = Enums.ListScope.Outfit, context = C_TransmogOutfitInfo.GetActiveOutfitID() },
+  o = { type = Enums.ListScope.Outfit, context = C_TransmogOutfitInfo.GetActiveOutfitID() }
+}
+
+--------------------------------------------------------------------------------
+--- Module Lifecycle Functions
+--------------------------------------------------------------------------------
+
 function Commands:Init(db, core)
   self.db = db
   self.core = core
@@ -24,6 +43,10 @@ function Commands:Init(db, core)
 
   mod:RegisterMessage("GMM_COMPANION_SUMMONED", function(...) Commands:OnSummoned(...) end)
 end
+
+--------------------------------------------------------------------------------
+--- Module API
+--------------------------------------------------------------------------------
 
 function Commands:Summon(...)
   local arg1 = select(1, ...) and select(1, ...):lower()
@@ -53,6 +76,24 @@ function Commands:OnSummoned(_, petId, userInitiated)
   if userInitiated then
     self:AnnounceSummon(petId)
   end
+end
+
+function Commands:HandleAction(action, items)
+  -- items = { everything users passed after action }
+  -- Could be: { "zone", "[item:123]", "[item:456]"}
+  -- or: {"[item:123]", "[item:456]"}
+  -- or: {"zone"} -- scope without items means action of list or clear.
+
+  local scope, itemsToProcess = self:ExtractScope(items);
+end
+
+function Commands:ExtractScope(items)
+  -- Returns <scope or global>, <items or {}>.
+  -- Steps:
+  -- 1. Check if items[1] is scope or items
+  -- 2. Get Scope from Map or just use Global.
+  -- 3. Determine if remaining args are Items.
+  -- 4. Return scope + Items or {}
 end
 
 function Commands:Add(scope, key1, key2, petGUIDs, weight)
