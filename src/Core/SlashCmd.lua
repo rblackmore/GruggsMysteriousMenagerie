@@ -2,7 +2,6 @@ local addonName, addonTable = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 
-
 addOn.SlashCmd = addOn.SlashCmd or {}
 local SlashCmd = addOn.SlashCmd
 local Config = addOn.Config
@@ -44,13 +43,13 @@ function SlashCmd:HandleCommand(input)
   local moduleName = args[1] and args[1]:lower()
   local action = args[2] and args[2]:lower()
 
-  if moduleName == "config" then
+  if not moduleName or moduleName == "config" then
     Config:OpenConfig({ select(2, args) })
     return
   end
 
   if moduleName == "summon" then
-    local companionModule = addOn:GetModule("Companions")
+    local companionModule = addOn:GetModule("CompanionModule")
     if companionModule then
       companionModule.Commands:Summon(args[2])
     end

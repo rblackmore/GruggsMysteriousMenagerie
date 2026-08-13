@@ -13,18 +13,19 @@ addOn.UI = {}
 addOn.UI.ConfigFrames = {}
 addOn.Config = {}
 addOn.SlashCmd = {}
-addOn.Modules = {
-  companion = addOn:GetModule("CompanionModule"),
-  companions = addOn:GetModule("CompanionModule"),
-  pet = addOn:GetModule("CompanionModule"),
-  pets = addOn:GetModule("CompanionModule")
-}
+addOn.Modules = {}
 
 function addOn:OnInitialize()
   self.DB:Init()
   self.UI:Init()
   self.Config:Init()
   self.SlashCmd:Init()
+  addOn.Modules = {
+    companion = addOn:GetModule("CompanionModule"),
+    companions = addOn:GetModule("CompanionModule"),
+    pet = addOn:GetModule("CompanionModule"),
+    pets = addOn:GetModule("CompanionModule")
+  }
 end
 
 function addOn:OnEnable() end
