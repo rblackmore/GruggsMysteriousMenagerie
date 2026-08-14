@@ -1,17 +1,24 @@
 local addonName, addonTable = ...
----@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0, GMM_Addon
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 
-addOn.DB = addOn.DB or {}
-local DB = addOn.DB
+---@class GMM_Data
+---@field AceDatabase AceDBObject-3.0
+---@field Companions AceDBObject-3.0
+---@field Mounts AceDBObject-3.0
+---@field Settings AceDBObject-3.0
+---@field profile AceDBObject-3.0
+---@field char AceDBObject-3.0
+
+local Data = addOn.Data
 
 --------------------------------------------------------------------------------
 --- API
 --------------------------------------------------------------------------------
-function DB:Init()
-  self.AceDatabase = LibStub("AceDB-3.0"):New("GMM_DB", { profile = {}, char = {}, global = {} }, true)
+function Data:Init()
+  self["AceDatabase"] = LibStub("AceDB-3.0"):New("GMM_DB", { profile = {}, char = {}, global = {} }, true)
 
-  self["CompanionNS"] = self.AceDatabase:RegisterNamespace("Companions", {
+  self["Companions"] = self.AceDatabase:RegisterNamespace("Companions", {
     profile = {
 
       global = { pets = {}, order = {}, weights = {}, total = 0 },
@@ -27,7 +34,7 @@ function DB:Init()
     }
   })
 
-  self["MountNS"] = self.AceDatabase:RegisterNamespace("Mounts", {
+  self["Mounts"] = self.AceDatabase:RegisterNamespace("Mounts", {
     profile = {
 
       global = { mounts = {}, order = {}, total = 0 },
@@ -43,7 +50,7 @@ function DB:Init()
     }
   })
 
-  self["SettingsNS"] = self.AceDatabase:RegisterNamespace("Settings", {
+  self["Settings"] = self.AceDatabase:RegisterNamespace("Settings", {
     profile = {
       companions = {
         MessageFormat = "Help me %s you're my only hope!!!",
@@ -90,11 +97,11 @@ function DB:Init()
   self.AceDatabase.RegisterCallback(self, "OnProfileReset", "OnProfileEvent")
 end
 
-function DB:RefreshProfilePointers()
-  self.dbp = self.AceDatabase.profile
-  self.dbc = self.AceDatabase.char
+local function RefreshProfilePointers()
+  Data.profile = Data.AceDatabase.profile
+  Data.char = Data.AceDatabase.char
 end
 
-function DB:OnProfileEvent(...)
-  self:RefreshProfilePointers()
+function Data:OnProfileEvent(...)
+  RefreshProfilePointers()
 end

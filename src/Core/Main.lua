@@ -9,8 +9,8 @@ addOn:SetDefaultModuleState(false)
 addOn:SetDefaultModuleLibraries("AceEvent-3.0", "AceConsole-3.0")
 
 ---@class GMM_Addon
----@field DB table
----@field UI {ConfigFrames: table}
+---@field Data table
+---@field UI {ConfigFrames: table, [any]: any }
 ---@field Config table
 ---@field SlashCmd table
 ---@field Utilities table
@@ -18,7 +18,7 @@ addOn:SetDefaultModuleLibraries("AceEvent-3.0", "AceConsole-3.0")
 
 Mixin(addOn,
   {
-    DB = {},
+    Data = {},
     UI = {
       ConfigFrames = {} },
     Config = {},
@@ -35,7 +35,7 @@ Mixin(addOn,
   })
 
 function addOn:OnInitialize()
-  self.DB:Init()
+  self.Data:Init()
   self.UI:Init()
   self.Config:Init()
   self.SlashCmd:Init()
@@ -44,15 +44,3 @@ end
 function addOn:OnEnable() end
 
 function addOn:OnDisable() end
-
-function addOn:DeferIfInCombatLockdown(delegate, msg)
-  if InCombatLockdown() then
-    addOn:Print(msg);
-    addOn:RegisterEvent("PLAYER_REGEN_ENABLED", function(...)
-      addOn:UnregisterEvent("PLAYER_REGEN_ENABLED")
-      delegate()
-    end)
-  else
-    delegate()
-  end
-end

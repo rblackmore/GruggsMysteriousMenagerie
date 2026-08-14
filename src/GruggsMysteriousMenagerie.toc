@@ -16,9 +16,10 @@ Utils\Maps.lua
 # Core Addon Files
 Core\Main.lua
 Core\UI.lua
-Core\DB.lua
+Core\Data.lua
 Core\Config.lua
 Core\SlashCmd.lua
+Core\Utilities.lua
 
 # Companions Module
 Modules\Companions\Main.lua

@@ -4,7 +4,6 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
 local mod = addOn:GetModule("CompanionModule")
 
-mod.Config = mod.Config or {}
 local Config = mod.Config
 
 local AceConfig = LibStub("AceConfig-3.0")

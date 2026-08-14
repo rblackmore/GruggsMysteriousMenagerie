@@ -2,7 +2,6 @@ local addonName, addonTable = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0, GMM_Addon
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 
-addOn.SlashCmd = addOn.SlashCmd
 local SlashCmd = addOn.SlashCmd
 local Config = addOn.Config
 local Modules = addOn.Modules
@@ -42,7 +41,7 @@ function SlashCmd:HandleConfig(...)
 end
 
 function SlashCmd:HandleSummon(...)
-  local companionModule = addOn:GetModule("CompanionModule")
+  local companionModule = Modules["Pet"]()
   if companionModule then
     companionModule.Commands:Summon(...)
   end
