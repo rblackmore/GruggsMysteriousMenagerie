@@ -1,10 +1,11 @@
 local addonName, addonTable = ...
----@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0, GMM_Addon
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 
-addOn.SlashCmd = addOn.SlashCmd or {}
+addOn.SlashCmd = addOn.SlashCmd
 local SlashCmd = addOn.SlashCmd
 local Config = addOn.Config
+local Modules = addOn.Modules
 
 LibStub("AceConsole-3.0"):Embed(SlashCmd)
 
@@ -36,52 +37,58 @@ function SlashCmd:Init()
   self:RegisterChatCommand("test", "Test")
 end
 
+function SlashCmd:HandleConfig(...)
+  Config:OpenConfig({ ... })
+end
+
+function SlashCmd:HandleSummon(...)
+  local companionModule = addOn:GetModule("CompanionModule")
+  if companionModule then
+    companionModule.Commands:Summon(...)
+  end
+end
+
+function SlashCmd:HandleModule(moduleName, action, ...)
+  local moduleGetter = Modules[moduleName]
+
+  if not moduleGetter or type(moduleGetter) ~= "function" then
+    self:Print("Unknown Module: " .. moduleName)
+    return
+  end
+
+  local module = moduleGetter()
+
+  if not action then
+    self:Printf("Usage: /gmm %s <action> [items]", moduleName)
+    return
+  end
+
+  if module.Commands and module.Commands.HandleAction then
+    module.Commands:HandleAction(action, ...)
+  else
+    self:Printf("%s module does not support actions", moduleName)
+  end
+end
+
+local COMMANDS = {
+  ["config"] = SlashCmd.HandleConfig,
+  ["c"] = SlashCmd.HandleConfig,
+  ["summon"] = SlashCmd.HandleSummon,
+  ["s"] = SlashCmd.HandleSummon,
+  ["pet"] = function(self, action, ...) self:HandleModule("Pet", action, ...) end,
+  ["mount"] = function(self, action, ...) self:HandleModule("Mount", action, ...) end,
+}
+
 -- Main Command Handler for everyting /gmm
 function SlashCmd:HandleCommand(input)
   local args = GetArgTable(input)
 
-  local moduleName = args[1] and args[1]:lower()
-  local action = args[2] and args[2]:lower()
+  local root = args[1] and args[1]:lower() or "config"
 
-  if not moduleName or moduleName == "config" then
-    Config:OpenConfig({ select(2, args) })
-    return
-  end
-
-  if moduleName == "summon" then
-    local companionModule = addOn:GetModule("CompanionModule")
-    if companionModule then
-      companionModule.Commands:Summon(args[2])
-    end
-    return
-  end
-
-  local module = addOn.Modules[moduleName]
-
-  if not module then
-    self:Print("Unknown Module: " .. moduleName)
-    -- TODO: Show Help
-    return
-  end
-
-  if not action then
-    self:Printf("Usage: /gmm %s <action> [items]", moduleName)
-    -- TODO: Show Help
-    return
-  end
-
-  if module.Commands.HandleAction then
-    local items = { select(3, unpack(args)) }
-    module.Commands:HandleAction(action, items)
+  local command = COMMANDS[root]
+  if command then
+    command(self, select(2, unpack(args)))
   else
-    self:Printf("%s module does not support actions", moduleName)
+    self:Print("Unknown Command: " .. root)
   end
-
-  -- Default to opening Configuration.
-  if not action or string.len(action) == 0 then
-    Config:OpenConfig("comp")
-    return
-  end
-
-  addOn:Printf("Unknown Command Argument '%s'", action)
 end
