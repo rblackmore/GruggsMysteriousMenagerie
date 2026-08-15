@@ -21,6 +21,14 @@ local scopeMap = {
   outfit = { type = Enums.ListScope.Outfit, context = C_TransmogOutfitInfo.GetActiveOutfitID() },
   o = { type = Enums.ListScope.Outfit, context = C_TransmogOutfitInfo.GetActiveOutfitID() }
 }
+local function extractScope(items)
+  -- Returns <scope or global>, <items or {}>.
+  -- Steps:
+  -- 1. Check if items[1] is scope or items
+  -- 2. Get Scope from Map or just use Global.
+  -- 3. Determine if remaining args are Items.
+  -- 4. Return scope + Items or {}
+end
 
 --------------------------------------------------------------------------------
 --- Module Lifecycle Functions
@@ -36,50 +44,21 @@ function API:Init()
     mod:Printf("/gmmsummon command is deprecated and will be removed in a future update, use '/gmm summon' instead")
     API:HandleSummonCommand(...)
   end)
-
-  mod:RegisterMessage("GMM_COMPANION_SUMMONED", function(...) API:OnSummoned(...) end)
 end
 
 --------------------------------------------------------------------------------
 --- Module API
 --------------------------------------------------------------------------------
-
-function API:AnnounceSummon(petId)
-  local petInfo = C_PetJournal.GetPetInfoTableByPetID(petId)
-  local settings = self.db:GetCompanionSettings()
-  local name = settings["UseCustomName"] and petInfo.customName or petInfo.name
-  local msgFormat = settings["MessageFormat"] or "Welcome %s!"
-  local channelTarget = settings["Channel"] or "SAY"
-  C_ChatInfo.SendChatMessage(format(msgFormat, name), channelTarget)
-end
-
-function API:OnSummoned(_, petId, userInitiated)
-  if userInitiated then
-    self:AnnounceSummon(petId)
-  end
-end
-
 function API:HandleAction(action, items)
   -- items = { everything users passed after action }
   -- Could be: { "zone", "[item:123]", "[item:456]"}
   -- or: {"[item:123]", "[item:456]"}
   -- or: {"zone"} -- scope without items means action of list or clear.
 
-  local scope, itemsToProcess = self:ExtractScope(items);
+  local scope, itemsToProcess = extractScope(items);
 end
 
-function API:ExtractScope(items)
-  -- Returns <scope or global>, <items or {}>.
-  -- Steps:
-  -- 1. Check if items[1] is scope or items
-  -- 2. Get Scope from Map or just use Global.
-  -- 3. Determine if remaining args are Items.
-  -- 4. Return scope + Items or {}
-end
-
-function API:Add(scope, key1, key2, petGUIDs, weight)
-  self.db:AddPetsToScope(scope, key1, key2, petGUIDs, weight)
-end
+function API:Add() end
 
 function API:Remove() end
 

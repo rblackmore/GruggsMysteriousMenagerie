@@ -26,7 +26,7 @@ Mixin(mod, {
 function mod:OnInitialize()
   mod.Cache:Init()
   mod.Automation:Init()
-  mod.Config:Init(mod.Data)
+  mod.Config:Init()
 end
 
 function mod:OnEnable()

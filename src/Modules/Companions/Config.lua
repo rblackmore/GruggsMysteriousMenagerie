@@ -6,6 +6,7 @@ local mod = addOn:GetModule("CompanionModule")
 
 local Config = mod.Config
 local Data = addOn.Data
+local UI = addOn.UI
 local API = mod.API
 
 local AceConfig = LibStub("AceConfig-3.0")
@@ -15,7 +16,6 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 --- Local Helper Functions
 --------------------------------------------------------------------------------
 local function BuildOptionsTable()
-  local settingsProfile = Data.Settings.profile
   local announcementOptions = {
     ["MessageFormat"] = {
       type = "input",
@@ -192,7 +192,7 @@ function Config:Init()
   local options = BuildOptionsTable()
   AceConfig:RegisterOptionsTable("GMM_Companions", options)
   local frame, frameId = AceConfigDialog:AddToBlizOptions("GMM_Companions", "Companions", "GMM")
-  addOn.UI:RegisterConfigurationFrame("GMM_Companions", frame, frameId)
+  UI:RegisterConfigurationFrame("GMM_Companions", frame, frameId)
 end
 
 --------------------------------------------------------------------------------
