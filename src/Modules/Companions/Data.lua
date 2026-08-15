@@ -325,9 +325,3 @@ function API:BuildFallbackList()
 
   return list
 end
-
-function API:SetPetOfTheDay(petId)
-  local podSettings = self.settingsProfile.companions["Automation"]["petoftheday"]
-  podSettings.PetId = petId
-  podSettings.Date = date("*t")
-end

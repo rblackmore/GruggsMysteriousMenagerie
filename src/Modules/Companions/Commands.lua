@@ -5,63 +5,89 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 local mod = addOn:GetModule("CompanionModule")
 
 local API = mod.API
-local Enums = addonTable.Enums
+local Utilities = addOn.Utilities
 
 --------------------------------------------------------------------------------
 --- Local Functions and Constants
 --------------------------------------------------------------------------------
 
-local scopeMap = {
-  global = { type = Enums.ListScope.Global, context = nil },
-  g = { type = Enums.ListScope.Global, context = nil },
-  continent = { type = Enums.ListScope.Continent, context = C_Map.GetBestMapForUnit("player") },
-  c = { type = Enums.ListScope.Continent, context = C_Map.GetBestMapForUnit("player") },
-  zone = { type = Enums.ListScope.Zone, context = C_Map.GetBestMapForUnit("player") },
-  z = { type = Enums.ListScope.Zone, context = C_Map.GetBestMapForUnit("player") },
-  outfit = { type = Enums.ListScope.Outfit, context = C_TransmogOutfitInfo.GetActiveOutfitID() },
-  o = { type = Enums.ListScope.Outfit, context = C_TransmogOutfitInfo.GetActiveOutfitID() }
+local scopes = {
+  global = "global",
+  g = "global",
+  continent = "continent",
+  c = "continent",
+  zone = "zone",
+  z = "zone",
+  outfit = "outfit",
+  o = "outfit"
 }
-local function extractScope(items)
-  -- Returns <scope or global>, <items or {}>.
-  -- Steps:
-  -- 1. Check if items[1] is scope or items
-  -- 2. Get Scope from Map or just use Global.
-  -- 3. Determine if remaining args are Items.
-  -- 4. Return scope + Items or {}
+
+local function add(scope, petGUID)
+  if scope == scopes.global then
+    API:AddPetToGlobal(petGUID)
+  end
+
+  if scope == scopes.continent then
+    local success, continentID = Utilities:GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
+    API:AddPetToContinent(petGUID, continentID)
+  end
+
+  if scope == scopes.zone then
+    local mapId = C_Map.GetBestMapForUnit("player")
+    local success, continentId = Utilities:GetContinentIDForMap(mapId)
+    API:AddPetToZone(petGUID, continentId, mapId)
+  end
+
+  if scope == scopes.outfit then
+    local outfitId = C_TransmogOutfitInfo.GetActiveOutfitID()
+    API:AddPetToOutfit(petGUID, outfitId)
+  end
 end
 
---------------------------------------------------------------------------------
---- Module Lifecycle Functions
---------------------------------------------------------------------------------
+local function remove(scope, petGUID)
 
-function API:Init()
-  -- TODO: Remove these chat commands in a later update.
-  mod:RegisterChatCommand("gmsummon", function(...)
-    mod:Printf("/gmsummon command is deprecated and will be removed in a future update, use '/gmm summon' instead")
-    API:HandleSummonCommand(...)
-  end)
-  mod:RegisterChatCommand("gmmsummon", function(...)
-    mod:Printf("/gmmsummon command is deprecated and will be removed in a future update, use '/gmm summon' instead")
-    API:HandleSummonCommand(...)
-  end)
 end
+local function clear(scope) end
+local function list(scope) end
+
+local actions = {
+  add = "add",
+  remove = "remove",
+  clear = "clear",
+  list = "list"
+}
+
+local function getScopeAndItems(...)
+  local args = { ... }
+  local scope = scopes[args[1]]
+
+  if not scope then
+    return scopes.global, args[1]
+  end
+
+  return scope, args[2]
+end
+
+
 
 --------------------------------------------------------------------------------
 --- Module API
 --------------------------------------------------------------------------------
-function API:HandleAction(action, items)
-  -- items = { everything users passed after action }
+function API:HandleAction(action, ...)
+  -- ... = { everything users passed after action }
   -- Could be: { "zone", "[item:123]", "[item:456]"}
   -- or: {"[item:123]", "[item:456]"}
   -- or: {"zone"} -- scope without items means action of list or clear.
 
-  local scope, itemsToProcess = extractScope(items);
+  local scope, itemLink = getScopeAndItems(...);
+
+  if action == actions.add then
+    if LinkUtil.IsLinkType(itemLink, LinkTypes.BattlePet) then
+      local linkType, linkOptions, displayText = LinkUtil.ExtractLink(itemLink)
+      local options = { LinkUtil.SplitLinkOptions(linkOptions) }
+      local petGUID = options[7]
+      addOn:Printf("Adding %s to %s", displayText, scope)
+      add(scope, petGUID)
+    end
+  end
 end
-
-function API:Add() end
-
-function API:Remove() end
-
-function API:Clear() end
-
-function API:List() end

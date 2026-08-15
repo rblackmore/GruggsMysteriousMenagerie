@@ -12,7 +12,7 @@ LibStub("AceConsole-3.0"):Embed(SlashCmd)
 --- Local Functions and Constants
 --------------------------------------------------------------------------------
 
-local function GetArgTable(input)
+local function getArgTable(input)
   local args = {}
   local pos = 1
   local arg = nil
@@ -34,6 +34,16 @@ end
 function SlashCmd:Init()
   self:RegisterChatCommand("gmm", "HandleCommand")
   self:RegisterChatCommand("test", "Test")
+end
+
+function SlashCmd:Test(input)
+  local args = getArgTable(input)
+  local link = args[1]
+  local linkType, linkOptions, displayText = LinkUtil.ExtractLink(link)
+  local options = { LinkUtil.SplitLinkOptions(linkOptions) }
+  addOn:Printf("Type %s", linkType)
+  addOn:Printf("PetGUID %s", options[7])
+  addOn:Printf("Pet Name: %s", displayText)
 end
 
 function SlashCmd:HandleConfig(...)
@@ -68,14 +78,14 @@ function SlashCmd:HandleModule(moduleName, action, ...)
   local module = moduleGetter()
 
   if not action then
-    self:Printf("Usage: /gmm %s <action> [items]", moduleName)
+    self:Printf("Usage: /gmm %s <action> [items]", moduleName:lower())
     return
   end
 
   if module.API and module.API.HandleAction then
     module.API:HandleAction(action, ...)
   else
-    self:Printf("%s module does not support actions", moduleName)
+    self:Printf("%s module does not support actions", moduleName:lower())
   end
 end
 
@@ -85,13 +95,14 @@ local COMMANDS = {
   ["summon"] = SlashCmd.HandleSummon,
   ["s"] = SlashCmd.HandleSummon,
   ["setpod"] = SlashCmd.HandleSetPetOfTheDay,
+  ["pod"] = SlashCmd.HandleSetPetOfTheDay,
   ["pet"] = function(self, action, ...) self:HandleModule("Pet", action, ...) end,
   ["mount"] = function(self, action, ...) self:HandleModule("Mount", action, ...) end,
 }
 
 -- Main Command Handler for everyting /gmm
 function SlashCmd:HandleCommand(input)
-  local args = GetArgTable(input)
+  local args = getArgTable(input)
 
   local root = args[1] and args[1]:lower() or "config"
 
