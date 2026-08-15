@@ -15,3 +15,15 @@ function Utilities:DispatchIfInCombatLockdown(action, msg)
     action()
   end
 end
+
+function Utilities:GetContinentIDForMap(mapID)
+  local info = mapID and C_Map.GetMapInfo(mapID)
+  while info do
+    if info.mapType == Enum.UIMapType.Continent then
+      return true, info.mapID
+    end
+    if not info.parentMapID then break end
+    info = C_Map.GetMapInfo(info.parentMapID)
+  end
+  return false, nil
+end

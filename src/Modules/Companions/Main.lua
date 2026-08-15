@@ -20,7 +20,7 @@ Mixin(mod, {
 })
 
 function mod:OnInitialize()
-  mod.Cache:Init(mod.Data)
+  mod.Cache:Init()
   mod.Core:Init(mod.Data, mod.Cache)
   mod.Config:Init(mod.Data)
 end

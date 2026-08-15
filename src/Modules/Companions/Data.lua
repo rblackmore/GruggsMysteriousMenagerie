@@ -6,7 +6,7 @@ local mod = addOn:GetModule("CompanionModule")
 
 local Data = addOn.Data
 local API = mod.API
-local Maps = addonTable.Maps
+local Utilities = addOn.Utilities
 
 --------------------------------------------------------------------------------
 --- Local
@@ -97,6 +97,57 @@ local function ensureOutfit(outfitID)
   return o
 end
 
+local function listHasPets(list)
+  if not list then
+    return false
+  end
+  if type(list.total) == "number" and list.total > 0 then
+    return true
+  end
+
+  return list.order and #list.order > 0
+end
+
+local function getListFor(outfitID, mapID, continentID)
+  local dbp = Data.Companions.profile
+  local dbc = Data.Companions.char
+
+  -- 1) Outfit
+  if outfitID and dbc.outfits then
+    local outfit = dbc.outfits[outfitID]
+    if listHasPets(outfit) then
+      return outfit
+    end
+  end
+
+  -- 2) Zone
+  if continentID and mapID and dbp.zones then
+    local continent = dbp.zones[continentID]
+    if continent then
+      local zone = continent[mapID]
+      if listHasPets(zone) then
+        return zone
+      end
+    end
+  end
+
+  -- 3) Continent
+  if continentID and dbp.continents then
+    local continent = dbp.continents[continentID]
+    if listHasPets(continent) then
+      return continent
+    end
+  end
+
+  -- 4 ) Global
+  if dbp.global and listHasPets(dbp.global) then
+    return dbp.global
+  end
+
+  -- 5) Fallback should be handled by Cache to avoid rebuilding each time on DB side
+  return nil
+end
+
 local function FilterExistingPetGUIDs(petsSet)
   if not petsSet then return nil end
   local filtered = {}
@@ -109,18 +160,7 @@ local function FilterExistingPetGUIDs(petsSet)
   return filtered
 end
 
-local function ListHasPets(list)
-  if not list then
-    return false
-  end
-  if type(list.total) == "number" and list.total > 0 then
-    return true
-  end
-  if list.order and #list.order > 0 then
-    return true
-  end
-  return false
-end
+
 
 --------------------------------------------------------------------------------
 --- Database Module API
@@ -269,54 +309,30 @@ function API:RemovePetFromOutfit(petGUID, outfitID)
   return removed, removed and "Pet removed from outfit List" or "Pet not found in outfit list"
 end
 
-function API:GetEffectivePetList()
+function API:GetCurrentContextPetList()
   local outfitID = C_TransmogOutfitInfo.GetActiveOutfitID()
   local mapID = C_Map.GetBestMapForUnit("player")
-  local continentID = Maps:GetContinentIDForMap(mapID)
+  local _, continentID = Utilities:GetContinentIDForMap(mapID)
 
-  return self:GetListFor(outfitID, mapID, continentID)
+  local list = getListFor(outfitID, mapID, continentID)
+  if not list then
+    list = API:BuildFallbackList()
+  end
+  return list
 end
 
-function API:GetListFor(outfitID, mapID, continentID)
-  -- 1) Outfit
-  if outfitID and self.dbc.outfits and ListHasPets(self.dbc.outfits[outfitID]) then
-    return self.dbc.outfits[outfitID]
-  end
+function API:BuildFallbackList()
+  local dbp = Data.Settings.profile
+  local useFavorites = dbp.companions.UseFavoritesFallback
 
-  -- 2) Zone
-  if continentID and mapID and self.dbp.zones and self.dbp.zones[continentID] then
-    local zl = self.dbp.zones[continentID][mapID]
-    if ListHasPets(zl) then
-      return zl
-    end
-  end
-
-  -- 3) Continent
-  if continentID and self.dbp.continents and ListHasPets(self.dbp.continents[continentID]) then
-    return self.dbp.continents[continentID]
-  end
-
-  -- 4 ) Global
-  if self.dbp.global and ListHasPets(self.dbp.global) then
-    return self.dbp.global
-  end
-
-  -- 5) Fallback should be handled by Cache to avoid rebuilding each time on DB side
-  return nil
-end
-
-function API:GetFallbackList()
-  local settings = self:GetCompanionSettings()
-  local useFavorites = settings["UseFavoritesFallback"]
-
-  local list = { pets = {}, order = {}, total = 0 }
+  local list = createEmptyList()
   local petGUIDs = C_PetJournal.GetOwnedPetIDs()
 
   for i = 1, #petGUIDs do
     local speciesID, _, _, _, _, _, isFavorite = C_PetJournal.GetPetInfoByPetID(petGUIDs[i])
     if speciesID then
       if not useFavorites or isFavorite then
-        self:AddPet(list, petGUIDs[i])
+        addPetToList(list, petGUIDs[i])
       end
     end
   end
