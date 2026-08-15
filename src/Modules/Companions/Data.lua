@@ -4,8 +4,7 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
 local mod = addOn:GetModule("CompanionModule")
 
-mod.DB = mod.DB or {}
-local DB = mod.DB
+local Data = mod.Data
 local Enums = addonTable.Enums
 local Maps = addonTable.Maps
 
@@ -40,9 +39,9 @@ end
 --------------------------------------------------------------------------------
 --- Database Module API
 --------------------------------------------------------------------------------
-function DB:Init()
-  self.CompanionsNS = addOn.DB.CompanionNS
-  self.SettingsNS = addOn.DB.SettingsNS
+function Data:Init()
+  self.CompanionsNS = addOn.Data.Companions
+  self.SettingsNS = addOn.Data.Settings
 
   self:RefreshProfilePointers()
 
@@ -51,7 +50,7 @@ function DB:Init()
   self.CompanionsNS.RegisterCallback(self, "OnProfileReset", "OnProfileEvent")
 end
 
-function DB:RefreshProfilePointers()
+function Data:RefreshProfilePointers()
   if not self.CompanionsNS then return end
 
   self.dbp = self.CompanionsNS.profile
@@ -59,12 +58,12 @@ function DB:RefreshProfilePointers()
   self.settingsProfile = self.SettingsNS and self.SettingsNS.profile
 end
 
-function DB:OnProfileEvent(...)
+function Data:OnProfileEvent(...)
   self:RefreshProfilePointers()
   -- self:RefreshUI() if UI References Data
 end
 
-function DB:EnsureGlobal()
+function Data:EnsureGlobal()
   self.dbp.global = self.dbp.global or { pets = {}, order = {}, weights = {}, total = 0 }
 
   self.dbp.global.pets = self.dbp.global.pets or {}
@@ -75,7 +74,7 @@ function DB:EnsureGlobal()
   return self.dbp.global
 end
 
-function DB:EnsureContinent(continentID)
+function Data:EnsureContinent(continentID)
   self.dbp.continents = self.dbp.continents or {}
   local c = self.dbp.continents[continentID]
   if not c then
@@ -85,7 +84,7 @@ function DB:EnsureContinent(continentID)
   return c
 end
 
-function DB:EnsureZone(continentID, zoneID)
+function Data:EnsureZone(continentID, zoneID)
   self.dbp.zones = self.dbp.zones or {}
   self.dbp.zones[continentID] = self.dbp.zones[continentID] or {}
   local z = self.dbp.zones[continentID][zoneID]
@@ -96,7 +95,7 @@ function DB:EnsureZone(continentID, zoneID)
   return z
 end
 
-function DB:EnsureOutfit(outfitID)
+function Data:EnsureOutfit(outfitID)
   self.dbc.outfits = self.dbc.outfits or {}
   local o = self.dbc.outfits[outfitID]
   if not o then
@@ -106,11 +105,11 @@ function DB:EnsureOutfit(outfitID)
   return o
 end
 
-function DB:RemoveGlobal()
+function Data:RemoveGlobal()
   self.dbp.global = { pets = {}, order = {}, weights = {}, total = 0 }
 end
 
-function DB:RemoveContinent(continentID)
+function Data:RemoveContinent(continentID)
   if self.dbp.continents then
     self.dbp.continents[continentID] = nil
     return true
@@ -118,7 +117,7 @@ function DB:RemoveContinent(continentID)
   return false
 end
 
-function DB:RemoveZone(continentID, zoneID)
+function Data:RemoveZone(continentID, zoneID)
   if self.dbp.zones[continentID] and self.dbp.zones[continentID][zoneID] then
     self.dbp.zones[continentID][zoneID] = nil
     return true
@@ -127,7 +126,7 @@ function DB:RemoveZone(continentID, zoneID)
   return false
 end
 
-function DB:RemoveOutfit(outfitID)
+function Data:RemoveOutfit(outfitID)
   if self.dbc.outfits and self.dbc.outfits[outfitID] then
     self.dbc.outfits[outfitID] = nil
     return true
@@ -135,7 +134,7 @@ function DB:RemoveOutfit(outfitID)
   return false
 end
 
-function DB:AddPet(list, petGUID, weight)
+function Data:AddPet(list, petGUID, weight)
   list.pets = list.pets or {}
   list.order = list.order or {}
   list.weights = list.weights or {}
@@ -155,7 +154,7 @@ function DB:AddPet(list, petGUID, weight)
   return false
 end
 
-function DB:AddPetToScope(scope, key1, key2, petGUID, weight)
+function Data:AddPetToScope(scope, key1, key2, petGUID, weight)
   local list = nil
   if scope == Enums.ListScope.Outfit then
     list = self:EnsureOutfit(key1)     -- key1 = outfitID
@@ -178,29 +177,29 @@ function DB:AddPetToScope(scope, key1, key2, petGUID, weight)
   return true, added and "Added" or "Updated"
 end
 
-function DB:AddPetsToScope(scope, key1, key2, petGUIDs, weight)
+function Data:AddPetsToScope(scope, key1, key2, petGUIDs, weight)
   for _, v in ipairs(petGUIDs) do
     self:AddPetToScope(scope, key1, key2, v, weight);
   end
 end
 
-function DB:AddPetToGlobal(petGUID, weight)
+function Data:AddPetToGlobal(petGUID, weight)
   self:AddPetToScope(Enums.ListScope.Global, nil, nil, petGUID, weight);
 end
 
-function DB:AddPetToContinent(petGUID, continentID, weight)
+function Data:AddPetToContinent(petGUID, continentID, weight)
   self:AddPetToScope(Enums.ListScope.Continent, continentID, nil, petGUID, weight);
 end
 
-function DB:AddPetToZone(petGUID, continentID, zoneID, weight)
+function Data:AddPetToZone(petGUID, continentID, zoneID, weight)
   self:AddPetToScope(Enums.ListScope.Zone, continentID, zoneID, petGUID, weight);
 end
 
-function DB:AddPetToOutfit(petGUID, outfitID, weight)
+function Data:AddPetToOutfit(petGUID, outfitID, weight)
   self:AddPetToScope(Enums.ListScope.Outfit, outfitID, nil, petGUID, weight);
 end
 
-function DB:RemovePet(list, petGUID)
+function Data:RemovePet(list, petGUID)
   if list and list.pets and list.pets[petGUID] then
     list.pets[petGUID] = nil
     if list.weights then list.weights[petGUID] = nil end
@@ -216,7 +215,7 @@ function DB:RemovePet(list, petGUID)
   return false
 end
 
-function DB:GetEffectivePetList()
+function Data:GetEffectivePetList()
   local outfitID = C_TransmogOutfitInfo.GetActiveOutfitID()
   local mapID = C_Map.GetBestMapForUnit("player")
   local continentID = Maps:GetContinentIDForMap(mapID)
@@ -224,7 +223,7 @@ function DB:GetEffectivePetList()
   return self:GetListFor(outfitID, mapID, continentID)
 end
 
-function DB:GetListFor(outfitID, mapID, continentID)
+function Data:GetListFor(outfitID, mapID, continentID)
   -- 1) Outfit
   if outfitID and self.dbc.outfits and ListHasPets(self.dbc.outfits[outfitID]) then
     return self.dbc.outfits[outfitID]
@@ -252,7 +251,7 @@ function DB:GetListFor(outfitID, mapID, continentID)
   return nil
 end
 
-function DB:GetFallbackList()
+function Data:GetFallbackList()
   local settings = self:GetCompanionSettings()
   local useFavorites = settings["UseFavoritesFallback"]
 
@@ -271,20 +270,20 @@ function DB:GetFallbackList()
   return list
 end
 
-function DB:SetPetOfTheDay(petId)
+function Data:SetPetOfTheDay(petId)
   local podSettings = self.settingsProfile.companions["Automation"]["petoftheday"]
   podSettings.PetId = petId
   podSettings.Date = date("*t")
 end
 
-function DB:GetCompanionSettings()
+function Data:GetCompanionSettings()
   if not self.settingsProfile or not self.settingsProfile.companions then
     return {}
   end
   return self.settingsProfile.companions
 end
 
-function DB:GetCompanionNamespace()
+function Data:GetCompanionNamespace()
   if not self.CompanionsNS then
     return {}
   end

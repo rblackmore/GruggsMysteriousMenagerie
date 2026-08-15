@@ -7,7 +7,7 @@ local mod = addOn:GetModule("CompanionModule")
 mod.Core = mod.Core or {}
 mod.Core.EventHandler = {}
 mod.Core.Automation = mod.Core.Automation or {}
-
+  
 local Core = mod.Core
 
 LibStub("AceEvent-3.0"):Embed(Core.EventHandler)

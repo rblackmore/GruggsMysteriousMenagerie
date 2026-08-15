@@ -9,14 +9,14 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 local mod = addOn:NewModule("CompanionModule", "AceTimer-3.0");
 
 ---@class GMM_Companion
----@field DB table
+---@field Data table
 ---@field Core table,
 ---@field Commands table,
 ---@field Config table,
 ---@field Cache table
 
 Mixin(mod, {
-  DB = {},
+  Data = {},
   Core = {},
   Commands = {},
   Config = {},
@@ -24,11 +24,11 @@ Mixin(mod, {
 })
 
 function mod:OnInitialize()
-  mod.DB:Init()
-  mod.Cache:Init(mod.DB)
-  mod.Core:Init(mod.DB, mod.Cache)
-  mod.Commands:Init(mod.DB, mod.Core)
-  mod.Config:Init(mod.DB)
+  mod.Data:Init()
+  mod.Cache:Init(mod.Data)
+  mod.Core:Init(mod.Data, mod.Cache)
+  mod.Commands:Init(mod.Data, mod.Core)
+  mod.Config:Init(mod.Data)
 end
 
 function mod:OnEnable()

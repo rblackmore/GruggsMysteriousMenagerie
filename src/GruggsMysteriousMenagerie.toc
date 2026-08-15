@@ -23,7 +23,7 @@ Core\Utilities.lua
 
 # Companions Module
 Modules\Companions\Main.lua
-Modules\Companions\DB.lua
+Modules\Companions\Data.lua
 Modules\Companions\Config.lua
 Modules\Companions\Core.lua
 Modules\Companions\Cache.lua
