@@ -4,13 +4,99 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
 local mod = addOn:GetModule("CompanionModule")
 
-local Data = mod.Data
-local Enums = addonTable.Enums
+local Data = addOn.Data
+local API = mod.API
 local Maps = addonTable.Maps
 
 --------------------------------------------------------------------------------
---- Local Helper Functions
+--- Local
 --------------------------------------------------------------------------------
+
+local function addPetToList(list, petGUID, weight)
+  list.pets = list.pets or {}
+  list.order = list.order or {}
+  list.weights = list.weights or {}
+  list.total = list.total or 0
+
+  if not list.pets[petGUID] then -- Add New Pet
+    list.pets[petGUID] = true
+    table.insert(list.order, petGUID)
+    list.weights[petGUID] = tonumber(weight) or 1.0
+    list.total = (list.total or 0) + 1
+    return true
+  else
+    if weight ~= nil then -- Update existing pet Weight
+      list.weights[petGUID] = tonumber(weight) or 1.0
+    end
+  end
+  return false
+end
+
+local function removePetFromList(list, petGUID)
+  if not (list and list.pets and list.pets[petGUID]) then
+    return false
+  end
+
+  list.pets[petGUID] = nil
+  if list.weights then
+    list.weights[petGUID] = nil
+  end
+
+  for i, id in ipairs(list.order or {}) do
+    if id == petGUID then
+      table.remove(list.order, i)
+      break
+    end
+  end
+  list.total = math.max((list.total or 1) - 1, 0)
+  return true
+end
+
+local function createEmptyList()
+  return { pets = {}, order = {}, weights = {}, total = 0 }
+end
+
+local function ensureGlobal()
+  local dbp = Data.Companions.profile
+  dbp.global = dbp.global or createEmptyList()
+  return dbp
+end
+
+local function ensureContinent(continentID)
+  local dbp = Data.Companions.profile
+  dbp.continents = dbp.continents or {}
+  local c = dbp.continents[continentID]
+  if not c then
+    c = createEmptyList()
+    dbp.continents[continentID] = c
+  end
+  return c
+end
+
+local function ensureZone(continentID, zoneID)
+  local dbp = Data.Companions.profile
+  dbp.zones = dbp.zones or {}
+  dbp.zones[continentID] = dbp.zones[continentID] or {}
+
+  local z = dbp.zones[continentID][zoneID]
+  if not z then
+    z = createEmptyList()
+    dbp.zones[continentID][zoneID] = z
+  end
+  return z
+end
+
+local function ensureOutfit(outfitID)
+  local dbc = Data.Companions.char
+  dbc.outfits = dbc.outfits or {}
+  local o = dbc.outfits[outfitID]
+  if not o then
+    o = createEmptyList()
+    dbc.outfits[outfitID] = o
+  end
+  return o
+end
+
 local function FilterExistingPetGUIDs(petsSet)
   if not petsSet then return nil end
   local filtered = {}
@@ -39,183 +125,151 @@ end
 --------------------------------------------------------------------------------
 --- Database Module API
 --------------------------------------------------------------------------------
-function Data:Init()
-  self.CompanionsNS = addOn.Data.Companions
-  self.SettingsNS = addOn.Data.Settings
 
-  self:RefreshProfilePointers()
-
-  self.CompanionsNS.RegisterCallback(self, "OnProfileChanged", "OnProfileEvent")
-  self.CompanionsNS.RegisterCallback(self, "OnProfileCopied", "OnProfileEvent")
-  self.CompanionsNS.RegisterCallback(self, "OnProfileReset", "OnProfileEvent")
-end
-
-function Data:RefreshProfilePointers()
-  if not self.CompanionsNS then return end
-
-  self.dbp = self.CompanionsNS.profile
-  self.dbc = self.CompanionsNS.char
-  self.settingsProfile = self.SettingsNS and self.SettingsNS.profile
-end
-
-function Data:OnProfileEvent(...)
-  self:RefreshProfilePointers()
-  -- self:RefreshUI() if UI References Data
-end
-
-function Data:EnsureGlobal()
-  self.dbp.global = self.dbp.global or { pets = {}, order = {}, weights = {}, total = 0 }
-
-  self.dbp.global.pets = self.dbp.global.pets or {}
-  self.dbp.global.order = self.dbp.global.order or {}
-  self.dbp.global.weights = self.dbp.global.weights or {}
-  self.dbp.global.total = self.dbp.global.total or 0
-
-  return self.dbp.global
-end
-
-function Data:EnsureContinent(continentID)
-  self.dbp.continents = self.dbp.continents or {}
-  local c = self.dbp.continents[continentID]
-  if not c then
-    c = { pets = {}, order = {}, total = 0 }
-    self.dbp.continents[continentID] = c
-  end
-  return c
-end
-
-function Data:EnsureZone(continentID, zoneID)
-  self.dbp.zones = self.dbp.zones or {}
-  self.dbp.zones[continentID] = self.dbp.zones[continentID] or {}
-  local z = self.dbp.zones[continentID][zoneID]
-  if not z then
-    z = { pets = {}, order = {}, total = 0 }
-    self.dbp.zones[continentID][zoneID] = z
-  end
-  return z
-end
-
-function Data:EnsureOutfit(outfitID)
-  self.dbc.outfits = self.dbc.outfits or {}
-  local o = self.dbc.outfits[outfitID]
-  if not o then
-    o = { pets = {}, order = {}, total = 0 }
-    self.dbc.outfits[outfitID] = o
-  end
-  return o
-end
-
-function Data:RemoveGlobal()
-  self.dbp.global = { pets = {}, order = {}, weights = {}, total = 0 }
-end
-
-function Data:RemoveContinent(continentID)
-  if self.dbp.continents then
-    self.dbp.continents[continentID] = nil
-    return true
-  end
-  return false
-end
-
-function Data:RemoveZone(continentID, zoneID)
-  if self.dbp.zones[continentID] and self.dbp.zones[continentID][zoneID] then
-    self.dbp.zones[continentID][zoneID] = nil
-    return true
-  end
-
-  return false
-end
-
-function Data:RemoveOutfit(outfitID)
-  if self.dbc.outfits and self.dbc.outfits[outfitID] then
-    self.dbc.outfits[outfitID] = nil
-    return true
-  end
-  return false
-end
-
-function Data:AddPet(list, petGUID, weight)
-  list.pets = list.pets or {}
-  list.order = list.order or {}
-  list.weights = list.weights or {}
-  list.total = list.total or 0
-
-  if not list.pets[petGUID] then -- Add New Pet
-    list.pets[petGUID] = true
-    table.insert(list.order, petGUID)
-    list.weights[petGUID] = tonumber(weight) or 1.0
-    list.total = (list.total or 0) + 1
-    return true
-  else
-    if weight ~= nil then -- Update existing pet Weight
-      list.weights[petGUID] = tonumber(weight) or 1.0
-    end
-  end
-  return false
-end
-
-function Data:AddPetToScope(scope, key1, key2, petGUID, weight)
-  local list = nil
-  if scope == Enums.ListScope.Outfit then
-    list = self:EnsureOutfit(key1)     -- key1 = outfitID
-  elseif scope == Enums.ListScope.Zone then
-    list = self:EnsureZone(key1, key2) -- key1 = continentId, key2 = zoneID
-  elseif scope == Enums.ListScope.Continent then
-    list = self:EnsureContinent(key1)  -- key1 = continentID
-  elseif scope == Enums.ListScope.Global then
-    list = self:EnsureGlobal()
-  else
-    return false, "Invalid Scope"
-  end
+function API:AddPetToGlobal(petGUID, weight)
   if not petGUID then
-    return false, "Missing PetGUID"
+    return false, "Missing petGUID"
   end
 
   local speciesID = C_PetJournal.GetPetInfoByPetID(petGUID)
-  if not speciesID then return false, "Invalid PetGUID" end
-  local added = self:AddPet(list, petGUID, weight)
+  if not speciesID then
+    return false, "Invalid petGUID"
+  end
+  local global = ensureGlobal()
+  local added = addPetToList(global, petGUID, weight)
   return true, added and "Added" or "Updated"
 end
 
-function Data:AddPetsToScope(scope, key1, key2, petGUIDs, weight)
-  for _, v in ipairs(petGUIDs) do
-    self:AddPetToScope(scope, key1, key2, v, weight);
+function API:AddPetToContinent(petGUID, continentID, weight)
+  if not petGUID then
+    return false, "Missing petGUID"
   end
-end
 
-function Data:AddPetToGlobal(petGUID, weight)
-  self:AddPetToScope(Enums.ListScope.Global, nil, nil, petGUID, weight);
-end
-
-function Data:AddPetToContinent(petGUID, continentID, weight)
-  self:AddPetToScope(Enums.ListScope.Continent, continentID, nil, petGUID, weight);
-end
-
-function Data:AddPetToZone(petGUID, continentID, zoneID, weight)
-  self:AddPetToScope(Enums.ListScope.Zone, continentID, zoneID, petGUID, weight);
-end
-
-function Data:AddPetToOutfit(petGUID, outfitID, weight)
-  self:AddPetToScope(Enums.ListScope.Outfit, outfitID, nil, petGUID, weight);
-end
-
-function Data:RemovePet(list, petGUID)
-  if list and list.pets and list.pets[petGUID] then
-    list.pets[petGUID] = nil
-    if list.weights then list.weights[petGUID] = nil end
-    for i, id in ipairs(list.order) do
-      if id == petGUID then
-        table.remove(list.order, i)
-        break
-      end
-    end
-    list.total = math.max((list.total or 1) - 1, 0)
-    return true
+  if not continentID then
+    return false, "Missing continentID"
   end
-  return false
+
+  local speciesID = C_PetJournal.GetPetInfoByPetID(petGUID)
+  if not speciesID then
+    return false, "Invalid petGUID"
+  end
+
+  local continent = ensureContinent(continentID)
+  local added = addPetToList(continent, petGUID, weight)
+  return true, added and "Added" or "Updated"
 end
 
-function Data:GetEffectivePetList()
+function API:AddPetToZone(petGUID, continentID, zoneID, weight)
+  if not petGUID then
+    return false, "Missing petGUID"
+  end
+
+  if not continentID or not zoneID then
+    return false, "Missing continentID or zoneID"
+  end
+
+  local speciesID = C_PetJournal.GetPetInfoByPetID(petGUID)
+  if not speciesID then
+    return false, "Invalid petGUID"
+  end
+
+  local zone = ensureZone(continentID, zoneID)
+  local added = addPetToList(zone, petGUID, weight)
+  return true, added and "Added" or "Updated"
+end
+
+function API:AddPetToOutfit(petGUID, outfitID, weight)
+  if not petGUID then
+    return false, "Missing petGUID"
+  end
+
+  if not outfitID then
+    return false, "Missing outfitID"
+  end
+
+  local speciesID = C_PetJournal.GetPetInfoByPetID(petGUID)
+  if not speciesID then
+    return false, "Invalid petGUID"
+  end
+
+  local outfit = ensureOutfit(outfitID)
+  local added = addPetToList(outfit, petGUID, weight)
+  return true, added and "Added" or "Updated"
+end
+
+function API:RemovePetFromGlobal(petGUID)
+  if not petGUID then
+    return false, "Missing petGUID"
+  end
+
+  local speciesID = C_PetJournal.GetPetInfoByPetID(petGUID)
+  if not speciesID then
+    return false, "Invalid petGUID"
+  end
+
+  local global = ensureGlobal()
+  local removed = removePetFromList(global, petGUID)
+  return removed, removed and "Pet removed from Global List" or "Pet not found in global list"
+end
+
+function API:RemovePetFromContinent(petGUID, continentID)
+  if not petGUID then
+    return false, "Missing petGUID"
+  end
+
+  if not continentID then
+    return false, 'Missing continentID'
+  end
+
+  local speciesID = C_PetJournal.GetPetInfoByPetID(petGUID)
+  if not speciesID then
+    return false, "Invalid petGUID"
+  end
+
+  local continent = ensureContinent(continentID)
+  local removed = removePetFromList(continent, petGUID)
+  return removed, removed and "Pet removed from continent List" or "Pet not found in continent list"
+end
+
+function API:RemovePetFromZone(petGUID, continentID, zoneID)
+  if not petGUID then
+    return false, "Missing petGUID"
+  end
+
+  if not continentID or not zoneID then
+    return false, 'Missing continentID or zoneID'
+  end
+
+  local speciesID = C_PetJournal.GetPetInfoByPetID(petGUID)
+  if not speciesID then
+    return false, "Invalid petGUID"
+  end
+
+  local zone = ensureZone(continentID, zoneID)
+  local removed = removePetFromList(zone, petGUID)
+  return removed, removed and "Pet removed from zone List" or "Pet not found in zone list"
+end
+
+function API:RemovePetFromOutfit(petGUID, outfitID)
+  if not petGUID then
+    return false, "Missing petGUID"
+  end
+
+  if not outfitID then
+    return false, 'Missing outfitID'
+  end
+
+  local speciesID = C_PetJournal.GetPetInfoByPetID(petGUID)
+  if not speciesID then
+    return false, "Invalid petGUID"
+  end
+
+  local outfit = ensureOutfit(outfitID)
+  local removed = removePetFromList(outfit, petGUID)
+  return removed, removed and "Pet removed from outfit List" or "Pet not found in outfit list"
+end
+
+function API:GetEffectivePetList()
   local outfitID = C_TransmogOutfitInfo.GetActiveOutfitID()
   local mapID = C_Map.GetBestMapForUnit("player")
   local continentID = Maps:GetContinentIDForMap(mapID)
@@ -223,7 +277,7 @@ function Data:GetEffectivePetList()
   return self:GetListFor(outfitID, mapID, continentID)
 end
 
-function Data:GetListFor(outfitID, mapID, continentID)
+function API:GetListFor(outfitID, mapID, continentID)
   -- 1) Outfit
   if outfitID and self.dbc.outfits and ListHasPets(self.dbc.outfits[outfitID]) then
     return self.dbc.outfits[outfitID]
@@ -251,7 +305,7 @@ function Data:GetListFor(outfitID, mapID, continentID)
   return nil
 end
 
-function Data:GetFallbackList()
+function API:GetFallbackList()
   local settings = self:GetCompanionSettings()
   local useFavorites = settings["UseFavoritesFallback"]
 
@@ -270,22 +324,8 @@ function Data:GetFallbackList()
   return list
 end
 
-function Data:SetPetOfTheDay(petId)
+function API:SetPetOfTheDay(petId)
   local podSettings = self.settingsProfile.companions["Automation"]["petoftheday"]
   podSettings.PetId = petId
   podSettings.Date = date("*t")
-end
-
-function Data:GetCompanionSettings()
-  if not self.settingsProfile or not self.settingsProfile.companions then
-    return {}
-  end
-  return self.settingsProfile.companions
-end
-
-function Data:GetCompanionNamespace()
-  if not self.CompanionsNS then
-    return {}
-  end
-  return self.CompanionsNS
 end

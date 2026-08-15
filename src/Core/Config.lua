@@ -76,8 +76,10 @@ function Config:OpenConfig(args)
     local categorySelect = Categories[args[1]]
 
     if categorySelect and addOn.UI.ConfigFrames["GMM_" .. categorySelect] then
+      addOn:Printf("Catergory Selected: %s", categorySelect)
       Settings.OpenToCategory(addOn.UI.ConfigFrames["GMM_" .. categorySelect]["frameId"])
     else
+      addOn:Printf("Opening Configuraiton Default")
       Settings.OpenToCategory(addOn.UI.ConfigFrames["GMM_Configuration"]["frameId"])
     end
   end, "Opening Settings when out of Combat")
