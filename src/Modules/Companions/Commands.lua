@@ -4,9 +4,8 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
 local mod = addOn:GetModule("CompanionModule")
 
-local Commands = mod.Commands
+local API = mod.API
 local Enums = addonTable.Enums
-local Maps = addonTable.Maps
 
 --------------------------------------------------------------------------------
 --- Local Functions and Constants
@@ -27,42 +26,25 @@ local scopeMap = {
 --- Module Lifecycle Functions
 --------------------------------------------------------------------------------
 
-function Commands:Init(db, core)
-  self.db = db
-  self.core = core
+function API:Init()
   -- TODO: Remove these chat commands in a later update.
   mod:RegisterChatCommand("gmsummon", function(...)
     mod:Printf("/gmsummon command is deprecated and will be removed in a future update, use '/gmm summon' instead")
-    Commands:Summon(...)
+    API:HandleSummonCommand(...)
   end)
   mod:RegisterChatCommand("gmmsummon", function(...)
     mod:Printf("/gmmsummon command is deprecated and will be removed in a future update, use '/gmm summon' instead")
-    Commands:Summon(...)
+    API:HandleSummonCommand(...)
   end)
 
-  mod:RegisterMessage("GMM_COMPANION_SUMMONED", function(...) Commands:OnSummoned(...) end)
+  mod:RegisterMessage("GMM_COMPANION_SUMMONED", function(...) API:OnSummoned(...) end)
 end
 
 --------------------------------------------------------------------------------
 --- Module API
 --------------------------------------------------------------------------------
 
-function Commands:Summon(...)
-  local arg1 = select(1, ...) and select(1, ...):lower()
-
-  if arg1 and arg1 == "setpod" or arg1 == "pod" then
-    self.core:SetActivePetAsPetOfTheDay()
-    return
-  end
-
-  if arg1 and arg1 == "dismiss" then
-    self.core:SummonOrDismissRandomCompanion(true)
-  else
-    self.core:RequestCompanion(true)
-  end
-end
-
-function Commands:AnnounceSummon(petId)
+function API:AnnounceSummon(petId)
   local petInfo = C_PetJournal.GetPetInfoTableByPetID(petId)
   local settings = self.db:GetCompanionSettings()
   local name = settings["UseCustomName"] and petInfo.customName or petInfo.name
@@ -71,13 +53,13 @@ function Commands:AnnounceSummon(petId)
   C_ChatInfo.SendChatMessage(format(msgFormat, name), channelTarget)
 end
 
-function Commands:OnSummoned(_, petId, userInitiated)
+function API:OnSummoned(_, petId, userInitiated)
   if userInitiated then
     self:AnnounceSummon(petId)
   end
 end
 
-function Commands:HandleAction(action, items)
+function API:HandleAction(action, items)
   -- items = { everything users passed after action }
   -- Could be: { "zone", "[item:123]", "[item:456]"}
   -- or: {"[item:123]", "[item:456]"}
@@ -86,7 +68,7 @@ function Commands:HandleAction(action, items)
   local scope, itemsToProcess = self:ExtractScope(items);
 end
 
-function Commands:ExtractScope(items)
+function API:ExtractScope(items)
   -- Returns <scope or global>, <items or {}>.
   -- Steps:
   -- 1. Check if items[1] is scope or items
@@ -95,12 +77,12 @@ function Commands:ExtractScope(items)
   -- 4. Return scope + Items or {}
 end
 
-function Commands:Add(scope, key1, key2, petGUIDs, weight)
+function API:Add(scope, key1, key2, petGUIDs, weight)
   self.db:AddPetsToScope(scope, key1, key2, petGUIDs, weight)
 end
 
-function Commands:Remove() end
+function API:Remove() end
 
-function Commands:Clear() end
+function API:Clear() end
 
-function Commands:List() end
+function API:List() end

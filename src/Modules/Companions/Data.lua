@@ -148,20 +148,6 @@ local function getListFor(outfitID, mapID, continentID)
   return nil
 end
 
-local function FilterExistingPetGUIDs(petsSet)
-  if not petsSet then return nil end
-  local filtered = {}
-  for guid in pairs(petsSet) do
-    local speciesID = C_PetJournal.GetPetInfoByPetID(guid)
-    if speciesID ~= nil then
-      filtered[guid] = true
-    end
-  end
-  return filtered
-end
-
-
-
 --------------------------------------------------------------------------------
 --- Database Module API
 --------------------------------------------------------------------------------

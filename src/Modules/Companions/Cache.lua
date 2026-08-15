@@ -33,6 +33,7 @@ local EVENTS_TO_REGISTER = {
 --------------------------------------------------------------------------------
 
 local effectivePetListCache = nil
+local fallbackPetList = nil
 
 --------------------------------------------------------------------------------
 --- Cache Public API

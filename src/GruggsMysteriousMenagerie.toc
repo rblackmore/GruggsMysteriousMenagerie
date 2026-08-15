@@ -22,9 +22,10 @@ Core\Utilities.lua
 
 # Companions Module
 Modules\Companions\Main.lua
+Modules\Companions\Settings.lua
 Modules\Companions\Data.lua
 Modules\Companions\Config.lua
-Modules\Companions\Core.lua
 Modules\Companions\Cache.lua
 Modules\Companions\Commands.lua
 Modules\Companions\Automation.lua
+Modules\Companions\Summoning.lua

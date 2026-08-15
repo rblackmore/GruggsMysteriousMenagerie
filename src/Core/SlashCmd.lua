@@ -42,8 +42,18 @@ end
 
 function SlashCmd:HandleSummon(...)
   local companionModule = Modules["Pet"]()
+  local dismiss = select(1, ...) and select(1, ...):lower()
+  if companionModule and dismiss == "dismiss" then
+    companionModule.API:SummonOrDismissRandomPet(true)
+  else
+    companionModule.API:SummonRandomPet(true)
+  end
+end
+
+function SlashCmd:HandleSetPetOfTheDay(...)
+  local companionModule = Modules["Pet"]()
   if companionModule then
-    companionModule.Commands:Summon(...)
+    companionModule.API:SetActivePetAsPetOfTheDay()
   end
 end
 
@@ -62,8 +72,8 @@ function SlashCmd:HandleModule(moduleName, action, ...)
     return
   end
 
-  if module.Commands and module.Commands.HandleAction then
-    module.Commands:HandleAction(action, ...)
+  if module.API and module.API.HandleAction then
+    module.API:HandleAction(action, ...)
   else
     self:Printf("%s module does not support actions", moduleName)
   end
@@ -74,6 +84,7 @@ local COMMANDS = {
   ["c"] = SlashCmd.HandleConfig,
   ["summon"] = SlashCmd.HandleSummon,
   ["s"] = SlashCmd.HandleSummon,
+  ["setpod"] = SlashCmd.HandleSetPetOfTheDay,
   ["pet"] = function(self, action, ...) self:HandleModule("Pet", action, ...) end,
   ["mount"] = function(self, action, ...) self:HandleModule("Mount", action, ...) end,
 }

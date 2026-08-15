@@ -1,38 +1,19 @@
 local addonName, _ = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
----@class AceAddon: AceTimer-3.0
+---@class AceAddon: AceTimer-3.0, GMM_Companion
 local mod = addOn:GetModule("CompanionModule")
 
-mod.Core.Automation = mod.Core.Automation or {}
+local Automation = mod.Automation
+local API = mod.API
+local Utilities = addOn.Utilities
 
-local Auto = mod.Core.Automation
-
-LibStub("AceEvent-3.0"):Embed(Auto)
-LibStub("AceTimer-3.0"):Embed(Auto)
+LibStub("AceEvent-3.0"):Embed(Automation)
+LibStub("AceTimer-3.0"):Embed(Automation)
 
 --------------------------------------------------------------------------------
 --- Local Constants and Functions
 --------------------------------------------------------------------------------
-
-local INSTANCE_TYPES = {
-
-  ["pvp"] = "BATTLEGROUND",
-  ["arena"] = "ARENA",
-  ["party"] = "DUNGEON",
-  ["raid"] = "RAID",
-  ["scenario"] = "SCENARIO",
-  ["neighborhood"] = "NEIGHBORHOOD",
-  ["none"] = "GLOBAL",
-}
-
-local function GetInstanceZoneType()
-  if IsResting() then
-    return "RESTING"
-  end
-  local _, instanceType = IsInInstance()
-  return INSTANCE_TYPES[instanceType] or "GLOBAL"
-end
 
 -- These events are when to automatically summon a companion.
 local EVENTS_TO_REGISTER = {
@@ -47,27 +28,43 @@ local EVENTS_TO_REGISTER = {
 
 local REGISTERED_EVENTS = {}
 
+local function announceSummon(petId)
+  local petInfo = C_PetJournal.GetPetInfoTableByPetID(petId)
+  local settings = API:GetCompanionSettings()
+  local name = settings["UseCustomName"] and petInfo.customName or petInfo.name
+  local msgFormat = settings["MessageFormat"] or "Welcome %s!"
+  local channelTarget = settings["Channel"] or "SAY"
+  C_ChatInfo.SendChatMessage(format(msgFormat, name), channelTarget)
+end
+
+local function onSummoned(_, petId, userInitiated)
+  if userInitiated then
+    announceSummon(petId)
+  end
+end
+
 --------------------------------------------------------------------------------
 --- Namespace API
 --------------------------------------------------------------------------------
 
-function Auto:Init(core)
-  self.core = core
+function Automation:Init()
   for _, event in ipairs(EVENTS_TO_REGISTER) do
     if not REGISTERED_EVENTS[event] then
       self:RegisterEvent(event, "Handler")
       REGISTERED_EVENTS[event] = true
     end
   end
+
+  Automation:RegisterMessage("GMM_COMPANION_SUMMONED", onSummoned)
 end
 
-function Auto:Handler(...)
-  local settings = self.core.db:GetCompanionSettings()
-  if not settings.Automation[GetInstanceZoneType()] then
+function Automation:Handler(...)
+  local automationSettings = API:GetAutomationSettings()
+  if not automationSettings[Utilities:GetInstanceZoneType()] then
     return
   end
 
-  if not settings.Automation.forcesummon and C_PetJournal.GetSummonedPetGUID() then
+  if not automationSettings.forcesummon and C_PetJournal.GetSummonedPetGUID() then
     return
   end
 
@@ -79,13 +76,13 @@ function Auto:Handler(...)
     return
   end
 
-  local delay = settings.Automation.delay
+  local delay = automationSettings.delay
   self._summonTimer = self:ScheduleTimer(function()
-    self.core:RequestCompanion(false)
+    API:SummonRandomPet(false)
   end, delay)
 end
 
-function Auto:IsTimerActive()
+function Automation:IsTimerActive()
   if self._summonTimer ~= nil then
     local timeLeft = self:TimeLeft(self._summonTimer)
     return timeLeft > 0

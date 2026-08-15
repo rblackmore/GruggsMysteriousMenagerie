@@ -4,9 +4,30 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 
 local Utilities = addOn.Utilities
 
+local INSTANCE_TYPES = {
+
+  ["pvp"] = "BATTLEGROUND",
+  ["arena"] = "ARENA",
+  ["party"] = "DUNGEON",
+  ["raid"] = "RAID",
+  ["scenario"] = "SCENARIO",
+  ["neighborhood"] = "NEIGHBORHOOD",
+  ["none"] = "GLOBAL",
+}
+
+function Utilities:GetInstanceZoneType()
+  if IsResting() then
+    return "RESTING"
+  end
+  local _, instanceType = IsInInstance()
+  return INSTANCE_TYPES[instanceType] or "GLOBAL"
+end
+
 function Utilities:DispatchIfInCombatLockdown(action, msg)
   if InCombatLockdown() then
-    addOn:Print(msg);
+    if msg then
+      addOn:Print(msg);
+    end
     addOn:RegisterEvent("PLAYER_REGEN_ENABLED", function(...)
       addOn:UnregisterEvent("PLAYER_REGEN_ENABLED")
       action()

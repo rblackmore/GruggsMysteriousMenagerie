@@ -4,7 +4,8 @@
 local addonName, addonTable = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0, GMM_Addon
 local addOn = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
-
+_G["GMM"] = addonTable
+_G["GMM_addOn"] = addOn
 addOn:SetDefaultModuleState(false)
 addOn:SetDefaultModuleLibraries("AceEvent-3.0", "AceConsole-3.0")
 
