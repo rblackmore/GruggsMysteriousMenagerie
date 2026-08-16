@@ -7,10 +7,13 @@ local mod = addOn:GetModule("CompanionModule")
 local Data = addOn.Data
 local API = mod.API
 local Utilities = addOn.Utilities
+local Enums = Utilities.Enums
 
 --------------------------------------------------------------------------------
 --- Local
 --------------------------------------------------------------------------------
+
+local SCOPES = Enums.SCOPES
 
 local function addPetToList(list, petGUID, weight)
   list.pets = list.pets or {}
@@ -293,6 +296,36 @@ function API:RemovePetFromOutfit(petGUID, outfitID)
   local outfit = ensureOutfit(outfitID)
   local removed = removePetFromList(outfit, petGUID)
   return removed, removed and "Pet removed from outfit List" or "Pet not found in outfit list"
+end
+
+function API:GetListForScope(scope, ...)
+  local dbp = Data.Companions.profile
+  local dbc = Data.Companions.char
+
+  local args = { ... }
+
+  if scope == SCOPES.global then
+    return dbp.global
+  end
+
+  if scope == SCOPES.continent then
+    if args[1] then
+      return dbp.continents[args[1]]
+    end
+  end
+
+  if scope == SCOPES.zone then
+    if args[1] and args[2] then
+      return dbp.zones[args[1]][args[2]]
+    end
+  end
+
+  if scope == SCOPES.outfit then
+    if args[1] then
+      return dbc.outfits[args[1]]
+    end
+  end
+  return nil
 end
 
 function API:GetCurrentContextPetList()

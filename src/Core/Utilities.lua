@@ -3,8 +3,13 @@ local addonName, addonTable = ...
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 
 local Utilities = addOn.Utilities
+local Enums = Utilities.Enums
 
-local INSTANCE_TYPES = {
+--------------------------------------------------------------------------------
+--- Enums
+--------------------------------------------------------------------------------
+
+Enums.INSTANCE_TYPES = {
 
   ["pvp"] = "BATTLEGROUND",
   ["arena"] = "ARENA",
@@ -15,12 +20,27 @@ local INSTANCE_TYPES = {
   ["none"] = "GLOBAL",
 }
 
+Enums.SCOPES = {
+  global = "global",
+  g = "global",
+  continent = "continent",
+  c = "continent",
+  zone = "zone",
+  z = "zone",
+  outfit = "outfit",
+  o = "outfit"
+}
+
+--------------------------------------------------------------------------------
+--- Functions
+--------------------------------------------------------------------------------
+
 function Utilities:GetInstanceZoneType()
   if IsResting() then
     return "RESTING"
   end
   local _, instanceType = IsInInstance()
-  return INSTANCE_TYPES[instanceType] or "GLOBAL"
+  return Enums.INSTANCE_TYPES[instanceType] or "GLOBAL"
 end
 
 function Utilities:DispatchIfInCombatLockdown(action, msg)
