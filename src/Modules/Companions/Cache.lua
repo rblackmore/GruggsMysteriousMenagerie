@@ -42,27 +42,27 @@ function Cache:Init()
   self:RegisterBucketEvent(EVENTS_TO_REGISTER, BUCKET_INTERVAL, "RefreshEffectiveList")
   self:RegisterBucketEvent("PET_JOURNAL_LIST_UPDATE", BUCKET_INTERVAL, "Refresh")
 
-  Data.Companions.RegisterCallback(self, "OnProfileChanged", "Refresh")
-  Data.Companions.RegisterCallback(self, "OnProfileCopied", "Refresh")
-  Data.Companions.RegisterCallback(self, "OnProfileReset", "Refresh")
+  Data.Companions.RegisterCallback(self, "OnProfileChanged", "RefreshEffectiveList")
+  Data.Companions.RegisterCallback(self, "OnProfileCopied", "RefreshEffectiveList")
+  Data.Companions.RegisterCallback(self, "OnProfileReset", "RefreshEffectiveList")
 
   self:Refresh()
 end
 
-function Cache:Refresh(...)
-  self:RefreshEffectiveList()
-end
-
 function Cache:GetEffectivePetList()
-  return effectivePetListCache or self:RefreshEffectiveList()
+  return effectivePetListCache or fallbackPetList or self:RefreshEffectiveList()
 end
 
 function Cache:RefreshEffectiveList()
   local list = API:GetCurrentContextPetList()
-
   effectivePetListCache = list
+
+  if not effectivePetListCache then
+    fallbackPetList = API:BuildFallbackList()
+  end
+
   self:SendMessage("GMM_EFFECTIVE_PET_LIST_UPDATED")
-  return list
+  return effectivePetListCache or fallbackPetList
 end
 
 function API:GetEffectivePetList()

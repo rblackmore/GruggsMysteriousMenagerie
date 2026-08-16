@@ -55,23 +55,15 @@ local function BuildOptionsTable()
       type = "toggle",
       name = "Pet of the Day",
       desc = "Saves the first pet summoned for the day, and summons only that one for the rest of the day.",
-      get = function(info)
-        return Data.Settings.profile.companions["Automation"]["petoftheday"].Enabled
-      end,
-      set = function(info, value)
-        Data.Settings.profile.companions["Automation"]["petoftheday"].Enabled = value
-      end,
+      get = function(info) return Data.Settings.profile.companions["Automation"]["petoftheday"].Enabled end,
+      set = function(info, value) Data.Settings.profile.companions["Automation"]["petoftheday"].Enabled = value end,
     },
     ["UseFavoritesFallback"] = {
       type = "toggle",
       name = "Use Favorites as Fallback",
       desc = "Use only favorite pets as the fallback pool",
-      get = function(info)
-        return Data.Settings.profile.companions["UseFavoritesFallback"]
-      end,
-      set = function(info, value)
-        Data.Settings.profile.companions["UseFavoritesFallback"] = value
-      end,
+      get = function(info) return Data.Settings.profile.companions["UseFavoritesFallback"] end,
+      set = function(info, value) Data.Settings.profile.companions["UseFavoritesFallback"] = value end,
     }
   }
 

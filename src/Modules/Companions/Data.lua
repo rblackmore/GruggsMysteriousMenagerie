@@ -301,9 +301,7 @@ function API:GetCurrentContextPetList()
   local _, continentID = Utilities:GetContinentIDForMap(mapID)
 
   local list = getListFor(outfitID, mapID, continentID)
-  if not list then
-    list = API:BuildFallbackList()
-  end
+
   return list
 end
 
