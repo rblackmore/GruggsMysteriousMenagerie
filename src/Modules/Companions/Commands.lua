@@ -65,27 +65,10 @@ local function remove(scope, petGUID)
   end
 end
 
+
+
 local function list(scope)
-  local list
-  if scope == SCOPES.world then
-    list = API:GetListForScope(scope)
-  end
-  if scope == SCOPES.continent then
-    local success, continentId = Utilities:GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
-    list = API:GetListForScope(scope, continentId)
-  end
-  if scope == SCOPES.zone then
-    local mapId = C_Map.GetBestMapForUnit("player")
-    local success, continentId = Utilities:GetContinentIDForMap(mapId)
-    list = API:GetListForScope(scope, continentId, mapId)
-  end
-  if scope == SCOPES.outfit then
-    local outfitId = C_TransmogOutfitInfo.GetActiveOutfitID()
-    list = API:GetListForScope(scope, outfitId)
-  end
-
-  _G["GMM_LISTED_PETS"] = list
-
+  local list = API:GetListForContextScope(scope)
   if not list or not list.pets then
     addOn:Printf("No Pets for %s", scope)
     return
@@ -94,13 +77,14 @@ local function list(scope)
   addOn:Printf("Pets in %s", scope)
   local num = 0
   for i, v in ipairs(list.order) do
-    addOn:Printf("Key: %d, Value: %s", i, v)
     local petTable = C_PetJournal.GetPetInfoTableByPetID(v)
     addOn:Printf("[%d] %s", i, petTable.name)
   end
 end
 
-local function clear(scope) end
+local function clear(scope)
+  API:ClearList(scope)
+end
 
 
 
@@ -148,5 +132,9 @@ function API:HandleAction(action, ...)
 
   if action == actions.list then
     list(scope)
+  end
+
+  if action == actions.clear then
+    clear(scope)
   end
 end

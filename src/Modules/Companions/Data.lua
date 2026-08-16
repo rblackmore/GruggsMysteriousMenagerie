@@ -328,6 +328,11 @@ function API:GetListForScope(scope, ...)
   return nil
 end
 
+function API:ClearList(scope)
+  local list = API:GetListForContextScope(scope)
+  list = createEmptyList()
+end
+
 function API:GetCurrentContextPetList()
   local outfitID = C_TransmogOutfitInfo.GetActiveOutfitID()
   local mapID = C_Map.GetBestMapForUnit("player")
@@ -336,6 +341,25 @@ function API:GetCurrentContextPetList()
   local list = getListFor(outfitID, mapID, continentID)
 
   return list
+end
+
+function API:GetListForContextScope(scope)
+  if scope == SCOPES.world then
+    return API:GetListForScope(scope)
+  end
+  if scope == SCOPES.continent then
+    local success, continentId = Utilities:GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
+    return API:GetListForScope(scope, continentId)
+  end
+  if scope == SCOPES.zone then
+    local mapId = C_Map.GetBestMapForUnit("player")
+    local success, continentId = Utilities:GetContinentIDForMap(mapId)
+    return API:GetListForScope(scope, continentId, mapId)
+  end
+  if scope == SCOPES.outfit then
+    local outfitId = C_TransmogOutfitInfo.GetActiveOutfitID()
+    return API:GetListForScope(scope, outfitId)
+  end
 end
 
 function API:BuildFallbackList()
