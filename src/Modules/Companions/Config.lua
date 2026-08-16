@@ -63,7 +63,10 @@ local function BuildOptionsTable()
       name = "Use Favorites as Fallback",
       desc = "Use only favorite pets as the fallback pool",
       get = function(info) return Data.Settings.profile.companions["UseFavoritesFallback"] end,
-      set = function(info, value) Data.Settings.profile.companions["UseFavoritesFallback"] = value end,
+      set = function(info, value)
+        Data.Settings.profile.companions["UseFavoritesFallback"] = value
+        mod:SendMessage("GMM_CONFIG_USEFAVORITES_CHANGED")
+      end,
     }
   }
 
