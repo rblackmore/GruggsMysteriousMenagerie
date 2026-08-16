@@ -21,7 +21,7 @@ function Data:Init()
   self["Companions"] = self.AceDatabase:RegisterNamespace("Companions", {
     profile = {
 
-      global = { pets = {}, order = {}, weights = {}, total = 0 },
+      world = { pets = {}, order = {}, weights = {}, total = 0 },
       continents = {},
       zones = {},
       fallback = {},
@@ -37,7 +37,7 @@ function Data:Init()
   self["Mounts"] = self.AceDatabase:RegisterNamespace("Mounts", {
     profile = {
 
-      global = { mounts = {}, order = {}, total = 0 },
+      world = { mounts = {}, order = {}, total = 0 },
       continents = {},
       zones = {},
       cities = {},

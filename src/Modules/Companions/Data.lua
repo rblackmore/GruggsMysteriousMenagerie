@@ -59,10 +59,10 @@ local function createEmptyList()
   return { pets = {}, order = {}, weights = {}, total = 0 }
 end
 
-local function ensureGlobal()
+local function ensureWorld()
   local dbp = Data.Companions.profile
-  dbp.global = dbp.global or createEmptyList()
-  return dbp
+  dbp.world = dbp.world or createEmptyList()
+  return dbp.world
 end
 
 local function ensureContinent(continentID)
@@ -142,9 +142,9 @@ local function getListFor(outfitID, mapID, continentID)
     end
   end
 
-  -- 4 ) Global
-  if dbp.global and listHasPets(dbp.global) then
-    return dbp.global
+  -- 4 ) world
+  if dbp.world and listHasPets(dbp.world) then
+    return dbp.world
   end
 
   -- 5) Fallback should be handled by Cache to avoid rebuilding each time on DB side
@@ -155,7 +155,7 @@ end
 --- Database Module API
 --------------------------------------------------------------------------------
 
-function API:AddPetToGlobal(petGUID, weight)
+function API:AddPetToWorld(petGUID, weight)
   if not petGUID then
     return false, "Missing petGUID"
   end
@@ -164,8 +164,8 @@ function API:AddPetToGlobal(petGUID, weight)
   if not speciesID then
     return false, "Invalid petGUID"
   end
-  local global = ensureGlobal()
-  local added = addPetToList(global, petGUID, weight)
+  local world = ensureWorld()
+  local added = addPetToList(world, petGUID, weight)
   return true, added and "Added" or "Updated"
 end
 
@@ -226,7 +226,7 @@ function API:AddPetToOutfit(petGUID, outfitID, weight)
   return true, added and "Added" or "Updated"
 end
 
-function API:RemovePetFromGlobal(petGUID)
+function API:RemovePetFromWorld(petGUID)
   if not petGUID then
     return false, "Missing petGUID"
   end
@@ -236,8 +236,8 @@ function API:RemovePetFromGlobal(petGUID)
     return false, "Invalid petGUID"
   end
 
-  local global = ensureGlobal()
-  local removed = removePetFromList(global, petGUID)
+  local world = ensureWorld()
+  local removed = removePetFromList(world, petGUID)
   return removed, removed and "Pet removed from Global List" or "Pet not found in global list"
 end
 
@@ -304,8 +304,8 @@ function API:GetListForScope(scope, ...)
 
   local args = { ... }
 
-  if scope == SCOPES.global then
-    return dbp.global
+  if scope == SCOPES.world then
+    return dbp.world
   end
 
   if scope == SCOPES.continent then

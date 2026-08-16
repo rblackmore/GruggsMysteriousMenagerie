@@ -22,8 +22,8 @@ local actions = {
 }
 
 local function add(scope, petGUID)
-  if scope == SCOPES.global then
-    API:AddPetToGlobal(petGUID)
+  if scope == SCOPES.world then
+    API:AddPetToWorld(petGUID)
   end
 
   if scope == SCOPES.continent then
@@ -44,8 +44,8 @@ local function add(scope, petGUID)
 end
 
 local function remove(scope, petGUID)
-  if scope == SCOPES.global then
-    API:RemovePetFromGlobal(petGUID)
+  if scope == SCOPES.world then
+    API:RemovePetFromWorld(petGUID)
   end
 
   if scope == SCOPES.continent then
@@ -67,7 +67,7 @@ end
 
 local function list(scope)
   local list
-  if scope == SCOPES.global then
+  if scope == SCOPES.world then
     list = API:GetListForScope(scope)
   end
   if scope == SCOPES.continent then
@@ -93,13 +93,10 @@ local function list(scope)
 
   addOn:Printf("Pets in %s", scope)
   local num = 0
-  for k, v in pairs(list.pets) do
-    addOn:Printf("Key: %s, Value: %s", k, v)
-    if v then
-      num = num + 1
-      local petTable = C_PetJournal.GetPetInfoTableByPetID(k)
-      addOn:Printf("[%d] %s", num, petTable.name)
-    end
+  for i, v in ipairs(list.order) do
+    addOn:Printf("Key: %d, Value: %s", i, v)
+    local petTable = C_PetJournal.GetPetInfoTableByPetID(v)
+    addOn:Printf("[%d] %s", i, petTable.name)
   end
 end
 
@@ -112,7 +109,7 @@ local function getScopeAndItems(...)
   local scope = SCOPES[args[1]]
 
   if not scope then
-    return SCOPES.global, args[1]
+    return SCOPES.world, args[1]
   end
 
   return scope, args[2]

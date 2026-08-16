@@ -21,8 +21,8 @@ Enums.INSTANCE_TYPES = {
 }
 
 Enums.SCOPES = {
-  global = "global",
-  g = "global",
+  world = "world",
+  w = "world",
   continent = "continent",
   c = "continent",
   zone = "zone",
