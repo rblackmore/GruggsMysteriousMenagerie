@@ -9,8 +9,9 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
 local mod = addOn:GetModule("CompanionModule")
 
-mod.Cache = mod.Cache or {}
 local Cache = mod.Cache
+local Data = addOn.Data
+local API = mod.API
 
 LibStub("AceTimer-3.0"):Embed(Cache)
 LibStub("AceBucket-3.0"):Embed(Cache)
@@ -27,50 +28,45 @@ local EVENTS_TO_REGISTER = {
   "NEW_WMO_CHUNK",
   "TRANSMOG_COLLECTION_UPDATED"
 }
+--------------------------------------------------------------------------------
+--- Cache Local State
+--------------------------------------------------------------------------------
+
+local effectivePetListCache = nil
+local fallbackPetList = nil
 
 --------------------------------------------------------------------------------
---- Cache Publid API
+--- Cache Public API
 --------------------------------------------------------------------------------
-function Cache:Init(db)
-  self.db = db
+function Cache:Init()
   self:RegisterBucketEvent(EVENTS_TO_REGISTER, BUCKET_INTERVAL, "RefreshEffectiveList")
-  self:RegisterBucketEvent("PET_JOURNAL_LIST_UPDATE", BUCKET_INTERVAL, "Refresh")
+  self:RegisterBucketEvent("PET_JOURNAL_LIST_UPDATE", BUCKET_INTERVAL, "RefreshEffectiveList")
 
-  self.db:GetCompanionNamespace().RegisterCallback(self, "OnProfileChanged", "Refresh")
-  self.db:GetCompanionNamespace().RegisterCallback(self, "OnProfileCopied", "Refresh")
-  self.db:GetCompanionNamespace().RegisterCallback(self, "OnProfileReset", "Refresh")
+  Data.Companions.RegisterCallback(self, "OnProfileChanged", "RefreshEffectiveList")
+  Data.Companions.RegisterCallback(self, "OnProfileCopied", "RefreshEffectiveList")
+  Data.Companions.RegisterCallback(self, "OnProfileReset", "RefreshEffectiveList")
 
-  self:Refresh()
-end
+  self:RegisterMessage("GMM_CONFIG_USEFAVORITES_CHANGED", "RefreshFallback")
 
-function Cache:Refresh(...)
-  self:RefreshFallbackList()
   self:RefreshEffectiveList()
 end
 
-function Cache:GetEffectivePetList()
-  return self.EffectivePetList or self:RefreshEffectiveList()
-end
-
-function Cache:GetFallbackList()
-  return self.FallbackList or self:RefreshFallbackList()
-end
-
 function Cache:RefreshEffectiveList()
-  local list = self.db:GetEffectivePetList()
+  local list = API:GetCurrentContextPetList()
+  effectivePetListCache = list
 
-  if not list or not list.order or #list.order == 0 then
-    list = self:GetFallbackList()
+  if not effectivePetListCache and not fallbackPetList then
+    fallbackPetList = API:BuildFallbackList()
   end
 
-  self.EffectivePetList = list
   self:SendMessage("GMM_EFFECTIVE_PET_LIST_UPDATED")
-  return list
+  return effectivePetListCache or fallbackPetList
 end
 
-function Cache:RefreshFallbackList()
-  local list = self.db:GetFallbackList()
-  self.FallbackList = list
-  self:SendMessage("GMM_FALLBACK_PET_LIST_UPDATED")
-  return list
+function Cache:RefreshFallback()
+  fallbackPetList = API:BuildFallbackList()
+end
+
+function API:GetEffectivePetList()
+  return effectivePetListCache or fallbackPetList or Cache:RefreshEffectiveList()
 end

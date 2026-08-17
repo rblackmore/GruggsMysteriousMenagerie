@@ -1,15 +1,16 @@
 local addonName, addonTable = ...
----@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0, GMM_Addon
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
-addOn.Config = addOn.Config or {}
-addOn.UI = addOn.UI or {}
-addOn.UI.ConfigFrames = addOn.UI.ConfigFrames or {}
+---@class GMM_Data
+local Data = addOn.Data
 local Config = addOn.Config
-local DB = addOn.DB
+local Utilities = addOn.Utilities
+local UI = addOn.UI
+
 --------------------------------------------------------------------------------
 --- Local Helper Functions
 --------------------------------------------------------------------------------
@@ -28,34 +29,58 @@ local function BuildOptionsTable()
     }
   }
 end
+
+local Categories = {
+  companions = "Companions",
+  companion = "Companions",
+  comp = "Companions",
+  profile = "Profiles",
+  profiles = "Profiles",
+  prof = "Profiles"
+}
+
 --------------------------------------------------------------------------------
---- Options Module API
+--- Config Module API
 --------------------------------------------------------------------------------
 
 function Config:Init()
   local options = BuildOptionsTable()
   AceConfig:RegisterOptionsTable("GMM_Configuration", options)
   local frame, frameId = AceConfigDialog:AddToBlizOptions("GMM_Configuration", "GMM")
-  addOn.UI:RegisterConfigurationFrame("GMM_Configuration", frame, frameId)
+  UI:RegisterConfigurationFrame("GMM_Configuration", frame, frameId)
 
-  local profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(addOn.DB.AceDatabase)
+  local profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(Data.AceDatabase)
   AceConfig:RegisterOptionsTable("GMM_Profiles", profileOptions)
   frame, frameId = AceConfigDialog:AddToBlizOptions("GMM_Profiles", "Profiles", "GMM")
-  addOn.UI:RegisterConfigurationFrame("GMM_Profiles", frame, frameId)
+  UI:RegisterConfigurationFrame("GMM_Profiles", frame, frameId)
 end
 
 function Config:GetValue(info)
   if info.arg then
-    return DB.dbp[info.arg][info[#info]]
+    return Data.profile[info.arg][info[#info]]
   else
-    return DB.dbp[info[#info]]
+    return Data.profile[info[#info]]
   end
 end
 
 function Config:SetValue(info, value)
   if info.arg then
-    DB.dbp[info.arg][info[#info]] = value
+    Data.profile[info.arg][info[#info]] = value
   else
-    DB.dbp[info[#info]] = value
+    Data.profile[info[#info]] = value
   end
+end
+
+function Config:OpenConfig(args)
+  Utilities:DispatchIfInCombatLockdown(function()
+    local categorySelect = Categories[args[1]]
+
+    if categorySelect and addOn.UI.ConfigFrames["GMM_" .. categorySelect] then
+      addOn:Printf("Catergory Selected: %s", categorySelect)
+      Settings.OpenToCategory(addOn.UI.ConfigFrames["GMM_" .. categorySelect]["frameId"])
+    else
+      addOn:Printf("Opening Configuraiton Default")
+      Settings.OpenToCategory(addOn.UI.ConfigFrames["GMM_Configuration"]["frameId"])
+    end
+  end, "Opening Settings when out of Combat")
 end
