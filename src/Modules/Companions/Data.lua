@@ -59,6 +59,26 @@ local function createEmptyList()
   return { pets = {}, order = {}, weights = {}, total = 0 }
 end
 
+local function clearList(scope, ...)
+  local dbp = Data.Companions.profile
+  local dbc = Data.Companions.char
+  local args = { ... }
+
+  if scope == SCOPES.world then
+    -- World scope: reset to empty list, don't nil it
+    dbp.world = createEmptyList()
+  elseif scope == SCOPES.continent and args[1] then
+    -- Continents: set to nil
+    dbp.continents[args[1]] = nil
+  elseif scope == SCOPES.zone and args[1] and args[2] then
+    -- Zones: set to nil
+    dbp.zones[args[1]][args[2]] = nil
+  elseif scope == SCOPES.outfit and args[1] then
+    -- Outfits: set to nil
+    dbc.outfits[args[1]] = nil
+  end
+end
+
 local function ensureWorld()
   local dbp = Data.Companions.profile
   dbp.world = dbp.world or createEmptyList()
@@ -328,9 +348,8 @@ function API:GetListForScope(scope, ...)
   return nil
 end
 
-function API:ClearList(scope)
-  local list = API:GetListForContextScope(scope)
-  list = createEmptyList()
+function API:ClearList(scope, ...)
+  clearList(scope, ...)
 end
 
 function API:GetCurrentContextPetList()

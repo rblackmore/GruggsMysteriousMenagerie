@@ -50,22 +50,26 @@ local function remove(scope, petGUID)
 
   if scope == SCOPES.continent then
     local success, continentId = Utilities:GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
-    API:RemovePetFromContinent(petGUID, continentId)
+    if success then
+      API:RemovePetFromContinent(petGUID, continentId)
+    end
   end
 
   if scope == SCOPES.zone then
     local mapId = C_Map.GetBestMapForUnit("player")
     local success, continentId = Utilities:GetContinentIDForMap(mapId)
-    API:RemovePetFromZone(petGUID, continentId, mapId)
+    if success then
+      API:RemovePetFromZone(petGUID, continentId, mapId)
+    end
   end
 
   if scope == SCOPES.outfit then
     local outfitId = C_TransmogOutfitInfo.GetActiveOutfitID()
-    API:RemovePetFromOutfit(petGUID, outfitId)
+    if outfitId then
+      API:RemovePetFromOutfit(petGUID, outfitId)
+    end
   end
 end
-
-
 
 local function list(scope)
   local list = API:GetListForContextScope(scope)
@@ -83,23 +87,43 @@ local function list(scope)
 end
 
 local function clear(scope)
-  API:ClearList(scope)
+  if scope == SCOPES.world then
+    API:ClearList(scope)
+  end
+
+  if scope == SCOPES.continent then
+    local success, continentId = Utilities:GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
+    if success then
+      API:ClearList(scope, continentId)
+    end
+  end
+
+  if scope == SCOPES.zone then
+    local mapId = C_Map.GetBestMapForUnit("player")
+    local success, continentId = Utilities:GetContinentIDForMap(mapId)
+    if success then
+      API:ClearList(scope, continentId, mapId)
+    end
+  end
+
+  if scope == SCOPES.outfit then
+    local outfitId = C_TransmogOutfitInfo.GetActiveOutfitID()
+    if outfitId then
+      API:ClearList(scope, outfitId)
+    end
+  end
 end
 
-
-
-local function getScopeAndItems(...)
+local function getScopeWithArgs(...)
   local args = { ... }
   local scope = SCOPES[args[1]]
 
   if not scope then
-    return SCOPES.world, args[1]
+    return SCOPES.world, args
   end
 
-  return scope, args[2]
+  return scope, { select(2, ...) }
 end
-
-
 
 --------------------------------------------------------------------------------
 --- Module API
@@ -110,22 +134,20 @@ function API:HandleAction(action, ...)
   -- or: {"[item:123]", "[item:456]"}
   -- or: {"zone"} -- scope without items means action of list or clear.
 
-  local scope, itemLink = getScopeAndItems(...);
+  local scope, args = getScopeWithArgs(...);
 
   if action == actions.add then
-    if LinkUtil.IsLinkType(itemLink, LinkTypes.BattlePet) then
-      local linkType, linkOptions, displayText = LinkUtil.ExtractLink(itemLink)
-      local options = { LinkUtil.SplitLinkOptions(linkOptions) }
-      local petGUID = options[7]
+    if LinkUtil.IsLinkType(args[1], LinkTypes.BattlePet) then
+      local _, linkOptions, _ = LinkUtil.ExtractLink(args[1])
+      local _, _, _, _, _, _, petGUID = LinkUtil.SplitLinkOptions(linkOptions)
       add(scope, petGUID)
     end
   end
 
   if action == actions.remove then
-    if LinkUtil.IsLinkType(itemLink, LinkTypes.BattlePet) then
-      local linkType, linkOptions, displayText = LinkUtil.ExtractLink(itemLink)
-      local options = { LinkUtil.SplitLinkOptions(linkOptions) }
-      local petGUID = options[7]
+    if LinkUtil.IsLinkType(args[1], LinkTypes.BattlePet) then
+      local _, linkOptions, _ = LinkUtil.ExtractLink(args[1])
+      local _, _, _, _, _, _, petGUID = LinkUtil.SplitLinkOptions(linkOptions)
       remove(scope, petGUID)
     end
   end
