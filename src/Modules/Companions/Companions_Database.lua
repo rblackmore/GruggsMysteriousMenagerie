@@ -177,7 +177,6 @@ end
 function Database:Init()
   Data["Companions"] = Data.AceDatabase:RegisterNamespace("Companions", {
     profile = {
-
       world = { pets = {}, order = {}, weights = {}, total = 0 },
       continents = {},
       zones = {},

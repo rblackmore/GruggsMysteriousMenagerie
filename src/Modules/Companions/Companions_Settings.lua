@@ -8,24 +8,59 @@ local Settings = companionModule.Settings
 local Data = addOn.Data
 
 --------------------------------------------------------------------------------
+--- Local priviat functions
+--------------------------------------------------------------------------------
+
+local function getPodSettings()
+  return Settings:GetCompanionSettings().profile.Automation.petoftheday
+end
+
+--------------------------------------------------------------------------------
 --- Public API
 --------------------------------------------------------------------------------
 
 function Settings:Init()
-  -- Initialize Companion Settings Namespace on database.
-  -- Pull from Database.lua in Core, and separate out the settings part that is strictly Companion Related.
+  Data["CompanionSettings"] = Data.AceDatabase:RegisterNamespace("CompanionModuleSettings", {
+    profile = {
+      MessageFormat = "Help me %s you're my only hope!!!",
+      Channel = "SAY",
+      UseCustomName = true,
+      UseFavoritesFallback = true,
+      Automation = {
+        delay = 5,
+        forcesummon = false,
+        GLOBAL = true,
+        SCENARIO = true,
+        RAID = true,
+        DUNGEON = true,
+        ARENA = true,
+        BATTLEGROUND = true,
+        RESTING = true,
+        petoftheday = {
+          Enabled = false,
+          Date = {
+            ["year"] = 2004,
+            ["month"] = 11,
+            ["day"] = 23,
+          },
+          Pet = nil,
+        },
+      },
+      meta = { schemaVersion = 1, createdAt = time(), lastUpdated = time() },
+    }
+  })
 end
 
 function Settings:GetCompanionSettings()
-  return Data.Settings.profile.companions
+  return Data["CompanionSettings"].profile
 end
 
 function Settings:GetAutomationSettings()
-  return Data.Settings.profile.companions.Automation
+  return Data["CompanionSettings"].profile.Automation
 end
 
 function Settings:GetPetOfTheDaySettings()
-  return Data.Settings.profile.companions.Automation.petoftheday
+  return Data["CompanionSettings"].profile.Automation.petoftheday
 end
 
 function Settings:SetPetOfTheDay(petID)
