@@ -6,12 +6,12 @@
 local addonName, addonTable = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
----@class AceAddon: AceTimer-3.0
-local mod = addOn:GetModule("CompanionModule")
+---@class AceAddon: AceTimer-3.0, GMM_Companion
+local companionsModule = addOn:GetModule("CompanionModule")
 
-local Cache = mod.Cache
 local Data = addOn.Data
-local API = mod.API
+local Cache = companionsModule.Cache
+local Database = companionsModule.Database
 
 LibStub("AceTimer-3.0"):Embed(Cache)
 LibStub("AceBucket-3.0"):Embed(Cache)
@@ -52,11 +52,11 @@ function Cache:Init()
 end
 
 function Cache:RefreshEffectiveList()
-  local list = API:GetCurrentContextPetList()
+  local list = Database:GetCurrentContextPetList()
   effectivePetListCache = list
 
   if not effectivePetListCache and not fallbackPetList then
-    fallbackPetList = API:BuildFallbackList()
+    fallbackPetList = Database:BuildFallbackList()
   end
 
   self:SendMessage("GMM_EFFECTIVE_PET_LIST_UPDATED")
@@ -64,9 +64,9 @@ function Cache:RefreshEffectiveList()
 end
 
 function Cache:RefreshFallback()
-  fallbackPetList = API:BuildFallbackList()
+  fallbackPetList = Database:BuildFallbackList()
 end
 
-function API:GetEffectivePetList()
+function Cache:GetEffectivePetList()
   return effectivePetListCache or fallbackPetList or Cache:RefreshEffectiveList()
 end

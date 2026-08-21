@@ -1,42 +1,47 @@
 local addonName, _ = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
----@class AceAddon: AceTimer-3.0
-local mod = addOn:GetModule("CompanionModule")
+---@class AceAddon: AceTimer-3.0, GMM_Companion
+local companionModule = addOn:GetModule("CompanionModule")
 
-local API = mod.API
+local Settings = companionModule.Settings
 local Data = addOn.Data
 
 --------------------------------------------------------------------------------
 --- Public API
 --------------------------------------------------------------------------------
 
-function API:GetCompanionSettings()
+function Settings:Init()
+  -- Initialize Companion Settings Namespace on database.
+  -- Pull from Database.lua in Core, and separate out the settings part that is strictly Companion Related.
+end
+
+function Settings:GetCompanionSettings()
   return Data.Settings.profile.companions
 end
 
-function API:GetAutomationSettings()
+function Settings:GetAutomationSettings()
   return Data.Settings.profile.companions.Automation
 end
 
-function API:GetPetOfTheDaySettings()
+function Settings:GetPetOfTheDaySettings()
   return Data.Settings.profile.companions.Automation.petoftheday
 end
 
-function API:SetPetOfTheDay(petID)
-  local podsettings = API:GetPetOfTheDaySettings()
+function Settings:SetPetOfTheDay(petID)
+  local podsettings = Settings:GetPetOfTheDaySettings()
   podsettings.petID = petID
   podsettings.Date = date("*t")
 end
 
-function API:SetActivePetAsPetOfTheDay()
+function Settings:SetActivePetAsPetOfTheDay()
   local currentPetGUID = C_PetJournal.GetSummonedPetGUID()
   if not currentPetGUID then return end
-  API:SetPetOfTheDay(currentPetGUID)
+  Settings:SetPetOfTheDay(currentPetGUID)
 end
 
-function API:GetPetOfTheDay()
-  local podsettings = API:GetPetOfTheDaySettings();
+function Settings:GetPetOfTheDay()
+  local podsettings = Settings:GetPetOfTheDaySettings();
   local today = date("*t")
   local summonedOn = podsettings.Date
 
@@ -47,12 +52,12 @@ function API:GetPetOfTheDay()
   return true, podsettings.PetId
 end
 
-function API:ClearPetOfTheDay()
-  local podsettings = API:GetPetOfTheDaySettings()
+function Settings:ClearPetOfTheDay()
+  local podsettings = Settings:GetPetOfTheDaySettings()
   podsettings.PetId = nil
   podsettings.Date = nil
 end
 
-function API:IsPetOfTheDayEnabled()
-  return API:GetPetOfTheDaySettings().Enabled
+function Settings:IsPetOfTheDayEnabled()
+  return Settings:GetPetOfTheDaySettings().Enabled
 end

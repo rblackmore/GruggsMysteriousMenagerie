@@ -1,10 +1,12 @@
 local addonName, _ = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
----@class AceAddon: AceTimer-3.0
-local mod = addOn:GetModule("CompanionModule")
+---@class AceAddon: AceTimer-3.0, GMM_Companion
+local companionModule = addOn:GetModule("CompanionModule")
 
-local API = mod.API
+local Cache = companionModule.Cache
+local Settings = companionModule.Settings
+local Summoning = companionModule.Summoning
 local Utilities = addOn.Utilities
 
 --------------------------------------------------------------------------------
@@ -20,11 +22,11 @@ local function summonCompanion(petId, userInitiated)
 
   C_PetJournal.SummonPetByGUID(petId)
 
-  mod:SendMessage("GMM_COMPANION_SUMMONED", petId, userInitiated)
+  companionModule:SendMessage("GMM_COMPANION_SUMMONED", petId, userInitiated)
 end
 
 local function pickRandomPetId()
-  local list = API:GetEffectivePetList()
+  local list = Cache:GetEffectivePetList()
 
   if not list or not list.order or #list.order == 0 then
     return nil, "No Pets in the current effective list"
@@ -38,7 +40,7 @@ end
 --- TODO: Review the logic of this function. It seems to iterate through list of pets to find one to pick.
 --- Consider a binary search instead?
 local function pickWeightedRandomPetId()
-  local list = API:GetEffectivePetList()
+  local list = Cache:GetEffectivePetList()
 
   if not list or not list.order or #list.order == 0 then
     return nil, "No Pets in the current effective list"
@@ -75,11 +77,11 @@ local function requestCompanion(userInitiated)
   local current
   local petId
 
-  if API:IsPetOfTheDayEnabled() then
-    current, petId = API:GetPetOfTheDay()
+  if Settings:IsPetOfTheDayEnabled() then
+    current, petId = Settings:GetPetOfTheDay()
     if not current then
       petId = pickWeightedRandomPetId() or pickRandomPetId()
-      API:SetPetOfTheDay(petId)
+      Settings:SetPetOfTheDay(petId)
     end
   else
     petId = pickWeightedRandomPetId() or pickRandomPetId()
@@ -93,7 +95,7 @@ end
 --- Public API
 --------------------------------------------------------------------------------
 
-function API:SummonOrDismissRandomPet(userInitiated)
+function Summoning:SummonOrDismissRandomPet(userInitiated)
   local currentCompanion = C_PetJournal.GetSummonedPetGUID()
 
   if currentCompanion then
@@ -104,6 +106,6 @@ function API:SummonOrDismissRandomPet(userInitiated)
   requestCompanion(userInitiated)
 end
 
-function API:SummonRandomPet(userInitiated)
+function Summoning:SummonRandomPet(userInitiated)
   requestCompanion(userInitiated)
 end

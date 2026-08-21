@@ -1,11 +1,11 @@
 local addonName, addonTable = ...
----@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
+---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0, GMM_Addon
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
-local mod = addOn:GetModule("CompanionModule")
+local companionModule = addOn:GetModule("CompanionModule")
 
 local Data = addOn.Data
-local API = mod.API
+local Database = companionModule.Database
 local Utilities = addOn.Utilities
 local Enums = Utilities.Enums
 
@@ -174,8 +174,25 @@ end
 --------------------------------------------------------------------------------
 --- Database Module API
 --------------------------------------------------------------------------------
+function Database:Init()
+  Data["Companions"] = Data.AceDatabase:RegisterNamespace("Companions", {
+    profile = {
 
-function API:AddPetToWorld(petGUID, weight)
+      world = { pets = {}, order = {}, weights = {}, total = 0 },
+      continents = {},
+      zones = {},
+      fallback = {},
+      cities = {},
+      meta = { schemaVersion = 1, createdAt = time(), lastUpdated = time() },
+    },
+    char = {
+      outfits = {},
+      meta = { schemaVersion = 1, createdAt = time(), lastUpdated = time() },
+    }
+  })
+end
+
+function Database:AddPetToWorld(petGUID, weight)
   if not petGUID then
     return false, "Missing petGUID"
   end
@@ -189,7 +206,7 @@ function API:AddPetToWorld(petGUID, weight)
   return true, added and "Added" or "Updated"
 end
 
-function API:AddPetToContinent(petGUID, continentID, weight)
+function Database:AddPetToContinent(petGUID, continentID, weight)
   if not petGUID then
     return false, "Missing petGUID"
   end
@@ -208,7 +225,7 @@ function API:AddPetToContinent(petGUID, continentID, weight)
   return true, added and "Added" or "Updated"
 end
 
-function API:AddPetToZone(petGUID, continentID, zoneID, weight)
+function Database:AddPetToZone(petGUID, continentID, zoneID, weight)
   if not petGUID then
     return false, "Missing petGUID"
   end
@@ -227,7 +244,7 @@ function API:AddPetToZone(petGUID, continentID, zoneID, weight)
   return true, added and "Added" or "Updated"
 end
 
-function API:AddPetToOutfit(petGUID, outfitID, weight)
+function Database:AddPetToOutfit(petGUID, outfitID, weight)
   if not petGUID then
     return false, "Missing petGUID"
   end
@@ -246,7 +263,7 @@ function API:AddPetToOutfit(petGUID, outfitID, weight)
   return true, added and "Added" or "Updated"
 end
 
-function API:RemovePetFromWorld(petGUID)
+function Database:RemovePetFromWorld(petGUID)
   if not petGUID then
     return false, "Missing petGUID"
   end
@@ -261,7 +278,7 @@ function API:RemovePetFromWorld(petGUID)
   return removed, removed and "Pet removed from Global List" or "Pet not found in global list"
 end
 
-function API:RemovePetFromContinent(petGUID, continentID)
+function Database:RemovePetFromContinent(petGUID, continentID)
   if not petGUID then
     return false, "Missing petGUID"
   end
@@ -280,7 +297,7 @@ function API:RemovePetFromContinent(petGUID, continentID)
   return removed, removed and "Pet removed from continent List" or "Pet not found in continent list"
 end
 
-function API:RemovePetFromZone(petGUID, continentID, zoneID)
+function Database:RemovePetFromZone(petGUID, continentID, zoneID)
   if not petGUID then
     return false, "Missing petGUID"
   end
@@ -299,7 +316,7 @@ function API:RemovePetFromZone(petGUID, continentID, zoneID)
   return removed, removed and "Pet removed from zone List" or "Pet not found in zone list"
 end
 
-function API:RemovePetFromOutfit(petGUID, outfitID)
+function Database:RemovePetFromOutfit(petGUID, outfitID)
   if not petGUID then
     return false, "Missing petGUID"
   end
@@ -318,7 +335,11 @@ function API:RemovePetFromOutfit(petGUID, outfitID)
   return removed, removed and "Pet removed from outfit List" or "Pet not found in outfit list"
 end
 
-function API:GetListForScope(scope, ...)
+function Database:ClearList(scope, ...)
+  clearList(scope, ...)
+end
+
+function Database:GetListForScope(scope, ...)
   local dbp = Data.Companions.profile
   local dbc = Data.Companions.char
 
@@ -348,11 +369,7 @@ function API:GetListForScope(scope, ...)
   return nil
 end
 
-function API:ClearList(scope, ...)
-  clearList(scope, ...)
-end
-
-function API:GetCurrentContextPetList()
+function Database:GetCurrentContextPetList()
   local outfitID = C_TransmogOutfitInfo.GetActiveOutfitID()
   local mapID = C_Map.GetBestMapForUnit("player")
   local _, continentID = Utilities:GetContinentIDForMap(mapID)
@@ -362,26 +379,26 @@ function API:GetCurrentContextPetList()
   return list
 end
 
-function API:GetListForContextScope(scope)
+function Database:GetListForContextScope(scope)
   if scope == SCOPES.world then
-    return API:GetListForScope(scope)
+    return Database:GetListForScope(scope)
   end
   if scope == SCOPES.continent then
     local success, continentId = Utilities:GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
-    return API:GetListForScope(scope, continentId)
+    return Database:GetListForScope(scope, continentId)
   end
   if scope == SCOPES.zone then
     local mapId = C_Map.GetBestMapForUnit("player")
     local success, continentId = Utilities:GetContinentIDForMap(mapId)
-    return API:GetListForScope(scope, continentId, mapId)
+    return Database:GetListForScope(scope, continentId, mapId)
   end
   if scope == SCOPES.outfit then
     local outfitId = C_TransmogOutfitInfo.GetActiveOutfitID()
-    return API:GetListForScope(scope, outfitId)
+    return Database:GetListForScope(scope, outfitId)
   end
 end
 
-function API:BuildFallbackList()
+function Database:BuildFallbackList()
   local dbp = Data.Settings.profile
   local useFavorites = dbp.companions.UseFavoritesFallback
 

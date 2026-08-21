@@ -18,22 +18,6 @@ local Data = addOn.Data
 function Data:Init()
   self["AceDatabase"] = LibStub("AceDB-3.0"):New("GMM_DB", { profile = {}, char = {}, global = {} }, true)
 
-  self["Companions"] = self.AceDatabase:RegisterNamespace("Companions", {
-    profile = {
-
-      world = { pets = {}, order = {}, weights = {}, total = 0 },
-      continents = {},
-      zones = {},
-      fallback = {},
-      cities = {},
-      meta = { schemaVersion = 1, createdAt = time(), lastUpdated = time() },
-    },
-    char = {
-      outfits = {},
-      meta = { schemaVersion = 1, createdAt = time(), lastUpdated = time() },
-    }
-  })
-
   self["Mounts"] = self.AceDatabase:RegisterNamespace("Mounts", {
     profile = {
 
@@ -77,7 +61,6 @@ function Data:Init()
             Pet = nil,
           },
         },
-        mounts = {},
         ui = {
           showMinimapButton = true,
         },

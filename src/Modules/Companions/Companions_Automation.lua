@@ -2,10 +2,11 @@ local addonName, _ = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0, GMM_Companion
-local mod = addOn:GetModule("CompanionModule")
+local companionModule = addOn:GetModule("CompanionModule")
 
-local Automation = mod.Automation
-local API = mod.API
+local Automation = companionModule.Automation
+local Summoning = companionModule.Summoning
+local Settings = companionModule.Settings
 local Utilities = addOn.Utilities
 
 LibStub("AceEvent-3.0"):Embed(Automation)
@@ -30,7 +31,7 @@ local REGISTERED_EVENTS = {}
 
 local function announceSummon(petId)
   local petInfo = C_PetJournal.GetPetInfoTableByPetID(petId)
-  local settings = API:GetCompanionSettings()
+  local settings = Settings:GetCompanionSettings()
   local name = settings["UseCustomName"] and petInfo.customName or petInfo.name
   local msgFormat = settings["MessageFormat"] or "Welcome %s!"
   local channelTarget = settings["Channel"] or "SAY"
@@ -59,7 +60,7 @@ function Automation:Init()
 end
 
 function Automation:Handler(...)
-  local automationSettings = API:GetAutomationSettings()
+  local automationSettings = Settings:GetAutomationSettings()
   if not automationSettings[Utilities:GetInstanceZoneType()] then
     return
   end
@@ -78,7 +79,7 @@ function Automation:Handler(...)
 
   local delay = automationSettings.delay
   self._summonTimer = self:ScheduleTimer(function()
-    API:SummonRandomPet(false)
+    Summoning:SummonRandomPet(false)
   end, delay)
 end
 

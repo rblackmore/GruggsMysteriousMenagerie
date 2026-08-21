@@ -7,7 +7,6 @@ local mod = addOn:GetModule("CompanionModule")
 local Config = mod.Config
 local Data = addOn.Data
 local UI = addOn.UI
-local API = mod.API
 
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")

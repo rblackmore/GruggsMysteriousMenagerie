@@ -1,10 +1,11 @@
 local addonName, addonTable = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
----@class AceAddon: AceTimer-3.0
-local mod = addOn:GetModule("CompanionModule")
+---@class AceAddon: AceTimer-3.0, GMM_Companion
+local companionModule = addOn:GetModule("CompanionModule")
 
-local API = mod.API
+local Commands = companionModule.Commands
+local Database = companionModule.Database
 local Utilities = addOn.Utilities
 local Enums = Utilities.Enums
 
@@ -23,35 +24,35 @@ local actions = {
 
 local function add(scope, petGUID)
   if scope == SCOPES.world then
-    API:AddPetToWorld(petGUID)
+    Database:AddPetToWorld(petGUID)
   end
 
   if scope == SCOPES.continent then
     local success, continentID = Utilities:GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
-    API:AddPetToContinent(petGUID, continentID)
+    Database:AddPetToContinent(petGUID, continentID)
   end
 
   if scope == SCOPES.zone then
     local mapId = C_Map.GetBestMapForUnit("player")
     local success, continentId = Utilities:GetContinentIDForMap(mapId)
-    API:AddPetToZone(petGUID, continentId, mapId)
+    Database:AddPetToZone(petGUID, continentId, mapId)
   end
 
   if scope == SCOPES.outfit then
     local outfitId = C_TransmogOutfitInfo.GetActiveOutfitID()
-    API:AddPetToOutfit(petGUID, outfitId)
+    Database:AddPetToOutfit(petGUID, outfitId)
   end
 end
 
 local function remove(scope, petGUID)
   if scope == SCOPES.world then
-    API:RemovePetFromWorld(petGUID)
+    Database:RemovePetFromWorld(petGUID)
   end
 
   if scope == SCOPES.continent then
     local success, continentId = Utilities:GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
     if success then
-      API:RemovePetFromContinent(petGUID, continentId)
+      Database:RemovePetFromContinent(petGUID, continentId)
     end
   end
 
@@ -59,20 +60,20 @@ local function remove(scope, petGUID)
     local mapId = C_Map.GetBestMapForUnit("player")
     local success, continentId = Utilities:GetContinentIDForMap(mapId)
     if success then
-      API:RemovePetFromZone(petGUID, continentId, mapId)
+      Database:RemovePetFromZone(petGUID, continentId, mapId)
     end
   end
 
   if scope == SCOPES.outfit then
     local outfitId = C_TransmogOutfitInfo.GetActiveOutfitID()
     if outfitId then
-      API:RemovePetFromOutfit(petGUID, outfitId)
+      Database:RemovePetFromOutfit(petGUID, outfitId)
     end
   end
 end
 
 local function list(scope)
-  local list = API:GetListForContextScope(scope)
+  local list = Database:GetListForContextScope(scope)
   if not list or not list.pets then
     addOn:Printf("No Pets for %s", scope)
     return
@@ -88,13 +89,13 @@ end
 
 local function clear(scope)
   if scope == SCOPES.world then
-    API:ClearList(scope)
+    Database:ClearList(scope)
   end
 
   if scope == SCOPES.continent then
     local success, continentId = Utilities:GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
     if success then
-      API:ClearList(scope, continentId)
+      Database:ClearList(scope, continentId)
     end
   end
 
@@ -102,14 +103,14 @@ local function clear(scope)
     local mapId = C_Map.GetBestMapForUnit("player")
     local success, continentId = Utilities:GetContinentIDForMap(mapId)
     if success then
-      API:ClearList(scope, continentId, mapId)
+      Database:ClearList(scope, continentId, mapId)
     end
   end
 
   if scope == SCOPES.outfit then
     local outfitId = C_TransmogOutfitInfo.GetActiveOutfitID()
     if outfitId then
-      API:ClearList(scope, outfitId)
+      Database:ClearList(scope, outfitId)
     end
   end
 end
@@ -128,7 +129,7 @@ end
 --------------------------------------------------------------------------------
 --- Module API
 --------------------------------------------------------------------------------
-function API:HandleAction(action, ...)
+function Commands:HandleAction(action, ...)
   -- ... = { everything users passed after action }
   -- Could be: { "zone", "[item:123]", "[item:456]"}
   -- or: {"[item:123]", "[item:456]"}
