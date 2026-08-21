@@ -79,7 +79,11 @@ local function list(scope)
     return
   end
 
-  addOn:Printf("Pets in %s", scope)
+  local mapInfo = Utilities:GetPlayerMapInfoForScope(scope)
+
+  local location = mapInfo and mapInfo.name or scope
+
+  addOn:Printf("Pets in %s", location)
   local num = 0
   for i, v in ipairs(list.order) do
     local petTable = C_PetJournal.GetPetInfoTableByPetID(v)

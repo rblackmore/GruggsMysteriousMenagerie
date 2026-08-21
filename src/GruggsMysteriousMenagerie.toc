@@ -17,7 +17,7 @@ Core\Database.lua
 Core\Config.lua
 Core\SlashCmd.lua
 Core\Utilities.lua
-
+ 
 # Companions Module
 Modules\Companions\Companions_Main.lua
 Modules\Companions\Companions_Settings.lua
