@@ -68,3 +68,15 @@ function Utilities:GetContinentIDForMap(mapID)
   end
   return false, nil
 end
+
+function Utilities:GetPlayerMapInfoForScope(scope)
+  if scope == Enums.SCOPES.continent then
+    local _, continentId = Utilities:GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
+    return C_Map.GetMapInfo(continentId)
+  end
+
+  if scope == Enums.SCOPES.zone then
+    return C_Map.GetMapInfo(C_Map.GetBestMapForUnit("player"))
+  end
+  return nil
+end

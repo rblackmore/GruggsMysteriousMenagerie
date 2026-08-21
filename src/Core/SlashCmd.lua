@@ -54,9 +54,9 @@ function SlashCmd:HandleSummon(...)
   local companionModule = Modules["Pet"]()
   local dismiss = select(1, ...) and select(1, ...):lower()
   if companionModule and dismiss == "dismiss" then
-    companionModule.API:SummonOrDismissRandomPet(true)
+    companionModule.Summoning:SummonOrDismissRandomPet(true)
   else
-    companionModule.API:SummonRandomPet(true)
+    companionModule.Summoning:SummonRandomPet(true)
   end
 end
 
@@ -82,8 +82,8 @@ function SlashCmd:HandleModule(moduleName, action, ...)
     return
   end
 
-  if module.API and module.API.HandleAction then
-    module.API:HandleAction(action, ...)
+  if module.Commands and module.Commands.HandleAction then
+    module.Commands:HandleAction(action, ...)
   else
     self:Printf("%s module does not support actions", moduleName:lower())
   end

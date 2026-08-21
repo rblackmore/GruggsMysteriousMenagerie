@@ -6,31 +6,39 @@ local addonName, addonTable = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0, GMM_Companion
-local mod = addOn:NewModule("CompanionModule", "AceTimer-3.0");
+local companionModule = addOn:NewModule("CompanionModule", "AceTimer-3.0");
 
 _G["GMM_Companions"] = mod
 
 ---@class GMM_Companion
----@field API table
+---@field Commands table
+---@field Database table
 ---@field Automation table,
+---@field Summoning table,
 ---@field Config table,
+---@field Settings table,
 ---@field Cache table
 
-Mixin(mod, {
-  API = {},
+Mixin(companionModule, {
+  Commands = {},
+  Database = {},
   Automation = {},
+  Summoning = {},
   Config = {},
+  Settings = {},
   Cache = {},
 })
 
-function mod:OnInitialize()
-  mod.Cache:Init()
-  mod.Automation:Init()
-  mod.Config:Init()
+function companionModule:OnInitialize()
+  companionModule.Database:Init()
+  companionModule.Cache:Init()
+  companionModule.Automation:Init()
+  companionModule.Settings:Init()
+  companionModule.Config:Init()
 end
 
-function mod:OnEnable()
+function companionModule:OnEnable()
 end
 
-function mod:OnDisable()
+function companionModule:OnDisable()
 end
