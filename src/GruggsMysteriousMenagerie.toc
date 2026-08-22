@@ -10,13 +10,18 @@
 Libs.xml
 Locales\Locales.xml
 
-# Core Addon Files
+# Intialization
 Core\Main.lua
+
+#Utilities
+Shared\Utilities.lua
+
+# Core Addon Files
 Core\UI.lua
 Core\Database.lua
 Core\Config.lua
 Core\SlashCmd.lua
-Core\Utilities.lua
+
  
 # Companions Module
 Modules\Companions\Companions_Main.lua

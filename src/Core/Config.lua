@@ -8,8 +8,10 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 ---@class GMM_Data
 local Data = addOn.Data
 local Config = addOn.Config
-local Utilities = addOn.Utilities
 local UI = addOn.UI
+
+local CombatLockdownUtils = addonTable.CombatLockdownUtils
+
 
 --------------------------------------------------------------------------------
 --- Local Helper Functions
@@ -72,7 +74,7 @@ function Config:SetValue(info, value)
 end
 
 function Config:OpenConfig(args)
-  Utilities:DispatchIfInCombatLockdown(function()
+  CombatLockdownUtils.Dispatch(function()
     local categorySelect = Categories[args[1]]
 
     if categorySelect and addOn.UI.ConfigFrames["GMM_" .. categorySelect] then

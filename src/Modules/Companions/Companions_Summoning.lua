@@ -1,4 +1,4 @@
-local addonName, _ = ...
+local addonName, addonTable = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0, GMM_Companion
@@ -7,7 +7,10 @@ local companionModule = addOn:GetModule("CompanionModule")
 local Cache = companionModule.Cache
 local Settings = companionModule.Settings
 local Summoning = companionModule.Summoning
-local Utilities = addOn.Utilities
+
+local MapUtils = addonTable.MapUtils
+local Enums = addonTable.Enums
+local CombatLockdownUtils = addonTable.CombatLockdownUtils
 
 --------------------------------------------------------------------------------
 --- Private Functions
@@ -87,7 +90,7 @@ local function requestCompanion(userInitiated)
     petId = pickWeightedRandomPetId() or pickRandomPetId()
   end
 
-  Utilities:DispatchIfInCombatLockdown(
+  CombatLockdownUtils.Dispatch(
     function() summonCompanion(petId, userInitiated) end, nil)
 end
 

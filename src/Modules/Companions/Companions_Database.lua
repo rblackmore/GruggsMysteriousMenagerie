@@ -6,8 +6,10 @@ local companionModule = addOn:GetModule("CompanionModule")
 
 local Data = addOn.Data
 local Database = companionModule.Database
-local Utilities = addOn.Utilities
-local Enums = Utilities.Enums
+
+local MapUtils = addonTable.MapUtils
+local Enums = addonTable.Enums
+local CombatLockdownUtils = addonTable.CombatLockdownUtils
 
 --------------------------------------------------------------------------------
 --- Local
@@ -371,7 +373,7 @@ end
 function Database:GetCurrentContextPetList()
   local outfitID = C_TransmogOutfitInfo.GetActiveOutfitID()
   local mapID = C_Map.GetBestMapForUnit("player")
-  local _, continentID = Utilities:GetContinentIDForMap(mapID)
+  local _, continentID = MapUtils.GetContinentIDForMap(mapID)
 
   local list = getListFor(outfitID, mapID, continentID)
 
@@ -383,12 +385,12 @@ function Database:GetListForContextScope(scope)
     return Database:GetListForScope(scope)
   end
   if scope == SCOPES.continent then
-    local success, continentId = Utilities:GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
+    local success, continentId = MapUtils.GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
     return Database:GetListForScope(scope, continentId)
   end
   if scope == SCOPES.zone then
     local mapId = C_Map.GetBestMapForUnit("player")
-    local success, continentId = Utilities:GetContinentIDForMap(mapId)
+    local success, continentId = MapUtils.GetContinentIDForMap(mapId)
     return Database:GetListForScope(scope, continentId, mapId)
   end
   if scope == SCOPES.outfit then

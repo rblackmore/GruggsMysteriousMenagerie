@@ -14,8 +14,14 @@ addOn:SetDefaultModuleLibraries("AceEvent-3.0", "AceConsole-3.0")
 ---@field UI {ConfigFrames: table, [any]: any }
 ---@field Config table
 ---@field SlashCmd table
----@field Utilities table
 ---@field Modules { Pet: fun(): AceModule, Mount: fun(): AceModule, ... }
+
+---@class GMM_Table
+---@field Enums table
+---@field MapUtils table
+---@field CombatLockdownUtils table
+
+
 
 Mixin(addOn,
   {
@@ -24,8 +30,6 @@ Mixin(addOn,
       ConfigFrames = {} },
     Config = {},
     SlashCmd = {},
-    Utilities = {
-      Enums = {} },
     Modules = {
       Pet = function() return addOn:GetModule("CompanionModule") end,
       comp = function() return addOn:GetModule("CompanionModule") end,

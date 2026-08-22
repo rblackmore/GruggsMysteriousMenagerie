@@ -2,8 +2,13 @@ local addonName, addonTable = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0, GMM_Addon
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 
-local Utilities = addOn.Utilities
-local Enums = Utilities.Enums
+addonTable.Enums = {}
+addonTable.MapUtils = {}
+addonTable.CombatLockdownUtils = {}
+
+local MapUtils = addonTable.MapUtils
+local Enums = addonTable.Enums
+local CombatLockdownUtils = addonTable.CombatLockdownUtils
 
 --------------------------------------------------------------------------------
 --- Enums
@@ -35,15 +40,7 @@ Enums.SCOPES = {
 --- Functions
 --------------------------------------------------------------------------------
 
-function Utilities:GetInstanceZoneType()
-  if IsResting() then
-    return "RESTING"
-  end
-  local _, instanceType = IsInInstance()
-  return Enums.INSTANCE_TYPES[instanceType] or "GLOBAL"
-end
-
-function Utilities:DispatchIfInCombatLockdown(action, msg)
+function CombatLockdownUtils.Dispatch(action, msg)
   if InCombatLockdown() then
     if msg then
       addOn:Print(msg);
@@ -57,7 +54,19 @@ function Utilities:DispatchIfInCombatLockdown(action, msg)
   end
 end
 
-function Utilities:GetContinentIDForMap(mapID)
+--------------------------------------------------------------------------------
+--- Map Utilities
+--------------------------------------------------------------------------------
+
+function MapUtils.GetInstanceZoneType()
+  if IsResting() then
+    return "RESTING"
+  end
+  local _, instanceType = IsInInstance()
+  return Enums.INSTANCE_TYPES[instanceType] or "GLOBAL"
+end
+
+function MapUtils.GetContinentIDForMap(mapID)
   local info = mapID and C_Map.GetMapInfo(mapID)
   while info do
     if info.mapType == Enum.UIMapType.Continent then
@@ -69,9 +78,9 @@ function Utilities:GetContinentIDForMap(mapID)
   return false, nil
 end
 
-function Utilities:GetPlayerMapInfoForScope(scope)
+function MapUtils.GetPlayerMapInfoForScope(scope)
   if scope == Enums.SCOPES.continent then
-    local _, continentId = Utilities:GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
+    local _, continentId = MapUtils:GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
     return C_Map.GetMapInfo(continentId)
   end
 
