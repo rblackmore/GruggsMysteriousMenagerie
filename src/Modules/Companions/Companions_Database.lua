@@ -11,13 +11,32 @@ local MapUtils = addonTable.MapUtils
 local Enums = addonTable.Enums
 local CombatLockdownUtils = addonTable.CombatLockdownUtils
 
---------------------------------------------------------------------------------
---- Local
---------------------------------------------------------------------------------
-
 local SCOPES = Enums.SCOPES
 
-local function addPetToList(list, petGUID, weight)
+
+
+
+--------------------------------------------------------------------------------
+--- Companion List Model
+--------------------------------------------------------------------------------
+
+local CompanionList = {}
+
+function CompanionList.new()
+  return {
+    pets = {},
+    order = {},
+    weights = {},
+    total = 0
+  }
+end
+
+function CompanionList.isEmpty(list)
+  return not list or type(list.total) ~= "number" or list.total <= 0
+end
+
+function CompanionList.addPet(list, petGUID, weight)
+  if not list then return false end
   list.pets = list.pets or {}
   list.order = list.order or {}
   list.weights = list.weights or {}
@@ -37,7 +56,7 @@ local function addPetToList(list, petGUID, weight)
   return false
 end
 
-local function removePetFromList(list, petGUID)
+function CompanionList.removePet(list, petGUID)
   if not (list and list.pets and list.pets[petGUID]) then
     return false
   end
@@ -57,9 +76,9 @@ local function removePetFromList(list, petGUID)
   return true
 end
 
-local function createEmptyList()
-  return { pets = {}, order = {}, weights = {}, total = 0 }
-end
+--------------------------------------------------------------------------------
+--- Local
+--------------------------------------------------------------------------------
 
 local function clearList(scope, ...)
   local dbp = Data.Companions.profile
@@ -68,7 +87,7 @@ local function clearList(scope, ...)
 
   if scope == SCOPES.world then
     -- World scope: reset to empty list, don't nil it
-    dbp.world = createEmptyList()
+    dbp.world = CompanionList.new()
   elseif scope == SCOPES.continent and args[1] then
     -- Continents: set to nil
     dbp.continents[args[1]] = nil
@@ -81,56 +100,36 @@ local function clearList(scope, ...)
   end
 end
 
-local function ensureWorld()
+local function ensureScope(scope, ...)
   local dbp = Data.Companions.profile
-  dbp.world = dbp.world or createEmptyList()
-  return dbp.world
-end
 
-local function ensureContinent(continentID)
-  local dbp = Data.Companions.profile
-  dbp.continents = dbp.continents or {}
-  local c = dbp.continents[continentID]
-  if not c then
-    c = createEmptyList()
-    dbp.continents[continentID] = c
-  end
-  return c
-end
-
-local function ensureZone(continentID, zoneID)
-  local dbp = Data.Companions.profile
-  dbp.zones = dbp.zones or {}
-  dbp.zones[continentID] = dbp.zones[continentID] or {}
-
-  local z = dbp.zones[continentID][zoneID]
-  if not z then
-    z = createEmptyList()
-    dbp.zones[continentID][zoneID] = z
-  end
-  return z
-end
-
-local function ensureOutfit(outfitID)
-  local dbc = Data.Companions.char
-  dbc.outfits = dbc.outfits or {}
-  local o = dbc.outfits[outfitID]
-  if not o then
-    o = createEmptyList()
-    dbc.outfits[outfitID] = o
-  end
-  return o
-end
-
-local function listHasPets(list)
-  if not list then
-    return false
-  end
-  if type(list.total) == "number" and list.total > 0 then
-    return true
+  if scope == SCOPES.world then
+    dbp.world = dbp.world or CompanionList.new()
+    return dbp.world
   end
 
-  return list.order and #list.order > 0
+  if scope == SCOPES.continent then
+    local continentID = ...
+    dbp.continents = dbp.continents or {}
+    dbp.continents[continentID] = dbp.continents[continentID] or CompanionList.new()
+    return dbp.continents[continentID]
+  end
+
+  if scope == SCOPES.zone then
+    local continentID, zoneID = ...
+    dbp.zones = dbp.zones or {}
+    dbp.zones[continentID] = dbp.zones[continentID] or {}
+    dbp.zones[continentID][zoneID] = dbp.zones[continentID][zoneID] or CompanionList.new()
+    return dbp.zones[continentID][zoneID]
+  end
+
+  if scope == SCOPES.outfit then
+    local outfitID = ...
+    local dbc = Data.Companions.char
+    dbc.outfit = dbc.outfit or {}
+    dbc.outfit[outfitID] = dbc.outfit[outfitID] or CompanionList.new()
+    return dbc.outfit[outfitID]
+  end
 end
 
 local function getListFor(outfitID, mapID, continentID)
@@ -140,7 +139,7 @@ local function getListFor(outfitID, mapID, continentID)
   -- 1) Outfit
   if outfitID and dbc.outfits then
     local outfit = dbc.outfits[outfitID]
-    if listHasPets(outfit) then
+    if not CompanionList.isEmpty(outfit) then
       return outfit
     end
   end
@@ -150,7 +149,7 @@ local function getListFor(outfitID, mapID, continentID)
     local continent = dbp.zones[continentID]
     if continent then
       local zone = continent[mapID]
-      if listHasPets(zone) then
+      if not CompanionList.isEmpty(zone) then
         return zone
       end
     end
@@ -159,13 +158,13 @@ local function getListFor(outfitID, mapID, continentID)
   -- 3) Continent
   if continentID and dbp.continents then
     local continent = dbp.continents[continentID]
-    if listHasPets(continent) then
+    if not CompanionList.isEmpty(continent) then
       return continent
     end
   end
 
   -- 4 ) world
-  if dbp.world and listHasPets(dbp.world) then
+  if dbp.world and not CompanionList.isEmpty(dbp.world) then
     return dbp.world
   end
 
@@ -202,8 +201,8 @@ function Database:AddPetToWorld(petGUID, weight)
   if not speciesID then
     return false, "Invalid petGUID"
   end
-  local world = ensureWorld()
-  local added = addPetToList(world, petGUID, weight)
+  local world = ensureScope(SCOPES.world)
+  local added = CompanionList.addPet(world, petGUID, weight)
   return true, added and "Added" or "Updated"
 end
 
@@ -221,8 +220,8 @@ function Database:AddPetToContinent(petGUID, continentID, weight)
     return false, "Invalid petGUID"
   end
 
-  local continent = ensureContinent(continentID)
-  local added = addPetToList(continent, petGUID, weight)
+  local continent = ensureScope(SCOPES.continent, continentID)
+  local added = CompanionList.addPet(continent, petGUID, weight)
   return true, added and "Added" or "Updated"
 end
 
@@ -240,8 +239,8 @@ function Database:AddPetToZone(petGUID, continentID, zoneID, weight)
     return false, "Invalid petGUID"
   end
 
-  local zone = ensureZone(continentID, zoneID)
-  local added = addPetToList(zone, petGUID, weight)
+  local zone = ensureScope(SCOPES.zone, continentID, zoneID)
+  local added = CompanionList.addPet(zone, petGUID, weight)
   return true, added and "Added" or "Updated"
 end
 
@@ -259,8 +258,8 @@ function Database:AddPetToOutfit(petGUID, outfitID, weight)
     return false, "Invalid petGUID"
   end
 
-  local outfit = ensureOutfit(outfitID)
-  local added = addPetToList(outfit, petGUID, weight)
+  local outfit = ensureScope(SCOPES.outfit, outfitID)
+  local added = CompanionList.addPet(outfit, petGUID, weight)
   return true, added and "Added" or "Updated"
 end
 
@@ -274,8 +273,8 @@ function Database:RemovePetFromWorld(petGUID)
     return false, "Invalid petGUID"
   end
 
-  local world = ensureWorld()
-  local removed = removePetFromList(world, petGUID)
+  local world = ensureScope(SCOPES.world)
+  local removed = CompanionList.removePet(world, petGUID)
   return removed, removed and "Pet removed from Global List" or "Pet not found in global list"
 end
 
@@ -293,8 +292,8 @@ function Database:RemovePetFromContinent(petGUID, continentID)
     return false, "Invalid petGUID"
   end
 
-  local continent = ensureContinent(continentID)
-  local removed = removePetFromList(continent, petGUID)
+  local continent = ensureScope(SCOPES.continent, continentID)
+  local removed = CompanionList.removePet(continent, petGUID)
   return removed, removed and "Pet removed from continent List" or "Pet not found in continent list"
 end
 
@@ -312,8 +311,8 @@ function Database:RemovePetFromZone(petGUID, continentID, zoneID)
     return false, "Invalid petGUID"
   end
 
-  local zone = ensureZone(continentID, zoneID)
-  local removed = removePetFromList(zone, petGUID)
+  local zone = ensureScope(SCOPES.zone, continentID, zoneID)
+  local removed = CompanionList.removePet(zone, petGUID)
   return removed, removed and "Pet removed from zone List" or "Pet not found in zone list"
 end
 
@@ -331,8 +330,8 @@ function Database:RemovePetFromOutfit(petGUID, outfitID)
     return false, "Invalid petGUID"
   end
 
-  local outfit = ensureOutfit(outfitID)
-  local removed = removePetFromList(outfit, petGUID)
+  local outfit = ensureScope(SCOPES.outfit, outfitID)
+  local removed = CompanionList.removePet(outfit, petGUID)
   return removed, removed and "Pet removed from outfit List" or "Pet not found in outfit list"
 end
 
@@ -403,14 +402,14 @@ function Database:BuildFallbackList()
   local dbp = Data.Settings.profile
   local useFavorites = dbp.companions.UseFavoritesFallback
 
-  local list = createEmptyList()
+  local list = CompanionList.new()
   local petGUIDs = C_PetJournal.GetOwnedPetIDs()
 
   for i = 1, #petGUIDs do
     local speciesID, _, _, _, _, _, isFavorite = C_PetJournal.GetPetInfoByPetID(petGUIDs[i])
     if speciesID then
       if not useFavorites or isFavorite then
-        addPetToList(list, petGUIDs[i])
+        CompanionList.addPet(list, petGUIDs[i])
       end
     end
   end
