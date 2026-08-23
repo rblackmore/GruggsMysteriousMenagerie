@@ -6,8 +6,10 @@ local companionModule = addOn:GetModule("CompanionModule")
 
 local Commands = companionModule.Commands
 local Database = companionModule.Database
-local Utilities = addOn.Utilities
-local Enums = Utilities.Enums
+
+local MapUtils = addonTable.MapUtils
+local Enums = addonTable.Enums
+local CombatLockdownUtils = addonTable.CombatLockdownUtils
 
 --------------------------------------------------------------------------------
 --- Local Functions and Constants
@@ -28,13 +30,13 @@ local function add(scope, petGUID)
   end
 
   if scope == SCOPES.continent then
-    local success, continentID = Utilities:GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
+    local success, continentID = MapUtils.GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
     Database:AddPetToContinent(petGUID, continentID)
   end
 
   if scope == SCOPES.zone then
     local mapId = C_Map.GetBestMapForUnit("player")
-    local success, continentId = Utilities:GetContinentIDForMap(mapId)
+    local success, continentId = MapUtils.GetContinentIDForMap(mapId)
     Database:AddPetToZone(petGUID, continentId, mapId)
   end
 
@@ -50,7 +52,7 @@ local function remove(scope, petGUID)
   end
 
   if scope == SCOPES.continent then
-    local success, continentId = Utilities:GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
+    local success, continentId = MapUtils.GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
     if success then
       Database:RemovePetFromContinent(petGUID, continentId)
     end
@@ -58,7 +60,7 @@ local function remove(scope, petGUID)
 
   if scope == SCOPES.zone then
     local mapId = C_Map.GetBestMapForUnit("player")
-    local success, continentId = Utilities:GetContinentIDForMap(mapId)
+    local success, continentId = MapUtils.GetContinentIDForMap(mapId)
     if success then
       Database:RemovePetFromZone(petGUID, continentId, mapId)
     end
@@ -79,7 +81,7 @@ local function list(scope)
     return
   end
 
-  local mapInfo = Utilities:GetPlayerMapInfoForScope(scope)
+  local mapInfo = MapUtils.GetPlayerMapInfoForScope(scope)
 
   local location = mapInfo and mapInfo.name or scope
 
@@ -97,7 +99,7 @@ local function clear(scope)
   end
 
   if scope == SCOPES.continent then
-    local success, continentId = Utilities:GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
+    local success, continentId = MapUtils.GetContinentIDForMap(C_Map.GetBestMapForUnit("player"))
     if success then
       Database:ClearList(scope, continentId)
     end
@@ -105,7 +107,7 @@ local function clear(scope)
 
   if scope == SCOPES.zone then
     local mapId = C_Map.GetBestMapForUnit("player")
-    local success, continentId = Utilities:GetContinentIDForMap(mapId)
+    local success, continentId = MapUtils.GetContinentIDForMap(mapId)
     if success then
       Database:ClearList(scope, continentId, mapId)
     end

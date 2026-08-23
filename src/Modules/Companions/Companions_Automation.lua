@@ -1,4 +1,4 @@
-local addonName, _ = ...
+local addonName, addonTable = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0, GMM_Companion
@@ -7,7 +7,10 @@ local companionModule = addOn:GetModule("CompanionModule")
 local Automation = companionModule.Automation
 local Summoning = companionModule.Summoning
 local Settings = companionModule.Settings
-local Utilities = addOn.Utilities
+
+local MapUtils = addonTable.MapUtils
+local Enums = addonTable.Enums
+local CombatLockdownUtils = addonTable.CombatLockdownUtils
 
 LibStub("AceEvent-3.0"):Embed(Automation)
 LibStub("AceTimer-3.0"):Embed(Automation)
@@ -61,7 +64,7 @@ end
 
 function Automation:Handler(...)
   local automationSettings = Settings:GetAutomationSettings()
-  if not automationSettings[Utilities:GetInstanceZoneType()] then
+  if not automationSettings[MapUtils.GetInstanceZoneType()] then
     return
   end
 
