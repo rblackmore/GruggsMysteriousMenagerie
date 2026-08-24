@@ -4,6 +4,8 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 ---@class AceAddon: AceTimer-3.0
 local companionModule = addOn:GetModule("CompanionModule")
 
+local L = addonTable.L
+
 local Config = companionModule.Config
 local Settings = companionModule.Settings
 local UI = addOn.UI
@@ -18,23 +20,23 @@ local function BuildOptionsTable()
   local announcementOptions = {
     ["MessageFormat"] = {
       type = "input",
-      name = "Message Format",
-      desc = "Format of the message to display, use %s in place where pet name should be shown.",
+      name = L["CS Message Format Name"],
+      desc = L["CS Message Format Description"],
       usage = "<Your message>",
       get = "GetValue",
       set = "SetValue",
     },
     ["UseCustomName"] = {
       type = "toggle",
-      name = "Custom Name",
-      desc = "Use Custom Name if one is set, otherwise Species Name.",
+      name = L["CS Custom Name Name"],
+      desc = L["CS Custom Name Description"],
       get = "GetValue",
       set = "SetValue",
     },
     ["Channel"] = {
       type = "select",
-      name = "Channel",
-      desc = "The Channel to Announce your Summon to",
+      name = L["CS Channel Name"],
+      desc = L["CS Channel Description"],
       values = {
         ["SAY"] = "SAY",
         ["EMOTE"] = "EMOTE",
@@ -52,15 +54,15 @@ local function BuildOptionsTable()
   local companionOptions = {
     ["EnablePetOfTheDay"] = {
       type = "toggle",
-      name = "Pet of the Day",
-      desc = "Saves the first pet summoned for the day, and summons only that one for the rest of the day.",
+      name = L["CS Enable Pet of the Day Name"],
+      desc = L["CS Enable Pet of the Day Description"],
       get = function(info) return Settings:GetCompanionSettings()["Automation"]["petoftheday"].Enabled end,
       set = function(info, value) Settings:GetCompanionSettings()["Automation"]["petoftheday"].Enabled = value end,
     },
     ["UseFavoritesFallback"] = {
       type = "toggle",
-      name = "Use Favorites as Fallback",
-      desc = "Use only favorite pets as the fallback pool",
+      name = L["CS Fallback To Favorites Name"],
+      desc = L["CS Fallback To Favorites Description"],
       get = function(info) return Settings:GetCompanionSettings()["UseFavoritesFallback"] end,
       set = function(info, value)
         Settings:GetCompanionSettings()["UseFavoritesFallback"] = value
@@ -73,64 +75,64 @@ local function BuildOptionsTable()
     ["RESTING"] = {
       order = 1,
       type = "toggle",
-      name = "Cities",
-      desc = "Auto Summon In Cities (Resting)",
+      name = L["CS Cities Name"],
+      desc = L["CS Cities Description"],
       get = function(info) return Settings:GetCompanionSettings()["Automation"]["RESTING"] end,
       set = function(info, value) Settings:GetCompanionSettings()["Automation"]["RESTING"] = value end
     },
     ["GLOBAL"] = {
       order = 2,
       type = "toggle",
-      name = "Global",
-      desc = "Auto Summon In the Open World",
+      name = L["CS Global Name"],
+      desc = L["CS Global Description"],
       get = function(info) return Settings:GetCompanionSettings()["Automation"]["GLOBAL"] end,
       set = function(info, value) Settings:GetCompanionSettings()["Automation"]["GLOBAL"] = value end
     },
     ["DUNGEON"] = {
       order = 3,
       type = "toggle",
-      name = "Dungeon",
-      desc = "Auto Summon In Dungeons",
+      name = L["CS Dungeons Name"],
+      desc = L["CS Dungeons Description"],
       get = function(info) return Settings:GetCompanionSettings()["Automation"]["DUNGEON"] end,
       set = function(info, value) Settings:GetCompanionSettings()["Automation"]["DUNGEON"] = value end
     },
     ["RAID"] = {
       order = 4,
       type = "toggle",
-      name = "Raid",
-      desc = "Auto Summon In the Raids",
+      name = L["CS Raids Name"],
+      desc = L["CS Raids Description"],
       get = function(info) return Settings:GetCompanionSettings()["Automation"]["RAID"] end,
       set = function(info, value) Settings:GetCompanionSettings()["Automation"]["RAID"] = value end
     },
     ["BATTLEGROUND"] = {
       order = 5,
       type = "toggle",
-      name = "Battleground",
-      desc = "Auto Summon In Battlegrounds",
+      name = L["CS Battlegrounds Name"],
+      desc = L["CS BattleGrounds Description"],
       get = function(info) return Settings:GetCompanionSettings()["Automation"]["BATTLEGROUND"] end,
       set = function(info, value) Settings:GetCompanionSettings()["Automation"]["BATTLEGROUND"] = value end
     },
     ["ARENA"] = {
       order = 6,
       type = "toggle",
-      name = "Arena",
-      desc = "Auto Summon In Arenas",
+      name = L["CS Arenas Name"],
+      desc = L["CS Arenas Description"],
       get = function(info) return Settings:GetCompanionSettings()["Automation"]["ARENA"] end,
       set = function(info, value) Settings:GetCompanionSettings()["Automation"]["ARENA"] = value end
     },
     ["SCENARIO"] = {
       order = 7,
       type = "toggle",
-      name = "Scenario",
-      desc = "Auto Summon In the Scenarios",
+      name = L["CS Scenarios Name"],
+      desc = L["CS Scenarios Description"],
       get = function(info) return Settings:GetCompanionSettings()["Automation"]["SCENARIO"] end,
       set = function(info, value) Settings:GetCompanionSettings()["Automation"]["SCENARIO"] = value end
     },
     ["Delay"] = {
       order = 10,
       type = "range",
-      name = "Delay (Seconds)",
-      desc = "Summon pet automatically after a short delay",
+      name = L["CS Delay Name"],
+      desc = L["CS Delay Description"],
       min = 2,
       max = 20,
       step = 1,
@@ -140,8 +142,8 @@ local function BuildOptionsTable()
     ["ForceSummon"] = {
       order = 11,
       type = "toggle",
-      name = "Force Summon",
-      desc = "Force Summon even if a pet is already summoned",
+      name = L["CS Force Summon Name"],
+      desc = L["CS Force Summon Description"],
       get = function(info) return Settings:GetCompanionSettings()["Automation"]["forcesummon"] end,
       set = function(info, value) Settings:GetCompanionSettings()["Automation"]["forcesummon"] = value end
     }
@@ -156,21 +158,21 @@ local function BuildOptionsTable()
       announcementGroup = {
         order = 1,
         inline = true,
-        name = "Announcement",
+        name = L["CS Category Announcement"],
         type = "group",
         args = announcementOptions
       },
       companionAutomationGroup = {
         order = 2,
         inline = true,
-        name = "Automation",
+        name = L["CS Category Automation"],
         type = "group",
         args = automationOptions
       },
       companionManagementGroup = {
         order = 3,
         inline = true,
-        name = "Configuration",
+        name = L["CS Category General"],
         type = "group",
         args = companionOptions
       },
@@ -185,7 +187,8 @@ end
 function Config:Init()
   local options = BuildOptionsTable()
   AceConfig:RegisterOptionsTable("GMM_Companions", options)
-  local frame, frameId = AceConfigDialog:AddToBlizOptions("GMM_Companions", "Companions", "GMM")
+  local frame, frameId =
+      AceConfigDialog:AddToBlizOptions("GMM_Companions", L["S Category Companions"], L["S Category Main"])
   UI:RegisterConfigurationFrame("GMM_Companions", frame, frameId)
 end
 

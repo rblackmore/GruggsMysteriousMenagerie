@@ -13,9 +13,6 @@ local CombatLockdownUtils = addonTable.CombatLockdownUtils
 
 local SCOPES = Enums.SCOPES
 
-
-
-
 --------------------------------------------------------------------------------
 --- Companion List Model
 --------------------------------------------------------------------------------

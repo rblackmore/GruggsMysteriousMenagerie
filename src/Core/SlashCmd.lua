@@ -2,6 +2,7 @@ local addonName, addonTable = ...
 ---@class AceAddon: AceConsole-3.0, AceEvent-3.0, AceTimer-3.0, GMM_Addon
 local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 
+local L = addonTable.L
 local SlashCmd = addOn.SlashCmd
 local Config = addOn.Config
 local Modules = addOn.Modules
@@ -63,7 +64,7 @@ end
 function SlashCmd:HandleSetPetOfTheDay(...)
   local companionModule = Modules["Pet"]()
   if companionModule then
-    companionModule.API:SetActivePetAsPetOfTheDay()
+    companionModule.Settings:SetActivePetAsPetOfTheDay()
   end
 end
 
@@ -110,6 +111,6 @@ function SlashCmd:HandleCommand(input)
   if command then
     command(self, select(2, unpack(args)))
   else
-    self:Print("Unknown Command: " .. root)
+    self:Print(L["Unknown Command Colon"] .. root)
   end
 end
