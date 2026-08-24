@@ -5,6 +5,8 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
+local L = addonTable.L
+
 ---@class GMM_Data
 local Data = addOn.Data
 local Config = addOn.Config
@@ -18,12 +20,12 @@ local CombatLockdownUtils = addonTable.CombatLockdownUtils
 --------------------------------------------------------------------------------
 local function BuildOptionsTable()
   return {
-    name = "Gruggs Mysterious Menagerie",
+    name = L["Addon Name"],
     type = "group",
     handler = Config,
     args = {
       desc = {
-        name = "Gruggs Mysterious Menagerie",
+        name = L["Addon Name"],
         type = "description",
         fontSize = "large"
 
@@ -48,12 +50,12 @@ local Categories = {
 function Config:Init()
   local options = BuildOptionsTable()
   AceConfig:RegisterOptionsTable("GMM_Configuration", options)
-  local frame, frameId = AceConfigDialog:AddToBlizOptions("GMM_Configuration", "GMM")
+  local frame, frameId = AceConfigDialog:AddToBlizOptions("GMM_Configuration", L["S Category Main"])
   UI:RegisterConfigurationFrame("GMM_Configuration", frame, frameId)
 
   local profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(Data.AceDatabase)
   AceConfig:RegisterOptionsTable("GMM_Profiles", profileOptions)
-  frame, frameId = AceConfigDialog:AddToBlizOptions("GMM_Profiles", "Profiles", "GMM")
+  frame, frameId = AceConfigDialog:AddToBlizOptions("GMM_Profiles", L["S Category Profiles"], L["S Category Main"])
   UI:RegisterConfigurationFrame("GMM_Profiles", frame, frameId)
 end
 
@@ -78,11 +80,9 @@ function Config:OpenConfig(args)
     local categorySelect = Categories[args[1]]
 
     if categorySelect and addOn.UI.ConfigFrames["GMM_" .. categorySelect] then
-      addOn:Printf("Catergory Selected: %s", categorySelect)
       Settings.OpenToCategory(addOn.UI.ConfigFrames["GMM_" .. categorySelect]["frameId"])
     else
-      addOn:Printf("Opening Configuraiton Default")
       Settings.OpenToCategory(addOn.UI.ConfigFrames["GMM_Configuration"]["frameId"])
     end
-  end, "Opening Settings when out of Combat")
+  end, L["Open Settings When Out Of Combat"])
 end

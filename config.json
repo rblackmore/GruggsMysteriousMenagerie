@@ -1,6 +1,6 @@
 {
   "INTERFACE": "120000, 120001, 120007, 120100",
-  "VERSION": "0.3.4-b",
+  "VERSION": "0.4.0",
   "APP_NAME": "GruggsMysteriousMenagerie",
   "APP_TITLE": "Gruggs Mysterious Menagerie (GMM)",
   "AUTHOR": "Grugg",
