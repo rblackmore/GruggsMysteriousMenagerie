@@ -22,7 +22,6 @@ Core\Database.lua
 Core\Config.lua
 Core\SlashCmd.lua
 
- 
 # Companions Module
 Modules\Companions\Companions_Main.lua
 Modules\Companions\Companions_Settings.lua
@@ -32,3 +31,6 @@ Modules\Companions\Companions_Cache.lua
 Modules\Companions\Companions_Commands.lua
 Modules\Companions\Companions_Automation.lua
 Modules\Companions\Companions_Summoning.lua
+
+# Interface
+Views\GMM_Transmog\GMM_Transmog.xml
