@@ -47,7 +47,6 @@ GMM_MenagerieWardrobeMixin = {
       initFunc = GMM_MenagerieElementModelMixin.Init
     }
   }
-
 }
 function GMM_MenagerieWardrobeMixin:Init(context)
   self.wardrobeCollection = context.wardrobeCollection
