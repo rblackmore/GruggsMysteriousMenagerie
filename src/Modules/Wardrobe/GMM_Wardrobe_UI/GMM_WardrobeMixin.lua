@@ -30,3 +30,10 @@ function GMM_WardrobeMixin:OnKeyDown() end
 function GMM_WardrobeMixin:InitFilterButton()
   self.FilterButton:SetText(SOURCES)
 end
+
+function GMM_WardrobeMixin:Refresh()
+  self:RefreshCollecitonEntries()
+end
+
+function GMM_WardrobeMixin:RefreshCollecitonEntries()
+end

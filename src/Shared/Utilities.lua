@@ -36,6 +36,18 @@ Enums.SCOPES = {
   o = "outfit"
 }
 
+Enums.TransmogMenagerieSlot = {
+  Companion = 0,
+  Mount = 1,
+  FlyingMount = 2,
+  GroundMount = 3
+}
+
+Enums.TransmogMenagerieSlotType = {
+  Companion = 0,
+  Mount = 1
+}
+
 --------------------------------------------------------------------------------
 --- Functions
 --------------------------------------------------------------------------------

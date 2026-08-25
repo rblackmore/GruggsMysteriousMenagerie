@@ -64,4 +64,52 @@
       <OnEvent method="OnEvent" /> -->
     </Scripts>
   </PlayerModel>
+
+  <Button name="GMM_TransmogSlotButtonTemplate" mixin="GMM_TransmogSlotButtonMixin" virtual="true">
+    <Size x="59" y="59" />
+    <Layers>
+      <Layer level="BACKGROUND">
+        <Texture parentKey="Icon">
+          <Size x="45" y="45" />
+          <Anchors>
+            <Anchor point="CENTER" />
+          </Anchors>
+        </Texture>
+      </Layer>
+      <Layer level="BORDER">
+        <Texture parentKey="Border" atlas="transmog-gearslot-default" useAtlasSize="true">
+          <Anchors>
+            <Anchor point="CENTER" />
+          </Anchors>
+        </Texture>
+      </Layer>
+      <Layer level="ARTWORK">
+        <Texture parentKey="DisabledIcon" atlas="transmog-icon-disabled" useAtlasSize="true"
+          hidden="true">
+          <Anchors>
+            <Anchor point="CENTER" />
+          </Anchors>
+        </Texture>
+        <Texture parentKey="HiddenVisualIcon" atlas="transmog-icon-hidden" useAtlasSize="true"
+          hidden="true">
+          <Anchors>
+            <Anchor point="CENTER" />
+          </Anchors>
+        </Texture>
+        <Texture parentKey="ShowEquippedIcon" atlas="transmog-icon-tick" useAtlasSize="true">
+          <Anchors>
+            <Anchor point="CENTER" />
+          </Anchors>
+        </Texture>
+      </Layer>
+    </Layers>
+    <Scripts>
+      <OnLoad method="OnLoad" />
+      <OnClick method="OnClick" />
+      <OnEnter method="OnEnter" />
+      <OnLeave method="OnLeave" />
+      <OnShow method="OnShow" />
+    </Scripts>
+  </Button>
+
 </Ui>
