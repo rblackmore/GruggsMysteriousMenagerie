@@ -4,7 +4,7 @@
   <!-- <Include file="GMM_MenagerieWardrobeTemplates.xml" /> -->
   <Script file="GMM_Transmog.lua" />
 
-  <Frame name="GMM_TransmogMenagerieFrame" mixin="GMM_TransmogMenagerieMixin"
+  <Frame name="GMM_MenagerieWardrobeFrame" mixin="GMM_MenagerieWardrobeMixin"
     setAllPoints="true" hidden="true" virtual="true">
     <Layers>
       <Layer level="OVERLAY">

@@ -1,9 +1,9 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/AddOns/Blizzard_SharedXML/UI.xsd">
 
-  <Script file="GMM_Transmog.lua" />
+  <Script file="GMM_WardrobeMixin.lua" />
 
-  <Frame name="GMM_TransmogMenagerieTemplate" virtual="true" mixin="GMM_TransmogMixin">
+  <Frame name="GMM_WardrobeFrame" mixin="GMM_WardrobeMixin" virtual="true">
     <Size x="600" y="700" />
     <Layers>
       <Layer level="OVERLAY">
@@ -26,7 +26,7 @@
       </Layer>
     </Layers>
     <Frames>
-      
+
       <DropdownButton parentKey="FilterButton" inherits="WowStyle1FilterDropdownTemplate">
         <KeyValues>
           <KeyValue key="resizeToText" type="boolean" value="false" />
