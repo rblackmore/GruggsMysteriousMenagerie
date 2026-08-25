@@ -8,6 +8,8 @@ _G["GMM"] = addonTable
 _G["GMM_AddOn"] = addOn
 addOn:SetDefaultModuleState(false)
 addOn:SetDefaultModuleLibraries("AceEvent-3.0", "AceConsole-3.0")
+-- TODO: Remove this declaration and place it in it's own module directory.
+local TransmogMenagerie = addOn:NewModule("TransmogMenagerie")
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 addonTable.L = L

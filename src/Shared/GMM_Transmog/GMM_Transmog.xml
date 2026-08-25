@@ -1,0 +1,81 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/AddOns/Blizzard_SharedXML/UI.xsd">
+
+  <Script file="GMM_Transmog.lua" />
+
+  <Frame name="GMM_TransmogMenagerieTemplate" virtual="true" mixin="GMM_TransmogMixin">
+    <Size x="600" y="700" />
+    <Layers>
+      <Layer level="OVERLAY">
+        <FontString
+          parentKey="ActiveSlotTitle"
+          inherits="GameFontHighlightHuge"
+          text="Menagerie"
+          justifyH="LEFT">
+          <Anchors>
+            <Anchor point="TOPLEFT" x="23" y="-58" />
+          </Anchors>
+        </FontString>
+        <Texture parentKey="Divider" atlas="transmog-tabs-header-line" useAtlasSize="true"
+          alpha="0.1">
+          <Anchors>
+            <Anchor point="TOPLEFT" relativeKey="$parent.ActiveSlotTitle" relativePoint="BOTTOMLEFT"
+              x="0" y="-2" />
+          </Anchors>
+        </Texture>
+      </Layer>
+    </Layers>
+    <Frames>
+      
+      <DropdownButton parentKey="FilterButton" inherits="WowStyle1FilterDropdownTemplate">
+        <KeyValues>
+          <KeyValue key="resizeToText" type="boolean" value="false" />
+        </KeyValues>
+        <Anchors>
+          <Anchor point="TOPRIGHT" x="-29" y="-24" />
+        </Anchors>
+      </DropdownButton>
+
+      <EditBox parentKey="SearchBox" inherits="TransmogSearchBoxTemplate">
+        <Anchors>
+          <Anchor point="TOPRIGHT"
+            relativeKey="$parent.FilterButton" relativePoint="TOPLEFT" x="-10" y="1" />
+        </Anchors>
+      </EditBox>
+
+      <Frame parentKey="PagedContent" inherits="PagedNaturalSizeGridContentFrameTemplate">
+        <KeyValues>
+          <KeyValue key="viewsPerPage" value="1" type="number" />
+          <KeyValue key="xPadding" value="20" type="number" />
+          <KeyValue key="yPadding" value="20" type="number" />
+        </KeyValues>
+        <Anchors>
+          <Anchor point="TOPLEFT" x="30" y="-163" />
+          <Anchor point="BOTTOMRIGHT" x="-30" y="10" />
+        </Anchors>
+        <Frames>
+          <Frame parentKey="View" parentArray="ViewFrames" setAllPoints="true" />
+          <Frame parentKey="PagingControls" inherits="PagingControlsHorizontalTemplate">
+            <KeyValues>
+              <KeyValue key="layoutIndex" value="2" type="number" />
+              <KeyValue key="bottomPadding" value="3" type="number" />
+              <KeyValue key="prevPageSound" value="SOUNDKIT.UI_TRANSMOG_PAGE_TURN" type="global" />
+              <KeyValue key="nextPageSound" value="SOUNDKIT.UI_TRANSMOG_PAGE_TURN" type="global" />
+            </KeyValues>
+            <Anchors>
+              <Anchor point="BOTTOM" x="0" y="5" />
+            </Anchors>
+          </Frame>
+        </Frames>
+      </Frame>
+    </Frames>
+    <Scripts>
+      <OnLoad method="OnLoad" />
+      <OnShow method="OnShow" />
+      <OnHide method="OnHide" />
+      <OnEvent method="OnEvent" />
+      <OnKeyDown method="OnKeyDown" />
+    </Scripts>
+  </Frame>
+
+</Ui>
