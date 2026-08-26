@@ -65,7 +65,7 @@
     </Scripts>
   </PlayerModel>
 
-  <Button name="GMM_TransmogSlotButtonTemplate" mixin="GMM_TransmogSlotButtonMixin" virtual="true">
+  <Button name="GMM_TransmogSlotTemplate" mixin="GMM_TransmogSlotMixin" virtual="true">
     <Size x="59" y="59" />
     <Layers>
       <Layer level="BACKGROUND">

@@ -20,20 +20,18 @@ function GMM_WardrobeItemMixin:OnMouseUp() end
 
 function GMM_WardrobeItemMixin:OnMouseDown() end
 
+GMM_TransmogSlotMixin = {}
 
-
-GMM_TransmogSlotButtonMixin = {}
-
-function GMM_TransmogSlotButtonMixin:Init(slotData)
+function GMM_TransmogSlotMixin:Init(slotData)
   self.slotData = slotData
 end
 
-function GMM_TransmogSlotButtonMixin:OnLoad() end
+function GMM_TransmogSlotMixin:OnLoad() end
 
-function GMM_TransmogSlotButtonMixin:OnClick() end
+function GMM_TransmogSlotMixin:OnClick() end
 
-function GMM_TransmogSlotButtonMixin:OnEnter() end
+function GMM_TransmogSlotMixin:OnEnter() end
 
-function GMM_TransmogSlotButtonMixin:OnLeave() end
+function GMM_TransmogSlotMixin:OnLeave() end
 
-function GMM_TransmogSlotButtonMixin:OnShow() end
+function GMM_TransmogSlotMixin:OnShow() end

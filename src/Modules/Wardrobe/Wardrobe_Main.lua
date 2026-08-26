@@ -8,7 +8,7 @@ local Enums = addonTable.Enums
 
 function wardrobeModule:OnInitialize()
   self:RegisterEvent("ADDON_LOADED", "OnAddonLoaded")
-  self.MenagerieSlotFramePool = CreateFramePool("BUTTON", nil, "GMM_TransmogSlotButtonTemplate")
+  self.MenagerieSlotFramePool = CreateFramePool("BUTTON", nil, "GMM_TransmogSlotTemplate")
 end
 
 function wardrobeModule:OnAddonLoaded(event, addon)
@@ -27,7 +27,7 @@ function wardrobeModule:SetupFrame()
   gmm_wardrobeFrame.transmogFrame = TransmogFrame
   gmm_wardrobeFrame.tabOwner = tabOwner
   gmm_wardrobeFrame.tabID = tabOwner:AddNamedTab("Menagerie", gmm_wardrobeFrame)
-  self:SetupSlots()
+  gmm_wardrobeFrame:SetupSlots()
   self:UnregisterEvent("ADDON_LOADED")
   self.wardrobeFrame = gmm_wardrobeFrame
 end
@@ -80,7 +80,34 @@ function wardrobeModule:SetupSlots()
 end
 
 function wardrobeModule:SelectSlot(slotData)
-  self.wardrobeFrame:UpdateSlot(slotData)
+  self:UpdateSlot(slotData) -- Update Current Slot State
+  local selectedSlotData = self:GetSelectedSlotData()
+
+  if selectedSlotData ~= slotData then
+    return
+  end
+
+  self.wardrobeFrame:UpdateSlot(selectedSlotData)
+  self:SetToMenagerieTab()
+end
+
+function wardrobeModule:SetToMenagerieTab()
+  if self.wardrobeFrame.tabOwner:GetTab() ~= self.wardrobeFrame.tabID then
+    self.wardrobeFrame.tabOwner:SetTab(self.wardrobeFrame.tabID)
+  end
+end
+
+function wardrobeModule:GetSelectedSlotData()
+  return self.selectedSlotData
+end
+
+function wardrobeModule:UpdateSlot(slotData)
+  -- TODO: Possible logic to confirm that slotData is a valid seleciton.
+  self.selectedSlotData = slotData
+end
+
+function wardrobeModule:RefreshSelectedSlot()
+
 end
 
 -- function TransmogFrameMixin:SelectSlot(slotFrame, forceRefresh)
