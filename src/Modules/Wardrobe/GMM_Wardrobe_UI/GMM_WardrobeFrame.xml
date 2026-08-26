@@ -10,7 +10,6 @@
         <FontString
           parentKey="ActiveSlotTitle"
           inherits="GameFontHighlightHuge"
-          text="Menagerie"
           justifyH="LEFT">
           <Anchors>
             <Anchor point="TOPLEFT" x="23" y="-58" />

@@ -31,12 +31,28 @@ function GMM_WardrobeMixin:InitFilterButton()
   self.FilterButton:SetText(SOURCES)
 end
 
-function GMM_WardrobeMixin:Refresh()
-  self:RefreshCollecitonEntries()
+function GMM_WardrobeMixin:GetActiveSlotCallback()
+  return wardrobeModule:GetSelectedSlotData()
 end
 
 function GMM_WardrobeMixin:UpdateSlot(slotData)
+  self:Refresh()
 end
 
-function GMM_WardrobeMixin:RefreshCollecitonEntries()
+function GMM_WardrobeMixin:Refresh()
+  self:RefreshActiveSlotTitle()
+  self:RefreshCollectionEntries()
+end
+
+function GMM_WardrobeMixin:RefreshActiveSlotTitle()
+  local activeSlotData = self:GetActiveSlotCallback()
+  if not activeSlotData or not activeSlotData.slotName then
+    self.ActiveSlotTitle:SetText("")
+    return
+  end
+
+  self.ActiveSlotTitle:SetText(activeSlotData.slotName)
+end
+
+function GMM_WardrobeMixin:RefreshCollectionEntries()
 end

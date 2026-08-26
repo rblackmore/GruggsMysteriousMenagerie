@@ -34,9 +34,9 @@ end
 
 function wardrobeModule:GetAllMenagerieSlotInfo()
   local slots = {
-    { slot = Enums.TransmogMenagerieSlot.Companion,    type = Enums.TransmogMenagerieSlotType.Companion, slotName = "Companions" },
-    { slot = Enums.TransmogMenagerieSlot.GroundMounts, type = Enums.TransmogMenagerieSlotType.Mount,     slotName = "Ground Mounts" },
-    { slot = Enums.TransmogMenagerieSlot.FlyingMounts, type = Enums.TransmogMenagerieSlotType.Mount,     slotName = "Flying Mounts" }
+    { slot = Enums.TransmogMenagerieSlot.Companion,    type = Enums.TransmogMenagerieSlotType.Companion, slotName = "Companions",    iconTexture = "category-icons_pets_active" },
+    { slot = Enums.TransmogMenagerieSlot.GroundMounts, type = Enums.TransmogMenagerieSlotType.Mount,     slotName = "Ground Mounts", iconTexture = "category-icons_mounts_active" },
+    { slot = Enums.TransmogMenagerieSlot.FlyingMounts, type = Enums.TransmogMenagerieSlotType.Mount,     slotName = "Flying Mounts", iconTexture = "shop-icon-mount-flying-selected" }
   }
   return slots
 end
@@ -68,7 +68,8 @@ function wardrobeModule:SetupSlots()
     local slotData = {
       module = self,
       transmogFrame = TransmogFrame,
-      data = info
+      slotName = info.slotName,
+      iconTexture = info.iconTexture,
     }
 
     slotFrame.layoutIndex = index
@@ -80,6 +81,10 @@ function wardrobeModule:SetupSlots()
 end
 
 function wardrobeModule:SelectSlot(slotData)
+  if not slotData then
+    return
+  end
+
   self:UpdateSlot(slotData) -- Update Current Slot State
   local selectedSlotData = self:GetSelectedSlotData()
 
@@ -102,8 +107,12 @@ function wardrobeModule:GetSelectedSlotData()
 end
 
 function wardrobeModule:UpdateSlot(slotData)
-  -- TODO: Possible logic to confirm that slotData is a valid seleciton.
   self.selectedSlotData = slotData
+
+  for slotFrame in self.MenagerieSlotFramePool:EnumerateActive() do
+    slotFrame:SetSelected(slotFrame.slotData and self.selectedSlotData and
+      slotFrame.slotData == self.selectedSlotData) -- note: This works, checks reference equality, possible bug later?
+  end
 end
 
 function wardrobeModule:RefreshSelectedSlot()

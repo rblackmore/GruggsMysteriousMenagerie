@@ -65,7 +65,8 @@
     </Scripts>
   </PlayerModel>
 
-  <Button name="GMM_TransmogSlotTemplate" mixin="GMM_TransmogSlotMixin" virtual="true">
+  <Button name="GMM_TransmogSlotTemplate" mixin="GMM_TransmogSlotMixin"
+    registerForClicks="LeftButtonUp, RightButtonUp" virtual="true">
     <Size x="59" y="59" />
     <Layers>
       <Layer level="BACKGROUND">
@@ -96,13 +97,26 @@
             <Anchor point="CENTER" />
           </Anchors>
         </Texture>
-        <Texture parentKey="ShowEquippedIcon" atlas="transmog-icon-tick" useAtlasSize="true">
+        <Texture parentKey="ShowEquippedIcon" atlas="transmog-icon-tick" useAtlasSize="true" hidden="true">
           <Anchors>
             <Anchor point="CENTER" />
           </Anchors>
         </Texture>
       </Layer>
     </Layers>
+    <Frames>
+      <Frame parentKey="SelectedFrame" setAllPoints="true" hidden="true" frameLevel="100">
+        <Layers>
+          <Layer level="OVERLAY">
+            <Texture parentKey="Border" atlas="transmog-gearslot-selected" useAtlasSize="true">
+              <Anchors>
+                <Anchor point="CENTER" />
+              </Anchors>
+            </Texture>
+          </Layer>
+        </Layers>
+      </Frame>
+    </Frames>
     <Scripts>
       <OnLoad method="OnLoad" />
       <OnClick method="OnClick" />
