@@ -27,7 +27,7 @@ function wardrobeModule:SetupFrame()
   gmm_wardrobeFrame.transmogFrame = TransmogFrame
   gmm_wardrobeFrame.tabOwner = tabOwner
   gmm_wardrobeFrame.tabID = tabOwner:AddNamedTab("Menagerie", gmm_wardrobeFrame)
-  gmm_wardrobeFrame:SetupSlots()
+  self:SetupSlots()
   self:UnregisterEvent("ADDON_LOADED")
   self.wardrobeFrame = gmm_wardrobeFrame
 end
@@ -109,18 +109,3 @@ end
 function wardrobeModule:RefreshSelectedSlot()
 
 end
-
--- function TransmogFrameMixin:SelectSlot(slotFrame, forceRefresh)
--- 	-- Visually update selected slot
--- 	self.CharacterPreview:UpdateSlot(slotFrame.slotData, forceRefresh);
-
--- 	-- It is possible that when updating the character preview slot, we noticed slotFrame is no longer valid (is now disabled etc.) and have selected a new slot in that flow.
--- 	-- Do not update the wardrobe collection with the now stale data in such case.
--- 	local selectedSlotData = self.CharacterPreview:GetSelectedSlotData();
--- 	if selectedSlotData ~= slotFrame.slotData then
--- 		return;
--- 	end
-
--- 	-- Navigate to correct items in collection.
--- 	self.WardrobeCollection:UpdateSlot(slotFrame.slotData, forceRefresh);
--- end
