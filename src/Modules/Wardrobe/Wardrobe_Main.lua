@@ -42,17 +42,17 @@ function wardrobeModule:GetAllMenagerieSlotInfo()
 end
 
 function wardrobeModule:SetupSlots()
-  local parent = TransmogFrame and TransmogFrame.CharacterPreview and TransmogFrame.CharacterPreview.RightSlots
+  local layoutParent = TransmogFrame and TransmogFrame.CharacterPreview and TransmogFrame.CharacterPreview.RightSlots
 
-  if not parent then
+  if not layoutParent then
     return
   end
-  local menagerieSlots = CreateFrame("Frame", nil, parent, "VerticalLayoutFrame")
+  local menagerieSlots = CreateFrame("Frame", nil, layoutParent, "VerticalLayoutFrame")
   menagerieSlots.spacing = 5
   menagerieSlots:ClearAllPoints()
-  menagerieSlots:SetPoint("TOP", parent, "BOTTOM", 0, -50)
-  menagerieSlots:SetFrameStrata(parent:GetFrameStrata())
-  menagerieSlots:SetFrameLevel(parent:GetFrameLevel())
+  menagerieSlots:SetPoint("TOP", layoutParent, "BOTTOM", 0, -50)
+  menagerieSlots:SetFrameStrata(layoutParent:GetFrameStrata())
+  menagerieSlots:SetFrameLevel(layoutParent:GetFrameLevel())
 
   self.MenagerieSlotFramePool:ReleaseAll()
 
@@ -70,6 +70,8 @@ function wardrobeModule:SetupSlots()
       transmogFrame = TransmogFrame,
       slotName = info.slotName,
       iconTexture = info.iconTexture,
+      slot = info.slot,
+      type = info.type,
     }
 
     slotFrame.layoutIndex = index
@@ -81,19 +83,21 @@ function wardrobeModule:SetupSlots()
 end
 
 function wardrobeModule:SelectSlot(slotData)
-  if not slotData then
-    return
-  end
-
-  self:UpdateSlot(slotData) -- Update Current Slot State
-  local selectedSlotData = self:GetSelectedSlotData()
-
-  if selectedSlotData ~= slotData then
-    return
-  end
-
-  self.wardrobeFrame:UpdateSlot(selectedSlotData)
+  self:SetSelectedSlot(slotData)
   self:SetToMenagerieTab()
+end
+
+function wardrobeModule:SetSelectedSlot(slotData)
+  if self.selectedSlotData and self.selectedSlotData.slot == slotData.slot then
+    return
+  end
+
+  self.selectedSlotData = slotData
+  self:RefreshSlot()
+
+  if self.wardrobeFrame then
+    self.wardrobeFrame:Refresh()
+  end
 end
 
 function wardrobeModule:SetToMenagerieTab()
@@ -106,15 +110,16 @@ function wardrobeModule:GetSelectedSlotData()
   return self.selectedSlotData
 end
 
-function wardrobeModule:UpdateSlot(slotData)
-  self.selectedSlotData = slotData
-
+function wardrobeModule:RefreshSlot()
   for slotFrame in self.MenagerieSlotFramePool:EnumerateActive() do
-    slotFrame:SetSelected(slotFrame.slotData and self.selectedSlotData and
-      slotFrame.slotData == self.selectedSlotData) -- note: This works, checks reference equality, possible bug later?
+    slotFrame:SetSelected(
+      slotFrame.slotData and
+      self.selectedSlotData and
+      slotFrame.slotData.slot == self.selectedSlotData.slot)
   end
 end
 
-function wardrobeModule:RefreshSelectedSlot()
-
+function wardrobeModule:GetCollectionEntries(slotData)
+  -- switch statement to build appropriate data Entries depending on slotData.slot
+  -- Called from the MenagerieWardrobeFrame to use for populated paged view.
 end

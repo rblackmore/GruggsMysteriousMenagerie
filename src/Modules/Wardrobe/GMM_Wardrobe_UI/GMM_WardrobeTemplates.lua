@@ -6,19 +6,19 @@ local wardrobeModule = addOn:GetModule("WardrobeModule")
 
 
 
-GMM_WardrobeItemMixin = {}
+GMM_MenagerieModelMixin = {}
 
-function GMM_WardrobeItemMixin:Init() end
+function GMM_MenagerieModelMixin:Init() end
 
-function GMM_WardrobeItemMixin:Reset() end
+function GMM_MenagerieModelMixin:Reset() end
 
-function GMM_WardrobeItemMixin:OnEnter() end
+function GMM_MenagerieModelMixin:OnEnter() end
 
-function GMM_WardrobeItemMixin:OnLeave() end
+function GMM_MenagerieModelMixin:OnLeave() end
 
-function GMM_WardrobeItemMixin:OnMouseUp() end
+function GMM_MenagerieModelMixin:OnMouseUp() end
 
-function GMM_WardrobeItemMixin:OnMouseDown() end
+function GMM_MenagerieModelMixin:OnMouseDown() end
 
 GMM_TransmogSlotMixin = {}
 

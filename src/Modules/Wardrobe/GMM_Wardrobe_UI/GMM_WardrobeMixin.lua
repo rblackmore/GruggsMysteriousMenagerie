@@ -7,9 +7,9 @@ local wardrobeModule = addOn:GetModule("WardrobeModule")
 GMM_WardrobeMixin = {
   COLLECTION_TEMPLATES = {
     ["COLLECTION_ITEM"] = {
-      template = "GMM_TransmogItemTemplate",
-      initFunc = GMM_WardrobeItemMixin.Init,
-      resetFunc = GMM_WardrobeItemMixin.Reset
+      template = "GMM_MenagerieModelTemplate",
+      initFunc = GMM_MenagerieModelMixin.Init,
+      resetFunc = GMM_MenagerieModelMixin.Reset
     }
   }
 }
@@ -31,13 +31,13 @@ function GMM_WardrobeMixin:InitFilterButton()
   self.FilterButton:SetText(SOURCES)
 end
 
-function GMM_WardrobeMixin:GetActiveSlotCallback()
+function GMM_WardrobeMixin:GetSelectedSlotData()
   return wardrobeModule:GetSelectedSlotData()
 end
 
-function GMM_WardrobeMixin:UpdateSlot(slotData)
-  self:Refresh()
-end
+-- function GMM_WardrobeMixin:UpdateSlot()
+--   self:Refresh()
+-- end
 
 function GMM_WardrobeMixin:Refresh()
   self:RefreshActiveSlotTitle()
@@ -45,7 +45,7 @@ function GMM_WardrobeMixin:Refresh()
 end
 
 function GMM_WardrobeMixin:RefreshActiveSlotTitle()
-  local activeSlotData = self:GetActiveSlotCallback()
+  local activeSlotData = self:GetSelectedSlotData()
   if not activeSlotData or not activeSlotData.slotName then
     self.ActiveSlotTitle:SetText("")
     return
@@ -55,4 +55,10 @@ function GMM_WardrobeMixin:RefreshActiveSlotTitle()
 end
 
 function GMM_WardrobeMixin:RefreshCollectionEntries()
+  -- Make sure Slot data exist, not responsible for refreshing slotData
+  -- Fetch Collection Entries see (Pets,Mounts,Hearthstones): C_TransmogCollection.GetCategoryAppearances()
+  -- SetCollectionEntries(entries, retainCurrentPage)
+end
+
+function GMM_WardrobeMixin:SetCollectionEntries(entries, retainCurrentPage)
 end
