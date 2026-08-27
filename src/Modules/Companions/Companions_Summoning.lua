@@ -17,10 +17,8 @@ local CombatLockdownUtils = addonTable.CombatLockdownUtils
 --------------------------------------------------------------------------------
 
 local function summonCompanion(petId, userInitiated)
-  local currentCompanion = C_PetJournal.GetSummonedPetGUID()
-
-  if currentCompanion == petId then
-    return false
+  if C_PetJournal.IsCurrentlySummoned(petId) then
+    return
   end
 
   C_PetJournal.SummonPetByGUID(petId)

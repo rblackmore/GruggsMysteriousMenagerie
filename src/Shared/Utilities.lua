@@ -5,10 +5,12 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 addonTable.Enums = {}
 addonTable.MapUtils = {}
 addonTable.CombatLockdownUtils = {}
+addonTable.Models = {}
 
 local MapUtils = addonTable.MapUtils
 local Enums = addonTable.Enums
 local CombatLockdownUtils = addonTable.CombatLockdownUtils
+local Models = addonTable.Models
 
 --------------------------------------------------------------------------------
 --- Enums
@@ -100,4 +102,69 @@ function MapUtils.GetPlayerMapInfoForScope(scope)
     return C_Map.GetMapInfo(C_Map.GetBestMapForUnit("player"))
   end
   return nil
+end
+
+--------------------------------------------------------------------------------
+--- Companion List Model
+--------------------------------------------------------------------------------
+local CompanionList = {}
+
+Models.CompanionList = CompanionList
+
+function CompanionList.new()
+  return {
+    pets = {},
+    order = {},
+    weights = {},
+    total = 0
+  }
+end
+
+function CompanionList.isEmpty(list)
+  return not list or type(list.total) ~= "number" or list.total <= 0
+end
+
+function CompanionList.addPet(list, petGUID, weight)
+  if not list then return false end
+  list.pets = list.pets or {}
+  list.order = list.order or {}
+  list.weights = list.weights or {}
+  list.total = list.total or 0
+
+  if not list.pets[petGUID] then -- Add New Pet
+    list.pets[petGUID] = true
+    table.insert(list.order, petGUID)
+    list.weights[petGUID] = tonumber(weight) or 1.0
+    list.total = (list.total or 0) + 1
+    return true
+  else
+    if weight ~= nil then -- Update existing pet Weight
+      list.weights[petGUID] = tonumber(weight) or 1.0
+    end
+  end
+  return false
+end
+
+function CompanionList.removePet(list, petGUID)
+  if not (list and list.pets and list.pets[petGUID]) then
+    return false
+  end
+
+  list.pets[petGUID] = nil
+  if list.weights then
+    list.weights[petGUID] = nil
+  end
+
+  for i, id in ipairs(list.order or {}) do
+    if id == petGUID then
+      table.remove(list.order, i)
+      break
+    end
+  end
+  list.total = math.max((list.total or 1) - 1, 0)
+  return true
+end
+
+function CompanionList.hasPet(list, petGUID)
+  return list and list.pets and petGUID and list.pets[petGUID] or false
 end
