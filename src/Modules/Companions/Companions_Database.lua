@@ -275,6 +275,32 @@ function Database:RemovePetFromOutfit(petGUID, outfitID)
   return removed, removed and "Pet removed from outfit List" or "Pet not found in outfit list"
 end
 
+function Database:AddPet(petGUID, scope, ...)
+  local list = self:GetListForScope(scope, ...)
+
+  if list then
+    CompanionList.addPet(list, petGUID)
+  end
+end
+
+function Database:RemovePet(petGUID, scope, ...)
+  local list = self:GetListForScope(scope, ...)
+
+  if list then
+    CompanionList.removePet(list, petGUID)
+  end
+end
+
+function Database:AddOrRemovePet(petGUID, scope, ...)
+  local list = self:GetListForScope(scope, ...)
+
+  if CompanionList.hasPet(list, petGUID) then
+    CompanionList.addPet(list, petGUID)
+  else
+    CompanionList.removePet(list, petGUID)
+  end
+end
+
 function Database:ClearList(scope, ...)
   clearList(scope, ...)
 end
@@ -283,27 +309,28 @@ function Database:GetListForScope(scope, ...)
   local dbp = Data.Companions.profile
   local dbc = Data.Companions.char
 
-  local args = { ... }
-
   if scope == SCOPES.world then
     return dbp.world
   end
 
   if scope == SCOPES.continent then
-    if args[1] then
-      return dbp.continents[args[1]]
+    local continentId = ...
+    if continentId then
+      return dbp.continents[continentId]
     end
   end
 
   if scope == SCOPES.zone then
-    if args[1] and args[2] then
-      return dbp.zones[args[1]][args[2]]
+    local continentId, zoneId = ...
+    if continentId and zoneId then
+      return dbp.zones[continentId][zoneId]
     end
   end
 
   if scope == SCOPES.outfit then
-    if args[1] then
-      return dbc.outfits[args[1]]
+    local outfitId = ...
+    if outfitId then
+      return dbc.outfits[outfitId]
     end
   end
   return nil
