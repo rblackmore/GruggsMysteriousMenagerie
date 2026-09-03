@@ -71,8 +71,10 @@ function GMM_WardrobeMixin:RefreshCollectionEntries()
 
   if not entries then
     self.PagedContent:SetDataProvider(CreateDataProvider(), false)
+    self.PagedContent:SetShown(false)
     return
   end
+  self.PagedContent:SetShown(true)
 
   local retainCurrentPage = true
   self:SetCollectionEntries(entries, retainCurrentPage)

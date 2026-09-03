@@ -39,6 +39,7 @@ function wardrobeModule:SetupFrame()
   gmm_wardrobeFrame.tabOwner = tabOwner
   gmm_wardrobeFrame.tabID = tabOwner:AddNamedTab("Menagerie", gmm_wardrobeFrame)
   self.wardrobeFrame = gmm_wardrobeFrame
+  self:RefreshSlot()
 end
 
 function wardrobeModule:SetupSlots()
@@ -73,6 +74,10 @@ function wardrobeModule:SetupSlots()
       slot = info.slot,
       type = info.type,
     }
+
+    if index == 1 then
+      self.selectedSlotData = slotData
+    end
 
     slotFrame.layoutIndex = index
 
