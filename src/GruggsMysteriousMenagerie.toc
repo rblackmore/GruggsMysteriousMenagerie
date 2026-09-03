@@ -15,6 +15,7 @@ Core\Main.lua
 
 #Utilities
 Shared\Utilities.lua
+Models\CompanionList.lua
 
 # Core Addon Files
 Core\UI.lua

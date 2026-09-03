@@ -27,7 +27,7 @@ local function clearList(scope, ...)
 
   if scope == SCOPES.world then
     -- World scope: reset to empty list, don't nil it
-    dbp.world = CompanionList.new()
+    dbp.world = CompanionList:new()
   elseif scope == SCOPES.continent and args[1] then
     -- Continents: set to nil
     dbp.continents[args[1]] = nil
@@ -44,14 +44,14 @@ local function ensureScope(scope, ...)
   local dbp = Data.Companions.profile
 
   if scope == SCOPES.world then
-    dbp.world = dbp.world or CompanionList.new()
+    dbp.world = CompanionList:new(dbp.world)
     return dbp.world
   end
 
   if scope == SCOPES.continent then
     local continentID = ...
     dbp.continents = dbp.continents or {}
-    dbp.continents[continentID] = dbp.continents[continentID] or CompanionList.new()
+    dbp.continents[continentID] = CompanionList:new(dbp.continents[continentID])
     return dbp.continents[continentID]
   end
 
@@ -59,7 +59,7 @@ local function ensureScope(scope, ...)
     local continentID, zoneID = ...
     dbp.zones = dbp.zones or {}
     dbp.zones[continentID] = dbp.zones[continentID] or {}
-    dbp.zones[continentID][zoneID] = dbp.zones[continentID][zoneID] or CompanionList.new()
+    dbp.zones[continentID][zoneID] = CompanionList:new(dbp.zones[continentID][zoneID])
     return dbp.zones[continentID][zoneID]
   end
 
@@ -67,49 +67,9 @@ local function ensureScope(scope, ...)
     local outfitID = ...
     local dbc = Data.Companions.char
     dbc.outfit = dbc.outfit or {}
-    dbc.outfit[outfitID] = dbc.outfit[outfitID] or CompanionList.new()
+    dbc.outfit[outfitID] = CompanionList:new(dbc.outfit[outfitID])
     return dbc.outfit[outfitID]
   end
-end
-
-local function getListFor(outfitID, mapID, continentID)
-  local dbp = Data.Companions.profile
-  local dbc = Data.Companions.char
-
-  -- 1) Outfit
-  if outfitID and dbc.outfits then
-    local outfit = dbc.outfits[outfitID]
-    if not CompanionList.isEmpty(outfit) then
-      return outfit
-    end
-  end
-
-  -- 2) Zone
-  if continentID and mapID and dbp.zones then
-    local continent = dbp.zones[continentID]
-    if continent then
-      local zone = continent[mapID]
-      if not CompanionList.isEmpty(zone) then
-        return zone
-      end
-    end
-  end
-
-  -- 3) Continent
-  if continentID and dbp.continents then
-    local continent = dbp.continents[continentID]
-    if not CompanionList.isEmpty(continent) then
-      return continent
-    end
-  end
-
-  -- 4 ) world
-  if dbp.world and not CompanionList.isEmpty(dbp.world) then
-    return dbp.world
-  end
-
-  -- 5) Fallback should be handled by Cache to avoid rebuilding each time on DB side
-  return nil
 end
 
 --------------------------------------------------------------------------------
@@ -118,7 +78,7 @@ end
 function Database:Init()
   Data["Companions"] = Data.AceDatabase:RegisterNamespace("Companions", {
     profile = {
-      world = { pets = {}, order = {}, weights = {}, total = 0 },
+      world = CompanionList:new(),
       continents = {},
       zones = {},
       fallback = {},
@@ -279,7 +239,7 @@ function Database:AddPet(petGUID, scope, ...)
   local list = self:GetListForScope(scope, ...)
 
   if list then
-    CompanionList.addPet(list, petGUID)
+    CompanionList:add(petGUID)
   end
 end
 
@@ -310,30 +270,39 @@ function Database:GetListForScope(scope, ...)
   local dbc = Data.Companions.char
 
   if scope == SCOPES.world then
-    return dbp.world
+    addOn:Print("Returning World")
+    return SCOPES.world and CompanionList:new(dbp.world)
   end
 
   if scope == SCOPES.continent then
     local continentId = ...
+    addOn:Printf("Returning Continent %d", continentId)
     if continentId then
-      return dbp.continents[continentId]
+      return dbp.continents[continentId] and CompanionList:new(dbp.continents[continentId])
     end
   end
 
   if scope == SCOPES.zone then
     local continentId, zoneId = ...
+    addOn:Printf("Returning zone [%d] %d", continentId, zoneId)
     if continentId and zoneId then
-      return dbp.zones[continentId][zoneId]
+      return dbp.zones[continentId] and
+          dbp.zones[continentId][zoneId] and
+          CompanionList:new(dbp.zones[continentId][zoneId])
     end
   end
 
   if scope == SCOPES.outfit then
     local outfitId = ...
+    addOn:Printf("Returning outfit %d", outfitId)
     if outfitId then
-      return dbc.outfits[outfitId]
+      return dbc.outfits[outfitId] and CompanionList:new(dbc.outfits[outfitId])
     end
   end
-  return nil
+end
+
+function Database:EnsureScope(scope, ...)
+  return CompanionList:new(ensureScope(scope, ...))
 end
 
 function Database:GetCurrentContextPetList()
@@ -341,9 +310,12 @@ function Database:GetCurrentContextPetList()
   local mapID = C_Map.GetBestMapForUnit("player")
   local _, continentID = MapUtils.GetContinentIDForMap(mapID)
 
-  local list = getListFor(outfitID, mapID, continentID)
+  local outfitList = self:GetListForScope(SCOPES.outfit, outfitID)
+  local continentList = self:GetListForScope(SCOPES.continent, continentID)
+  local zoneList = self:GetListForScope(SCOPES.zone, continentID, mapID)
+  local worldList = self:GetListForScope(SCOPES.world)
 
-  return list
+  return outfitList or continentList or zoneList or worldList
 end
 
 function Database:GetListForContextScope(scope)

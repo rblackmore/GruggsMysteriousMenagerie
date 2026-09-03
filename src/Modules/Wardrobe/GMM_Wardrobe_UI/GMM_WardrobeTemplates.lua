@@ -7,6 +7,7 @@ local wardrobeModule = addOn:GetModule("WardrobeModule")
 local companionModule = addOn:GetModule("CompanionModule")
 
 local Enums = addonTable.Enums
+local SCOPES = Enums.SCOPES
 local Models = addonTable.Models
 local CompanionList = Models.CompanionList
 
@@ -40,18 +41,20 @@ end
 
 function GMM_MenagerieModelBaseMixin:IsInCurrentOutfitList()
   local outfitId = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
-  local list = companionModule.Database:GetListForScope(Enums.SCOPES.outfit, outfitId)
-  return CompanionList.hasPet(list, self.elementData.petID)
+  local list = companionModule.Database:GetListForScope(SCOPES.outfit, outfitId)
+  return list and list:hasPet(self.elementData.petID) or false
 end
 
 function GMM_MenagerieModelBaseMixin:AddOrRemoveItemToList()
   local outfitId = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
-  local list = companionModule.Database:GetListForScope(Enums.SCOPES.outfit, outfitId)
+  local list =
+      companionModule.Database:GetListForScope(SCOPES.outfit, outfitId) or
+      companionModule.Database:EnsureScope(Enums.SCOPES.outfit, outfitId)
 
-  if CompanionList.hasPet(list, self.elementData.petID) then
-    companionModule.Database:AddPetToOutfit(self.elementData.petID, outfitId)
+  if list:hasPet(self.elementData.petID) then
+    list:add(self.elementData.petID)
   else
-    companionModule.Database:RemovePetFromOutfit(self.elementData.petID, outfitId)
+    list:remove(self.elementData.petID, outfitId)
   end
 end
 
