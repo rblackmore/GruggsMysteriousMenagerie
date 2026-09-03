@@ -9,7 +9,8 @@ GMM_WardrobeMixin = {
     -- It's possible, I may create different Templates here depending on which menagerie is loaded (Pets, Mounts, etc) and use a different Frame.
     ["COLLECTION_ITEM"] = {
       template = "GMM_MenagerieModelTemplate",
-      initFunc = GMM_MenagerieModelMixin.Init
+      initFunc = GMM_MenagerieModelMixin.Init,
+      resetFunc = GMM_MenagerieModelMixin.Reset
     }
   }
 }

@@ -63,7 +63,9 @@ GMM_MenagerieModelMixin = CreateFromMixins(GMM_MenagerieModelBaseMixin)
 
 
 function GMM_MenagerieModelMixin:OnLoad()
-
+  self:SetRotation(math.pi * -0.15)
+  self:SetPortraitZoom(0.5)
+  self:RefreshCamera()
 end
 
 function GMM_MenagerieModelMixin:Init(elementData)
@@ -92,16 +94,12 @@ end
 
 function GMM_MenagerieModelMixin:RefreshBorders()
   self.Border:SetShown(self:IsOwned())
-
   self.UnownedOverlay:SetShown(not self:IsOwned())
   self.UnownedBorder:SetShown(not self:IsOwned())
   self.SelectedBorder:SetShown(self:IsInCurrentOutfitList())
 end
 
 function GMM_MenagerieModelMixin:RefreshModel()
-  self:SetRotation(math.pi * -0.15)
-  self:SetPortraitZoom(0.5)
-  self:RefreshCamera()
   self:SetDisplayInfo(self:GetDisplayID())
 end
 
