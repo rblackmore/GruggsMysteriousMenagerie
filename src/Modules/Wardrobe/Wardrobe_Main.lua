@@ -5,6 +5,7 @@ local addOn = LibStub("AceAddon-3.0"):GetAddon(addonName)
 local wardrobeModule = addOn:NewModule("WardrobeModule");
 
 local Enums = addonTable.Enums
+local L = addonTable.L
 
 function wardrobeModule:OnInitialize()
   self:RegisterEvent("ADDON_LOADED", "OnAddonLoaded")
@@ -20,9 +21,9 @@ end
 
 function wardrobeModule:GetAllMenagerieSlotInfo()
   local slots = {
-    { slot = Enums.TransmogMenagerieSlot.Companion,    type = Enums.TransmogMenagerieSlotType.Companion, slotName = "Companions",                  iconTexture = "category-icons_pets_active" },
-    { slot = Enums.TransmogMenagerieSlot.GroundMounts, type = Enums.TransmogMenagerieSlotType.Mount,     slotName = "Ground Mounts (Coming Soon)", iconTexture = "category-icons_mounts_active" },
-    { slot = Enums.TransmogMenagerieSlot.FlyingMounts, type = Enums.TransmogMenagerieSlotType.Mount,     slotName = "Flying Mounts (Coming Soon)", iconTexture = "shop-icon-mount-flying-selected" }
+    { slot = Enums.TransmogMenagerieSlot.Companion,    type = Enums.TransmogMenagerieSlotType.Companion, slotName = L["TW Companions Header"],    iconTexture = "category-icons_pets_active" },
+    { slot = Enums.TransmogMenagerieSlot.GroundMounts, type = Enums.TransmogMenagerieSlotType.Mount,     slotName = L["TW Ground Mounts Header"], iconTexture = "category-icons_mounts_active" },
+    { slot = Enums.TransmogMenagerieSlot.FlyingMounts, type = Enums.TransmogMenagerieSlotType.Mount,     slotName = L["TW Flying Mounts Header"], iconTexture = "shop-icon-mount-flying-selected" }
   }
   return slots
 end

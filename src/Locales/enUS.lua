@@ -56,3 +56,8 @@ L["CS Delay Name"] = "Delay (Seconds)"
 L["CS Delay Description"] = "Short delay after automatic summon trigger"
 L["CS Force Summon Name"] = "Force Summon"
 L["CS Force Summon Description"] = "Summon even if a pet is already summoned"
+
+-- Transmog Wardrobe
+L["TW Companions Header"] = "Companions"
+L["TW Ground Mounts Header"] = "Gound Mounts (Coming Soon)"
+L["TW Flying Mounts Header"] = "Flying Mounts (Coming Soon)"
