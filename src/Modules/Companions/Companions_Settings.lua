@@ -26,7 +26,7 @@ function Settings:Init()
       MessageFormat = "Help me %s you're my only hope!!!",
       Channel = "SAY",
       UseCustomName = true,
-      UseFavoritesFallback = true,
+      UseFavoritesFallback = false,
       Automation = {
         delay = 5,
         forcesummon = false,
