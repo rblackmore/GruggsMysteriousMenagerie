@@ -40,16 +40,14 @@ local fallbackPetList = nil
 --- Cache Public API
 --------------------------------------------------------------------------------
 function Cache:Init()
-  self:RegisterBucketEvent(EVENTS_TO_REGISTER, BUCKET_INTERVAL, "RefreshEffectiveList")
-  self:RegisterBucketEvent("PET_JOURNAL_LIST_UPDATE", BUCKET_INTERVAL, "RefreshEffectiveList")
+  self:RegisterBucketEvent(EVENTS_TO_REGISTER, BUCKET_INTERVAL, "Refresh")
+  self:RegisterBucketEvent("PET_JOURNAL_LIST_UPDATE", BUCKET_INTERVAL, "Refresh")
 
-  Data.Companions.RegisterCallback(self, "OnProfileChanged", "RefreshEffectiveList")
-  Data.Companions.RegisterCallback(self, "OnProfileCopied", "RefreshEffectiveList")
-  Data.Companions.RegisterCallback(self, "OnProfileReset", "RefreshEffectiveList")
+  Data.Companions.RegisterCallback(self, "OnProfileChanged", "Refresh")
+  Data.Companions.RegisterCallback(self, "OnProfileCopied", "Refresh")
+  Data.Companions.RegisterCallback(self, "OnProfileReset", "Refresh")
 
   self:RegisterMessage("GMM_CONFIG_USEFAVORITES_CHANGED", "RefreshFallback")
-
-  self:Refresh()
 end
 
 function Cache:Refresh()
@@ -77,7 +75,4 @@ function Cache:GetEffectivePetList()
   if fallbackPetList and not fallbackPetList:isEmpty() then
     return fallbackPetList
   end
-  addOn:Print("Uh Oh")
-
-  -- Uh Oh!!!!
 end

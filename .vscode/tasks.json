@@ -45,9 +45,9 @@
       "problemMatcher": []
     },
     {
-      "label": "install",
+      "label": "install-retail",
       "type": "shell",
-      "command": "./install.ps1",
+      "command": "./install.ps1 retail",
       "group": {
         "kind": "none",
         "isDefault": false
@@ -59,6 +59,21 @@
       }
     },
     {
+      "label": "install-forever",
+      "type": "shell",
+      "command": "./install.ps1 forever",
+      "group": {
+        "kind": "none",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "close": false
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "clean",
       "type": "shell",
       "command": "rm -R build; rm -R publish",
@@ -66,7 +81,7 @@
         "kind": "build",
         "isDefault": false
       },
-       "presentation": {
+      "presentation": {
         "reveal": "always",
         "panel": "new",
         "close": false

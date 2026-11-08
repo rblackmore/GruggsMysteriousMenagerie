@@ -1,3 +1,5 @@
+param([string]$flavor)
+
 $config = Get-Content config.json | ConvertFrom-Json
 
 $interface = $config.INTERFACE
@@ -10,26 +12,29 @@ $src = $config.SRC_DIR
 $dst = $config.BUILD_DIR
 $wowdir = $env:WOW_INSTALL_DIR
 
-$installdir = $wowdir + "\_retail_\Interface\AddOns\" + $appName
+if ($flavor = "forever") {
+  $installdir = $wowdir + "\_forever_\Interface\AddOns\" + $appName
+}
+else {
+  $installdir = $wowdir + "\_retail_\Interface\AddOns\" + $appName
+}
 
 Write-Host "Installing $appName to $installdir"
 
-Function Clear-Directory{
+Function Clear-Directory {
 
   param([string]$directory)
 
-  if (Test-Path $directory)
-  {
+  if (Test-Path $directory) {
     $cleardir = $directory + "/*"
     Remove-Item -Recurse -Force $cleardir
   }
-  else{
+  else {
     New-Item -ItemType "directory" -Path $directory
   }
 };
 
-if (!(Test-Path $dst)) 
-{
+if (!(Test-Path $dst)) {
   Write-Host "Build the Project First"
   Exit 1
 }

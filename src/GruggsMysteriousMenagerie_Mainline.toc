@@ -1,0 +1,28 @@
+## Interface: {{INTERFACE}}
+## Version: {{VERSION}}
+## Title: {{TITLE}}
+## Notes: {{NOTES}}
+## Author: {{AUTHOR}}
+## Category: Collections
+## SavedVariables: GMM_DB
+## OptionalDeps: Ace3
+
+Libs.xml
+Locales\Locales.xml
+
+# Intialization
+Core\Main.lua
+
+#Utilities
+Shared\Utilities.lua
+Models\CompanionList.lua
+
+# Core Addon Files
+Core\UI.lua
+Core\Database.lua
+Core\Config.lua
+Core\SlashCmd.lua
+
+# Modules
+Modules\Companions\CompanionsModule.xml
+Modules\Wardrobe\WardrobeModule.xml
