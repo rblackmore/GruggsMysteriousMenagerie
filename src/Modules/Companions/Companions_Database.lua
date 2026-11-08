@@ -348,7 +348,6 @@ function Database:BuildFallbackList()
 
 
   for i = 1, #petGUIDs do
-    addOn:Printf("Adding Pet index %d", i)
     local speciesID, _, _, _, _, _, isFavorite = C_PetJournal.GetPetInfoByPetID(petGUIDs[i])
     if speciesID then
       if not useFavorites or isFavorite then
