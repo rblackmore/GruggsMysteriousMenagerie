@@ -66,9 +66,9 @@ local function ensureScope(scope, ...)
   if scope == SCOPES.outfit then
     local outfitID = ...
     local dbc = Data.Companions.char
-    dbc.outfit = dbc.outfit or {}
-    dbc.outfit[outfitID] = CompanionList:new(dbc.outfit[outfitID])
-    return dbc.outfit[outfitID]
+    dbc.outfits = dbc.outfit or {}
+    dbc.outfits[outfitID] = CompanionList:new(dbc.outfits[outfitID])
+    return dbc.outfits[outfitID]
   end
 end
 

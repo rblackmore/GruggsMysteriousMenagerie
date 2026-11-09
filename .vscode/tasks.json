@@ -4,9 +4,21 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "deploy",
+      "label": "deploy-retail",
       "type": "shell",
-      "command": "./build.ps1 && ./install.ps1",
+      "command": "./build.ps1 && ./install.ps1 retail",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "close": false
+      },
+      "problemMatcher": []
+    },
+        {
+      "label": "deploy-forever",
+      "type": "shell",
+      "command": "./build.ps1 && ./install.ps1 forever",
       "group": "build",
       "presentation": {
         "reveal": "always",

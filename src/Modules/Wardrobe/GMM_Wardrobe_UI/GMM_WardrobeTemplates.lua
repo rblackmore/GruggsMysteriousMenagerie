@@ -37,12 +37,13 @@ function GMM_MenagerieModelBaseMixin:IsOwned()
   if self.elementData and self.elementData.type == Enums.TransmogMenagerieSlotType.Companion and self.elementData.isOwned then
     return self.elementData.isOwned
   end
+  return false
 end
 
 function GMM_MenagerieModelBaseMixin:IsInCurrentOutfitList()
   local outfitId = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
   local list = companionModule.Database:GetListForScope(SCOPES.outfit, outfitId)
-  return list and list:hasPet(self.elementData.petID) or false
+  return list and list:hasPet(self.elementData.petID) or false;
 end
 
 function GMM_MenagerieModelBaseMixin:AddOrRemoveItemToList()
@@ -52,9 +53,9 @@ function GMM_MenagerieModelBaseMixin:AddOrRemoveItemToList()
       companionModule.Database:EnsureScope(Enums.SCOPES.outfit, outfitId)
 
   if list:hasPet(self.elementData.petID) then
-    list:add(self.elementData.petID)
+    list:remove(self.elementData.petID)
   else
-    list:remove(self.elementData.petID, outfitId)
+    list:add(self.elementData.petID)
   end
 end
 
@@ -96,10 +97,10 @@ function GMM_MenagerieModelMixin:RefreshFavoriteIcon()
 end
 
 function GMM_MenagerieModelMixin:RefreshBorders()
-  self.Border:SetShown(self:IsOwned())
+  self.Border:SetShown(self:IsOwned());
   self.UnownedOverlay:SetShown(not self:IsOwned())
   self.UnownedBorder:SetShown(not self:IsOwned())
-  self.SelectedBorder:SetShown(self:IsInCurrentOutfitList())
+  self.IsSelectedBorder:SetShown(self:IsInCurrentOutfitList())
 end
 
 function GMM_MenagerieModelMixin:RefreshModel()
@@ -120,6 +121,7 @@ function GMM_MenagerieModelMixin:OnMouseUp(button, isInside)
   end
 
   self:AddOrRemoveItemToList()
+  self:Refresh()
 end
 
 function GMM_MenagerieModelMixin:OnMouseDown() end

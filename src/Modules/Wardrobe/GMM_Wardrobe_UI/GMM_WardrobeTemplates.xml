@@ -21,8 +21,8 @@
             <Anchor point="CENTER" />
           </Anchors>
         </Texture>
-        <Texture parentKey="SelectedBorder" atlas="transmog-itemCard-transmogrified-pending"
-          hidden="true" useAtlasSize="true">
+        <Texture parentKey="IsSelectedBorder" hidden="true"
+          atlas="transmog-itemCard-transmogrified" useAtlasSize="true">
           <Anchors>
             <Anchor point="CENTER" />
           </Anchors>
@@ -58,14 +58,6 @@
       <OnMouseUp method="OnMouseUp" />
       <OnMouseDown method="OnMouseDown" />
       <OnLoad method="OnLoad" />
-      <!-- <OnModelLoaded method="OnModelLoaded" />
-      <OnMouseDown method="OnMouseDown" />
-      <OnMouseUp method="OnMouseUp" />
-      <OnEnter method="OnEnter" />
-      <OnLeave method="OnLeave" />
-      <OnShow method="OnShow" />
-      <OnHide method="OnHide" />
-      <OnEvent method="OnEvent" /> -->
     </Scripts>
   </PlayerModel>
 
