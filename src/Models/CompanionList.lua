@@ -41,6 +41,8 @@ function CompanionList:isEmpty()
 end
 
 function CompanionList:add(petGUID, weight)
+  if not petGUID then return false end
+
   self.weights[petGUID] = tonumber(weight) or 1.0
 
   if self.pets[petGUID] then
@@ -54,9 +56,11 @@ end
 
 function CompanionList:remove(petGUID)
   if not petGUID then return false end
+
   for i, v in ipairs(self.order) do
     if v == petGUID then
       tremove(self.order, i)
+      break
     end
   end
 
@@ -90,7 +94,7 @@ function CompanionList:getRandom(current)
 end
 
 function CompanionList:hasPet(petGUID)
-  return self.pets and petGUID and self.pets[petGUID]
+  return self.pets and petGUID and self.pets[petGUID] == true
 end
 
 function CompanionList:getPetNames()
@@ -98,7 +102,9 @@ function CompanionList:getPetNames()
 
   for i, v in ipairs(self.order) do
     local petTable = C_PetJournal.GetPetInfoTableByPetID(v)
-    tinsert(names, petTable.name)
+    if petTable then
+      tinsert(names, petTable.name)
+    end
   end
 
   return names

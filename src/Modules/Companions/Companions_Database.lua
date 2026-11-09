@@ -30,13 +30,13 @@ local function clearList(scope, ...)
     dbp.world = CompanionList:new()
   elseif scope == SCOPES.continent and args[1] then
     -- Continents: set to nil
-    dbp.continents[args[1]] = nil
+    if dbp.continents then dbp.continents[args[1]] = nil end
   elseif scope == SCOPES.zone and args[1] and args[2] then
     -- Zones: set to nil
-    dbp.zones[args[1]][args[2]] = nil
+    if dbp.zones and dbp.zones[args[1]] then dbp.zones[args[1]][args[2]] = nil end
   elseif scope == SCOPES.outfit and args[1] then
     -- Outfits: set to nil
-    dbc.outfits[args[1]] = nil
+    if dbc.outfits then dbc.outfits[args[1]] = nil end
   end
 end
 
@@ -66,7 +66,7 @@ local function ensureScope(scope, ...)
   if scope == SCOPES.outfit then
     local outfitID = ...
     local dbc = Data.Companions.char
-    dbc.outfits = dbc.outfit or {}
+    dbc.outfits = dbc.outfits or {}
     dbc.outfits[outfitID] = CompanionList:new(dbc.outfits[outfitID])
     return dbc.outfits[outfitID]
   end
@@ -92,154 +92,11 @@ function Database:Init()
   })
 end
 
-function Database:AddPetToWorld(petGUID, weight)
-  if not petGUID then
-    return false, "Missing petGUID"
-  end
-
-  local speciesID = C_PetJournal.GetPetInfoByPetID(petGUID)
-  if not speciesID then
-    return false, "Invalid petGUID"
-  end
-  local world = ensureScope(SCOPES.world)
-  local added = CompanionList.addPet(world, petGUID, weight)
-  return true, added and "Added" or "Updated"
-end
-
-function Database:AddPetToContinent(petGUID, continentID, weight)
-  if not petGUID then
-    return false, "Missing petGUID"
-  end
-
-  if not continentID then
-    return false, "Missing continentID"
-  end
-
-  local speciesID = C_PetJournal.GetPetInfoByPetID(petGUID)
-  if not speciesID then
-    return false, "Invalid petGUID"
-  end
-
-  local continent = ensureScope(SCOPES.continent, continentID)
-  local added = CompanionList.addPet(continent, petGUID, weight)
-  return true, added and "Added" or "Updated"
-end
-
-function Database:AddPetToZone(petGUID, continentID, zoneID, weight)
-  if not petGUID then
-    return false, "Missing petGUID"
-  end
-
-  if not continentID or not zoneID then
-    return false, "Missing continentID or zoneID"
-  end
-
-  local speciesID = C_PetJournal.GetPetInfoByPetID(petGUID)
-  if not speciesID then
-    return false, "Invalid petGUID"
-  end
-
-  local zone = ensureScope(SCOPES.zone, continentID, zoneID)
-  local added = CompanionList.addPet(zone, petGUID, weight)
-  return true, added and "Added" or "Updated"
-end
-
-function Database:AddPetToOutfit(petGUID, outfitID, weight)
-  if not petGUID then
-    return false, "Missing petGUID"
-  end
-
-  if not outfitID then
-    return false, "Missing outfitID"
-  end
-
-  local speciesID = C_PetJournal.GetPetInfoByPetID(petGUID)
-  if not speciesID then
-    return false, "Invalid petGUID"
-  end
-
-  local outfit = ensureScope(SCOPES.outfit, outfitID)
-  local added = CompanionList.addPet(outfit, petGUID, weight)
-  return true, added and "Added" or "Updated"
-end
-
-function Database:RemovePetFromWorld(petGUID)
-  if not petGUID then
-    return false, "Missing petGUID"
-  end
-
-  local speciesID = C_PetJournal.GetPetInfoByPetID(petGUID)
-  if not speciesID then
-    return false, "Invalid petGUID"
-  end
-
-  local world = ensureScope(SCOPES.world)
-  local removed = CompanionList.removePet(world, petGUID)
-  return removed, removed and "Pet removed from Global List" or "Pet not found in global list"
-end
-
-function Database:RemovePetFromContinent(petGUID, continentID)
-  if not petGUID then
-    return false, "Missing petGUID"
-  end
-
-  if not continentID then
-    return false, 'Missing continentID'
-  end
-
-  local speciesID = C_PetJournal.GetPetInfoByPetID(petGUID)
-  if not speciesID then
-    return false, "Invalid petGUID"
-  end
-
-  local continent = ensureScope(SCOPES.continent, continentID)
-  local removed = CompanionList.removePet(continent, petGUID)
-  return removed, removed and "Pet removed from continent List" or "Pet not found in continent list"
-end
-
-function Database:RemovePetFromZone(petGUID, continentID, zoneID)
-  if not petGUID then
-    return false, "Missing petGUID"
-  end
-
-  if not continentID or not zoneID then
-    return false, 'Missing continentID or zoneID'
-  end
-
-  local speciesID = C_PetJournal.GetPetInfoByPetID(petGUID)
-  if not speciesID then
-    return false, "Invalid petGUID"
-  end
-
-  local zone = ensureScope(SCOPES.zone, continentID, zoneID)
-  local removed = CompanionList.removePet(zone, petGUID)
-  return removed, removed and "Pet removed from zone List" or "Pet not found in zone list"
-end
-
-function Database:RemovePetFromOutfit(petGUID, outfitID)
-  if not petGUID then
-    return false, "Missing petGUID"
-  end
-
-  if not outfitID then
-    return false, 'Missing outfitID'
-  end
-
-  local speciesID = C_PetJournal.GetPetInfoByPetID(petGUID)
-  if not speciesID then
-    return false, "Invalid petGUID"
-  end
-
-  local outfit = ensureScope(SCOPES.outfit, outfitID)
-  local removed = CompanionList.removePet(outfit, petGUID)
-  return removed, removed and "Pet removed from outfit List" or "Pet not found in outfit list"
-end
-
 function Database:AddPet(petGUID, scope, ...)
   local list = self:GetListForScope(scope, ...)
 
   if list then
-    CompanionList:add(petGUID)
+    list:add(petGUID)
   end
 end
 
@@ -247,17 +104,17 @@ function Database:RemovePet(petGUID, scope, ...)
   local list = self:GetListForScope(scope, ...)
 
   if list then
-    CompanionList.removePet(list, petGUID)
+    list:remove(petGUID)
   end
 end
 
 function Database:AddOrRemovePet(petGUID, scope, ...)
   local list = self:GetListForScope(scope, ...)
 
-  if CompanionList.hasPet(list, petGUID) then
-    CompanionList.addPet(list, petGUID)
+  if list:hasPet(petGUID) then
+    list:remove(petGUID)
   else
-    CompanionList.removePet(list, petGUID)
+    list:add(petGUID)
   end
 end
 
