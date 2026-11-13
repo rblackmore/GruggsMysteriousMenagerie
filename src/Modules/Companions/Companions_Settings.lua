@@ -80,20 +80,18 @@ function Settings:GetPetOfTheDay()
   local podsettings = Settings:GetPetOfTheDaySettings();
   local today = date("*t")
   local summonedOn = podsettings.Date
+  local isTodaysPet = true;
+  local isEnabled = podsettings.Enabled
 
   if not summonedOn or summonedOn.day ~= today.day or summonedOn.month ~= today.month or summonedOn.year ~= today.year then
-    return false, podsettings.PetId
+    isTodaysPet = false
   end
 
-  return true, podsettings.PetId
+  return podsettings.PetId, isTodaysPet, isEnabled
 end
 
 function Settings:ClearPetOfTheDay()
   local podsettings = Settings:GetPetOfTheDaySettings()
   podsettings.PetId = nil
   podsettings.Date = nil
-end
-
-function Settings:IsPetOfTheDayEnabled()
-  return Settings:GetPetOfTheDaySettings().Enabled
 end

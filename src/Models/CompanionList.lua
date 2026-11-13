@@ -76,21 +76,20 @@ function CompanionList:clear()
   self.order = {}
 end
 
-function CompanionList:getRandom(current)
+function CompanionList:getRandom()
   local count = #self.order
 
   if count == 0 then return nil end
-  if current and count == 1 then return nil end
 
-  local random = rando(#self.order)
-  local picked = self.order[random]
+  local random = rando(count)
+  local pickedId = self.order[random]
 
-  if picked == current then
+  if C_PetJournal.IsCurrentlySummoned(pickedId) then
     local nextIndex = (random % count) + 1
-    picked = self.order[nextIndex]
+    pickedId = self.order[nextIndex]
   end
 
-  return picked
+  return pickedId
 end
 
 function CompanionList:hasPet(petGUID)

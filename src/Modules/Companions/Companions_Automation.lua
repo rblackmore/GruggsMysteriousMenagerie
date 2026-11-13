@@ -64,11 +64,8 @@ end
 
 function Automation:Handler(...)
   local automationSettings = Settings:GetAutomationSettings()
-  if not automationSettings[MapUtils.GetInstanceZoneType()] then
-    return
-  end
 
-  if not automationSettings.forcesummon and C_PetJournal.GetSummonedPetGUID() then
+  if not automationSettings[MapUtils.GetInstanceZoneType()] then
     return
   end
 
@@ -81,7 +78,11 @@ function Automation:Handler(...)
   end
 
   local delay = automationSettings.delay
+
   self._summonTimer = self:ScheduleTimer(function()
+    if not automationSettings.forcesummon and C_PetJournal.GetSummonedPetGUID() then
+      return
+    end
     Summoning:SummonRandomPet(false)
   end, delay)
 end
